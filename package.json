@@ -1,0 +1,10 @@
+{
+  "name": "benji-backend",
+  "description": "parse-server for benji-backend",
+  "scripts": {
+    "start": "parse-server config.json"
+  },
+  "dependencies": {
+    "parse-server": "^3.9.0"
+  }
+}
