@@ -2,7 +2,7 @@
   "name": "benji-backend",
   "description": "parse-server for benji-backend",
   "scripts": {
-    "start": "parse-server config.json"
+    "start": "babel-node index.js"
   },
   "dependencies": {
     "dotenv": "^8.1.0",
