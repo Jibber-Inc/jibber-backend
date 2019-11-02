@@ -5,12 +5,13 @@
     "start": "babel-node src/index.js"
   },
   "dependencies": {
-    "dotenv": "^8.1.0",
-    "parse-server": "^3.9.0",
     "@babel/cli": "^7.6.3",
     "@babel/core": "^7.6.3",
     "@babel/node": "^7.6.3",
-    "@babel/preset-env": "^7.6.3"
+    "@babel/preset-env": "^7.6.3",
+    "dotenv": "^8.1.0",
+    "parse-server": "^3.9.0",
+    "twilio": "^3.37.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
