@@ -9,7 +9,7 @@ import { createServer } from 'http';
 
 
 // Build parse server instance
-const api = new ParseServer({
+var api = new ParseServer({
   appId: process.env.APP_ID || 'BenjiApp',
   appName: process.env.APP_NAME || 'benji-backend',
   cloud: process.env.CLOUD_CODE_MAIN || 'src/cloud/main.js',
