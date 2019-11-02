@@ -17,6 +17,13 @@ const twilioClient = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 const secretPasswordToken = 'fourScoreAnd7Yearsago';
 
+/**
+ * hello
+ */
+Parse.Cloud.defined('hello', (req, res) => {
+  res.success('hey bitch');
+});
+
 
 /**
  * createToken
