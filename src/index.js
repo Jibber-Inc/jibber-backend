@@ -12,7 +12,7 @@ import { createServer } from 'http';
 const api = new ParseServer({
   appId: process.env.APP_ID || 'BenjiApp',
   appName: process.env.APP_NAME || 'benji-backend',
-  cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/cloud/main.js',
+  cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/src/cloud/main.js',
   databaseURI: process.env.DATABASE_URI || 'mongodb://localhost:27017/dev',
   masterKey: process.env.MASTER_KEY || 'theStupidMasterKeyThatShouldBeSecret',
   serverURL: process.env.SERVER_URL || 'https://benji-api.herokuapp.com/parse',
