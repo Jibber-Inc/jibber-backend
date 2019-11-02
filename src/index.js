@@ -15,7 +15,7 @@ var api = new ParseServer({
   cloud: process.env.CLOUD_CODE_MAIN || 'src/cloud/main.js',
   databaseURI: process.env.DATABASE_URI || 'mongodb://localhost:27017/dev',
   masterKey: process.env.MASTER_KEY || 'theStupidMasterKeyThatShouldBeSecret',
-  serverURL: process.env.SERVER_URL || 'https://benji-backend.herokuapp.com/parse',
+  serverURL: process.env.SERVER_URL || 'http://benji-backend.herokuapp.com/parse',
   liveQuery: {
     classNames: ['Posts', 'Comments'] // List of classes to support for query subscriptions
   },
