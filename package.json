@@ -7,13 +7,13 @@
   "dependencies": {
     "babel-cli": "^6.26.0",
     "dotenv": "^8.1.0",
-    "parse-server": "^3.9.0"
-  },
-  "devDependencies": {
+    "parse-server": "^3.9.0",
     "@babel/cli": "^7.6.3",
     "@babel/core": "^7.6.3",
     "@babel/node": "^7.6.3",
-    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-env": "^7.6.3"
+  },
+  "devDependencies": {
     "babel-eslint": "^10.0.3",
     "eslint": "^6.5.1"
   }
