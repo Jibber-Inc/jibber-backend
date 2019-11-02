@@ -20,7 +20,7 @@ const secretPasswordToken = 'fourScoreAnd7Yearsago';
 /**
  * hello
  */
-Parse.Cloud.defined('hello', (req, res) => {
+Parse.Cloud.define('hello', (req, res) => {
   res.success('hey bitch');
 });
 
