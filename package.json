@@ -5,7 +5,6 @@
     "start": "babel-node src/index.js"
   },
   "dependencies": {
-    "babel-cli": "^6.26.0",
     "dotenv": "^8.1.0",
     "parse-server": "^3.9.0",
     "@babel/cli": "^7.6.3",
