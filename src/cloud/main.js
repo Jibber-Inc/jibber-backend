@@ -7,7 +7,7 @@ const AccessToken = require('twilio').jwt.AccessToken;
 const ChatGrant = AccessToken.ChatGrant;
 
 
-// Environment Variables
+// Environment variables
 const {
   TWILIO_ACCOUNT_SID,
   TWILIO_API_KEY,
@@ -33,38 +33,41 @@ const secretPasswordToken = 'fourScoreAnd7Yearsago';
 /**
  * hello
  */
-Parse.Cloud.define('hello', function(req, res) {
+Parse.Cloud.define('hello', request => {
+  console.log({ request });
   return 'Hi bitch';
 });
 
 
 /**
+ * Upgrading Parse Server to version 3.0.0
+ * https://github.com/parse-community/parse-server/blob/master/3.0.0.md
+ */
+
+
+/**
  * createToken
  */
-Parse.Cloud.define('createToken', (req, res) => {
-  console.log('Parse.Cloud.createToken');
+Parse.Cloud.define('createToken', request => {
   const token = new AccessToken(TWILIO_ACCOUNT_SID, TWILIO_API_KEY, TWILIO_API_SECRET);
   const chatGrant = new ChatGrant({ serviceSid: TWILIO_SERVICE_SID });
   token.addGrant(chatGrant);
-  token.identity = req.params.phoneNumber;
-  console.log(token.toJwt());
-  res.success(token.toJwt());
+  token.identity = request.params.phoneNumber;
+  return token.toJwt();
 });
 
 
 /**
  * sendCode
  */
-Parse.Cloud.define('sendCode', async (req) => {
-  console.log('Parse.Cloud.sendCode');
-
-  let phoneNumber = req.params.phoneNumber;
+Parse.Cloud.define('sendCode', async request => {
+  let phoneNumber = request.params.phoneNumber;
   phoneNumber = phoneNumber.replace(/\D/g, '');
 
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('username', phoneNumber);
 
-  const min = 1000; var max = 9999;
+  const min = 1000; const max = 9999;
   const num = Math.floor(Math.random() * (max - min + 1)) + min;
 
   let user = await userQuery.first({ useMasterKey: true });
@@ -82,7 +85,7 @@ Parse.Cloud.define('sendCode', async (req) => {
     });
   } else {
     console.log('Did not find a user, create and return it');
-    var newUser = new Parse.User();
+    const newUser = new Parse.User();
     newUser.setUsername(phoneNumber);
     newUser.setPassword(secretPasswordToken + phoneNumber);
     newUser.set('language', 'en');
@@ -105,15 +108,14 @@ Parse.Cloud.define('sendCode', async (req) => {
 /**
  * validateCode
  */
-Parse.Cloud.define('validateCode', async (req, res) => {
-  console.log('Parse.Cloud.validateCode');
-  var phoneNumber = req.params.phoneNumber;
+Parse.Cloud.define('validateCode', async request => {
+  let phoneNumber = request.params.phoneNumber;
   phoneNumber = phoneNumber.replace(/\D/g, '');
 
-  var authCode = req.params.authCode;
-  var password = secretPasswordToken + authCode;
+  const authCode = request.params.authCode;
+  const password = secretPasswordToken + authCode;
 
-  var userQuery = new Parse.Query(Parse.User);
+  const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('username', phoneNumber);
 
   const user = await Parse.User.logIn(phoneNumber, password);
@@ -123,7 +125,7 @@ Parse.Cloud.define('validateCode', async (req, res) => {
     return user.getSessionToken();
   } else {
     console.log('User NOT found :(');
-    res.error('User not found');
+    throw new Error('User not found');
   }
 });
 
