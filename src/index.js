@@ -1,3 +1,6 @@
+'use strict';
+
+
 // Load .env variables
 require('dotenv').config();
 
@@ -14,16 +17,8 @@ const {
   DATABASE_URI,
   MASTER_KEY,
   SERVER_URL,
+  PARSE_MOUNT,
 } = process.env;
-
-console.log({
-  APP_ID,
-  APP_NAME,
-  CLOUD_CODE_MAIN,
-  DATABASE_URI,
-  MASTER_KEY,
-  SERVER_URL,
-});
 
 // Build parse server instance
 var api = new ParseServer({
@@ -34,7 +29,11 @@ var api = new ParseServer({
   masterKey: MASTER_KEY,
   serverURL: SERVER_URL,
   liveQuery: {
-    classNames: ['Posts', 'Comments'] // List of classes to support for query subscriptions
+    // List of classes to support for query subscriptions
+    classNames: [
+      'Posts',
+      'Comments',
+    ]
   },
 });
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
@@ -53,8 +52,7 @@ app.use('/public', express.static(path.join(__dirname, '/public')));
 
 
 // Serve the Parse API on the /parse URL prefix
-const mountPath = process.env.PARSE_MOUNT || '/parse';
-app.use(mountPath, api);
+app.use(PARSE_MOUNT, api);
 
 
 
@@ -70,7 +68,7 @@ app
 // Remove this before launching your app
 app
   .get('/test', (_, res) => res
-    .sendFile(path.join(__dirname, '/public/test.html')));
+    .sendFile(path.join(__dirname, '/test.html')));
 
 
 

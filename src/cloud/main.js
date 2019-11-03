@@ -1,5 +1,13 @@
-import { api } from '../index';
+'use strict';
 
+
+// Vendor modules
+const twilio = require('twilio');
+const AccessToken = require('twilio').jwt.AccessToken;
+const ChatGrant = AccessToken.ChatGrant;
+
+
+// Environment Variables
 const {
   TWILIO_ACCOUNT_SID,
   TWILIO_API_KEY,
@@ -8,27 +16,33 @@ const {
   TWILIO_SERVICE_SID,
 } = process.env;
 
-// Cloud Code entry point
-const twilio = require('twilio');
-const AccessToken = require('twilio').jwt.AccessToken;
-const ChatGrant = AccessToken.ChatGrant;
+console.log({
+  TWILIO_ACCOUNT_SID,
+  TWILIO_API_KEY,
+  TWILIO_API_SECRET,
+  TWILIO_AUTH_TOKEN,
+  TWILIO_SERVICE_SID,
+});
+
+
+// Build twilio client
 const twilioClient = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-
-
 const secretPasswordToken = 'fourScoreAnd7Yearsago';
+
 
 /**
  * hello
  */
-Parse.Cloud.define('hello', (req, res) => {
-  res.success('hey bitch');
+Parse.Cloud.define('hello', function(req, res) {
+  return 'Hi bitch';
 });
 
 
 /**
  * createToken
  */
-Parse.Cloud.define('createToken', function(req, res) {
+Parse.Cloud.define('createToken', (req, res) => {
+  console.log('Parse.Cloud.createToken');
   const token = new AccessToken(TWILIO_ACCOUNT_SID, TWILIO_API_KEY, TWILIO_API_SECRET);
   const chatGrant = new ChatGrant({ serviceSid: TWILIO_SERVICE_SID });
   token.addGrant(chatGrant);
@@ -42,11 +56,12 @@ Parse.Cloud.define('createToken', function(req, res) {
  * sendCode
  */
 Parse.Cloud.define('sendCode', async (req) => {
+  console.log('Parse.Cloud.sendCode');
 
   let phoneNumber = req.params.phoneNumber;
   phoneNumber = phoneNumber.replace(/\D/g, '');
 
-  const userQuery = new api.Query(api.User);
+  const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('username', phoneNumber);
 
   const min = 1000; var max = 9999;
@@ -67,7 +82,7 @@ Parse.Cloud.define('sendCode', async (req) => {
     });
   } else {
     console.log('Did not find a user, create and return it');
-    var newUser = new api.User();
+    var newUser = new Parse.User();
     newUser.setUsername(phoneNumber);
     newUser.setPassword(secretPasswordToken + phoneNumber);
     newUser.set('language', 'en');
@@ -91,16 +106,17 @@ Parse.Cloud.define('sendCode', async (req) => {
  * validateCode
  */
 Parse.Cloud.define('validateCode', async (req, res) => {
+  console.log('Parse.Cloud.validateCode');
   var phoneNumber = req.params.phoneNumber;
   phoneNumber = phoneNumber.replace(/\D/g, '');
 
   var authCode = req.params.authCode;
   var password = secretPasswordToken + authCode;
 
-  var userQuery = new api.Query(api.User);
+  var userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('username', phoneNumber);
 
-  const user = await api.User.logIn(phoneNumber, password);
+  const user = await Parse.User.logIn(phoneNumber, password);
 
   if (user) {
     console.log('User found!');
@@ -111,7 +127,7 @@ Parse.Cloud.define('validateCode', async (req, res) => {
   }
 });
 
-// api.Cloud.define("auth", function(request,response) {
+// Parse.Cloud.define("auth", function(request,response) {
 //   const AccessToken = require('twilio').jwt.AccessToken;
 //   const ChatGrant = AccessToken.ChatGrant;
 
