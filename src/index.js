@@ -6,16 +6,33 @@ import path from 'path';
 import { ParseServer } from 'parse-server';
 import { createServer } from 'http';
 
+// Load Environment Variables
+const {
+  APP_ID,
+  APP_NAME,
+  CLOUD_CODE_MAIN,
+  DATABASE_URI,
+  MASTER_KEY,
+  SERVER_URL,
+} = process.env;
 
+console.log({
+  APP_ID,
+  APP_NAME,
+  CLOUD_CODE_MAIN,
+  DATABASE_URI,
+  MASTER_KEY,
+  SERVER_URL,
+});
 
 // Build parse server instance
 var api = new ParseServer({
-  appId: process.env.APP_ID || 'BenjiApp',
-  appName: process.env.APP_NAME || 'benji-backend',
-  cloud: process.env.CLOUD_CODE_MAIN || 'src/cloud/main.js',
-  databaseURI: process.env.DATABASE_URI || 'mongodb://localhost:27017/dev',
-  masterKey: process.env.MASTER_KEY || 'theStupidMasterKeyThatShouldBeSecret',
-  serverURL: process.env.SERVER_URL || 'http://benji-backend.herokuapp.com/parse',
+  appId: APP_ID,
+  appName: APP_NAME,
+  cloud: CLOUD_CODE_MAIN,
+  databaseURI: DATABASE_URI,
+  masterKey: MASTER_KEY,
+  serverURL: SERVER_URL,
   liveQuery: {
     classNames: ['Posts', 'Comments'] // List of classes to support for query subscriptions
   },
