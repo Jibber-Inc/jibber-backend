@@ -49,7 +49,7 @@ curl -X POST \
 curl -X POST \
   -H "X-Parse-Application-Id: BenjiApp" \
   -H "Content-Type: application/json" \
-  http://benji-backend.herokuapp.com/parse/functions/hello
+  http://benji-backend.herokuapp.com/parse/functions/createToken
 ```
 
 
