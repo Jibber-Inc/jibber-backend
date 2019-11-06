@@ -16,13 +16,13 @@ const {
   TWILIO_SERVICE_SID,
 } = process.env;
 
-console.log({
-  TWILIO_ACCOUNT_SID,
-  TWILIO_API_KEY,
-  TWILIO_API_SECRET,
-  TWILIO_AUTH_TOKEN,
-  TWILIO_SERVICE_SID,
-});
+// console.log({
+//   TWILIO_ACCOUNT_SID,
+//   TWILIO_API_KEY,
+//   TWILIO_API_SECRET,
+//   TWILIO_AUTH_TOKEN,
+//   TWILIO_SERVICE_SID,
+// });
 
 
 // Build twilio client
@@ -113,6 +113,7 @@ Parse.Cloud.define('validateCode', async request => {
   phoneNumber = phoneNumber.replace(/\D/g, '');
 
   const authCode = request.params.authCode;
+  console.log("I know what the secretPasswordToken is, it is: " + secretPasswordToken + ".");
   const password = secretPasswordToken + authCode;
 
   const userQuery = new Parse.Query(Parse.User);
