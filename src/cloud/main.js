@@ -31,30 +31,15 @@ const secretPasswordToken = 'fourScoreAnd7Yearsago';
 
 
 /**
- * hello
- */
-Parse.Cloud.define('hello', request => {
-  console.log({ request });
-  return 'Hi bitch';
-});
-
-
-/**
- * Upgrading Parse Server to version 3.0.0
- * https://github.com/parse-community/parse-server/blob/master/3.0.0.md
- */
-
-
-/**
  * createToken
  */
-Parse.Cloud.define('createToken', request => {
-  const token = new AccessToken(TWILIO_ACCOUNT_SID, TWILIO_API_KEY, TWILIO_API_SECRET);
+function createToken(aPhoneNumber) {
+  const accessToken = new AccessToken(TWILIO_ACCOUNT_SID, TWILIO_API_KEY, TWILIO_API_SECRET);
   const chatGrant = new ChatGrant({ serviceSid: TWILIO_SERVICE_SID });
-  token.addGrant(chatGrant);
-  token.identity = request.params.phoneNumber;
-  return token.toJwt();
-});
+  accessToken.addGrant(chatGrant);
+  accessToken.identity = aPhoneNumber;
+  return accessToken.toJwt();
+}
 
 
 /**
@@ -121,7 +106,8 @@ Parse.Cloud.define('validateCode', async request => {
 
   if (user) {
     console.log('User found!');
-    return user.getSessionToken();
+    accessToken = createToken(phoneNumber);
+    return accessToken;
   } else {
     console.log('User NOT found :(');
     throw new Error('User not found');
