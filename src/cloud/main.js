@@ -109,11 +109,9 @@ Parse.Cloud.define('sendCode', async request => {
  * validateCode
  */
 Parse.Cloud.define('validateCode', async request => {
-  let phoneNumber = request.params.phoneNumber;
-  phoneNumber = phoneNumber.replace(/\D/g, '');
+  const phoneNumber = request.params.phoneNumber.replace(/\D/g, '');
 
   const authCode = request.params.authCode;
-  console.log("I know what the secretPasswordToken is, it is: " + secretPasswordToken + ".");
   const password = secretPasswordToken + authCode;
 
   const userQuery = new Parse.Query(Parse.User);
