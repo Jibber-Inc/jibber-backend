@@ -106,7 +106,7 @@ Parse.Cloud.define('validateCode', async request => {
 
   if (user) {
     console.log('User found!');
-    accessToken = createToken(phoneNumber);
+    const accessToken = createToken(phoneNumber);
     return accessToken;
   } else {
     console.log('User NOT found :(');
