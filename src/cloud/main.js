@@ -155,6 +155,9 @@ Parse.Cloud.define('validateCode', async request => {
         throw new Error('User not found');
       }
 
+      console.log('found user id: ', user._getId());
+      let token = createToken(user._getId());
+      console.log('token', { token });
       return createToken(user._getId());
     });
 });
