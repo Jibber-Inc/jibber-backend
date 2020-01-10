@@ -126,9 +126,11 @@ Parse.Cloud.define('validateCode', async request => {
   // Build query
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
+  let user = await userQuery.first({ useMasterKey: true });
+
 
   // Login user
-  const user = await Parse.User.logIn(phoneNumber, password);
+  user = await Parse.User.logIn(user.username, password);
 
   if (user) {
     const accessToken = createToken(phoneNumber);
