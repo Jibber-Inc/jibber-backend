@@ -140,7 +140,7 @@ Parse.Cloud.define('validateCode', async request => {
   userQuery.equalTo('phoneNumber', phoneNumber);
 
   // Query for user
-  userQuery
+  return userQuery
     .first({ useMasterKey: true })
     .then(function(user) {
 
