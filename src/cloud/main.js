@@ -42,6 +42,20 @@ function createToken(aPhoneNumber) {
 }
 
 
+function passwordGenerator(authCode) {
+  return `${ BENJI_SECRET_PASSWORD_TOKEN }${ authCode }`;
+}
+
+function generateAuthCode() {
+  const min = 1000; const max = 9999;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function stripPhoneNumber(phoneNumber) {
+  return phoneNumber.replace(/\D/g, '');
+}
+
+
 /**
  * sendCode
  */
@@ -54,24 +68,24 @@ Parse.Cloud.define('sendCode', async request => {
   }
 
   // Strip phone number
-  phoneNumber = phoneNumber.replace(/\D/g, '');
+  phoneNumber = stripPhoneNumber(phoneNumber);
 
   // Build query
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
 
-  const min = 1000; const max = 9999;
-  const num = Math.floor(Math.random() * (max - min + 1)) + min;
+  // Generate auth code
+  const authCode = generateAuthCode();
 
   // Query for user
   let user = await userQuery.first({ useMasterKey: true });
 
   if (user) {
-    user.setPassword(BENJI_SECRET_PASSWORD_TOKEN + num);
+    user.setPassword(passwordGenerator(authCode));
     user.save(null, { useMasterKey: true })
       .then(function() {
         twilioClient.messages.create({
-          body: `Your phone number was just used on the Benji App. Your auth code is: ${ num }`,
+          body: `Your phone number was just used on the Benji App. Your auth code is: ${ authCode }`,
           from: '+12012560616',
           to: phoneNumber,
         });
@@ -82,14 +96,14 @@ Parse.Cloud.define('sendCode', async request => {
     // Create a new user
     const newUser = new Parse.User();
     newUser.setUsername(uuidv4());
-    newUser.setPassword(BENJI_SECRET_PASSWORD_TOKEN + phoneNumber);
+    newUser.setPassword(passwordGenerator(authCode));
     newUser.set('phoneNumber', phoneNumber);
     newUser.set('language', 'en');
     newUser.setACL({});
     await newUser.signUp();
 
     twilioClient.messages.create({
-      body: `Your phone number was just used on the Benji App. Your auth code is: ${ num }`,
+      body: `Your phone number was just used on the Benji App. Your auth code is: ${ authCode }`,
       from: '+12012560616',
       to: phoneNumber,
     });
@@ -97,7 +111,7 @@ Parse.Cloud.define('sendCode', async request => {
   }
 
   // Return the auth code
-  return num;
+  return authCode;
 });
 
 
@@ -119,9 +133,7 @@ Parse.Cloud.define('validateCode', async request => {
   }
 
   // Strip phone number
-  phoneNumber = phoneNumber.replace(/\D/g, '');
-
-  const password = BENJI_SECRET_PASSWORD_TOKEN + authCode;
+  phoneNumber = stripPhoneNumber(phoneNumber);
 
   // Build query
   const userQuery = new Parse.Query(Parse.User);
@@ -133,7 +145,7 @@ Parse.Cloud.define('validateCode', async request => {
     .then(function(user) {
 
       // Login user
-      return Parse.User.logIn(user.getUsername(), password);
+      return Parse.User.logIn(user.getUsername(), passwordGenerator(authCode));
 
     })
     .then(function(user) {
