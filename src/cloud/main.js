@@ -132,15 +132,11 @@ Parse.Cloud.define('validateCode', async request => {
     .first({ useMasterKey: true })
     .then(function(user) {
 
-      console.log('user query 1', { user });
-
       // Login user
-      return Parse.User.logIn(user.username, password);
+      return Parse.User.logIn(user.getUsername(), password);
 
     })
     .then(function(user) {
-
-      console.log('user query 2', { user });
 
       // User not found
       if (!user) {
