@@ -64,7 +64,7 @@ curl -X POST \
 
 ### Validate Code
 ```
-curl -X POST \             3.7.4:2.7.7 15:56:52
+curl -X POST \
   -H "X-Parse-Application-Id: BenjiApp" \
   -H "Content-Type: application/json" \
   -d '{"phoneNumber": "206-353-9874", "authCode": "2788" }' \
