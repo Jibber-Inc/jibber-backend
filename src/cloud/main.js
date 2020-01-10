@@ -126,18 +126,25 @@ Parse.Cloud.define('validateCode', async request => {
   // Build query
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
-  let user = await userQuery.first({ useMasterKey: true });
 
+  // Query for user
+  userQuery
+    .first({ useMasterKey: true })
+    .then(function(user) {
 
-  // Login user
-  user = await Parse.User.logIn(user.username, password);
+      // Login user
+      return Parse.User.logIn(user.username, password);
 
-  if (user) {
-    const accessToken = createToken(phoneNumber);
-    return accessToken;
-  } else {
-    throw new Error('User not found');
-  }
+    })
+    .then(function(user) {
+
+      // User not found
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      return createToken(phoneNumber);
+    });
 });
 
 // Parse.Cloud.define("auth", function(request,response) {
