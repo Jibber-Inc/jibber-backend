@@ -31,9 +31,9 @@ const twilioClient = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 
 /**
- * createToken
+ * createChatToken
  */
-function createToken(objectId) {
+function createChatToken(objectId) {
   const accessToken = new AccessToken(TWILIO_ACCOUNT_SID, TWILIO_API_KEY, TWILIO_API_SECRET);
   const chatGrant = new ChatGrant({ serviceSid: TWILIO_SERVICE_SID });
   accessToken.addGrant(chatGrant);
@@ -155,7 +155,8 @@ Parse.Cloud.define('validateCode', async request => {
         throw new Error('User not found');
       }
 
-      return createToken(user._getId());
+      // return createChatToken(user._getId());
+      return user.getSessionToken();
     });
 });
 
