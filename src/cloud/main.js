@@ -1,5 +1,7 @@
 'use strict';
 
+const uuidv4 = require('uuid/v4');
+
 
 // Vendor modules
 const twilio = require('twilio');
@@ -14,20 +16,18 @@ const {
   TWILIO_API_SECRET,
   TWILIO_AUTH_TOKEN,
   TWILIO_SERVICE_SID,
+  BENJI_SECRET_PASSWORD_TOKEN,
 } = process.env;
 
-// console.log({
-//   TWILIO_ACCOUNT_SID,
-//   TWILIO_API_KEY,
-//   TWILIO_API_SECRET,
-//   TWILIO_AUTH_TOKEN,
-//   TWILIO_SERVICE_SID,
-// });
+
+// Don't allow undefined or empty variable for secret password token
+if (!BENJI_SECRET_PASSWORD_TOKEN) {
+  throw new Error('BENJI_SECRET_PASSWORD_TOKEN must be set');
+}
 
 
 // Build twilio client
 const twilioClient = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-const secretPasswordToken = 'fourScoreAnd7Yearsago';
 
 
 /**
@@ -47,45 +47,56 @@ function createToken(aPhoneNumber) {
  */
 Parse.Cloud.define('sendCode', async request => {
   let phoneNumber = request.params.phoneNumber;
+
+  // Phone number is required in request body
+  if (!phoneNumber) {
+    throw new Error('No phone number provided in request');
+  }
+
+  // Strip phone number
   phoneNumber = phoneNumber.replace(/\D/g, '');
 
+  // Build query
   const userQuery = new Parse.Query(Parse.User);
-  userQuery.equalTo('username', phoneNumber);
+  userQuery.equalTo('phoneNumber', phoneNumber);
 
   const min = 1000; const max = 9999;
   const num = Math.floor(Math.random() * (max - min + 1)) + min;
 
+  // Query for user
   let user = await userQuery.first({ useMasterKey: true });
 
   if (user) {
-    console.log('Found a user, user is: ' + user.getUsername());
-    user.setPassword(secretPasswordToken + num);
-    user.save(null, { useMasterKey: true }).then(function() {
-      twilioClient.messages.create({
-        body: 'Your phone number was just used on the Benji App. Your auth code is: ' + num,
-        from: '+12012560616',
-        to: phoneNumber
+    user.setPassword(BENJI_SECRET_PASSWORD_TOKEN + num);
+    user.save(null, { useMasterKey: true })
+      .then(function() {
+        twilioClient.messages.create({
+          body: `Your phone number was just used on the Benji App. Your auth code is: ${ num }`,
+          from: '+12012560616',
+          to: phoneNumber,
+        });
       });
-      console.log('Sent the existing user SMS');
-    });
+
   } else {
-    console.log('Did not find a user, create and return it');
+
+    // Create a new user
     const newUser = new Parse.User();
-    newUser.setUsername(phoneNumber);
-    newUser.setPassword(secretPasswordToken + phoneNumber);
+    newUser.setUsername(uuidv4());
+    newUser.setPassword(BENJI_SECRET_PASSWORD_TOKEN + phoneNumber);
+    newUser.set('phoneNumber', phoneNumber);
     newUser.set('language', 'en');
     newUser.setACL({});
     await newUser.signUp();
 
     twilioClient.messages.create({
-      body: 'Your phone number was just used on the Benji App. Your auth code is: ' + num,
+      body: `Your phone number was just used on the Benji App. Your auth code is: ${ num }`,
       from: '+12012560616',
-      to: phoneNumber
+      to: phoneNumber,
     });
-    console.log('Sent the new user SMS');
     user = newUser;
   }
-  console.log('about to return success with num: ' + num);
+
+  // Return the auth code
   return num;
 });
 
@@ -94,22 +105,35 @@ Parse.Cloud.define('sendCode', async request => {
  * validateCode
  */
 Parse.Cloud.define('validateCode', async request => {
-  const phoneNumber = request.params.phoneNumber.replace(/\D/g, '');
-
+  let phoneNumber = request.params.phoneNumber;
   const authCode = request.params.authCode;
-  const password = secretPasswordToken + authCode;
 
+  // Phone number is required in request body
+  if (!phoneNumber) {
+    throw new Error('No phone number provided in request');
+  }
+
+  // Auth code is required in request body
+  if (!authCode) {
+    throw new Error('No auth code provided in request');
+  }
+
+  // Strip phone number
+  phoneNumber = phoneNumber.replace(/\D/g, '');
+
+  const password = BENJI_SECRET_PASSWORD_TOKEN + authCode;
+
+  // Build query
   const userQuery = new Parse.Query(Parse.User);
-  userQuery.equalTo('username', phoneNumber);
+  userQuery.equalTo('phoneNumber', phoneNumber);
 
+  // Login user
   const user = await Parse.User.logIn(phoneNumber, password);
 
   if (user) {
-    console.log('User found!');
     const accessToken = createToken(phoneNumber);
     return accessToken;
   } else {
-    console.log('User NOT found :(');
     throw new Error('User not found');
   }
 });
