@@ -2,12 +2,10 @@
 
 const uuidv4 = require('uuid/v4');
 
-
 // Vendor modules
 const twilio = require('twilio');
 const AccessToken = require('twilio').jwt.AccessToken;
 const ChatGrant = AccessToken.ChatGrant;
-
 
 // Environment variables
 const {
@@ -19,16 +17,13 @@ const {
   BENJI_SECRET_PASSWORD_TOKEN,
 } = process.env;
 
-
 // Don't allow undefined or empty variable for secret password token
 if (!BENJI_SECRET_PASSWORD_TOKEN) {
   throw new Error('BENJI_SECRET_PASSWORD_TOKEN must be set');
 }
 
-
 // Build twilio client
 const twilioClient = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-
 
 /**
  * createChatToken
@@ -40,7 +35,6 @@ function createChatToken(objectId) {
   accessToken.identity = objectId;
   return accessToken.toJwt();
 }
-
 
 function passwordGenerator(authCode) {
   return `${ BENJI_SECRET_PASSWORD_TOKEN }${ authCode }`;
@@ -54,7 +48,6 @@ function generateAuthCode() {
 function stripPhoneNumber(phoneNumber) {
   return phoneNumber.replace(/\D/g, '');
 }
-
 
 /**
  * sendCode
@@ -85,7 +78,7 @@ Parse.Cloud.define('sendCode', async request => {
     user.save(null, { useMasterKey: true })
       .then(function() {
         twilioClient.messages.create({
-          body: `Your phone number was just used on the Benji App. Your auth code is: ${ authCode }`,
+          body: `Your code for Benji is: ${ authCode }`,
           from: '+12012560616',
           to: phoneNumber,
         });
@@ -95,6 +88,9 @@ Parse.Cloud.define('sendCode', async request => {
 
     // Create a new user
     const newUser = new Parse.User();
+    var acl = new Parse.ACL();
+    acl.setPublicReadAccess(true);
+    newUser.setACL(acl);
     newUser.setUsername(uuidv4());
     newUser.setPassword(passwordGenerator(authCode));
     newUser.set('phoneNumber', phoneNumber);
@@ -103,7 +99,7 @@ Parse.Cloud.define('sendCode', async request => {
     await newUser.signUp();
 
     twilioClient.messages.create({
-      body: `Your phone number was just used on the Benji App. Your auth code is: ${ authCode }`,
+      body: `Your code for Benji is: ${ authCode }`,
       from: '+12012560616',
       to: phoneNumber,
     });
@@ -113,7 +109,6 @@ Parse.Cloud.define('sendCode', async request => {
   // Return the auth code
   return authCode;
 });
-
 
 /**
  * validateCode
@@ -155,7 +150,6 @@ Parse.Cloud.define('validateCode', async request => {
         throw new Error('User not found');
       }
 
-      // return createChatToken(user._getId());
       return user.getSessionToken();
     });
 });
