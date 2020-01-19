@@ -157,7 +157,7 @@ Parse.Cloud.define('validateCode', async request => {
  * verify reservation
  */
 Parse.Cloud.define('verifyReservation', async request => {
-  let code = request.params.reservation.code 
+  let code = request.params.code 
   //Build query 
   const query = Parse.Query(Parse.Reservation):
   query.equalTo('code', code)
