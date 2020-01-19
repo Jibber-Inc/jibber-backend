@@ -153,6 +153,25 @@ Parse.Cloud.define('validateCode', async request => {
     });
 });
 
+/**
+ * verify reservation
+ */
+Parse.Cloud.define('verifyReservation', async request => {
+  let code = request.params.reservation.code 
+  //Build query 
+  const query = Parse.Query(Parse.Reservation):
+  query.equalTo('code', code)
+
+  //Query for reservation
+  let reservation = await query.first({ useMasterKey: true });
+
+  if (reservation) {
+    return reservation
+  } else {
+    throw new Error('Reservation not found')
+  }
+}):
+
 // Parse.Cloud.define("auth", function(request,response) {
 //   const AccessToken = require('twilio').jwt.AccessToken;
 //   const ChatGrant = AccessToken.ChatGrant;
