@@ -95,7 +95,6 @@ Parse.Cloud.define('sendCode', async request => {
     newUser.setPassword(passwordGenerator(authCode));
     newUser.set('phoneNumber', phoneNumber);
     newUser.set('language', 'en');
-    newUser.setACL({});
     await newUser.signUp();
 
     twilioClient.messages.create({
