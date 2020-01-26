@@ -28,6 +28,14 @@ var api = new ParseServer({
   databaseURI: DATABASE_URI,
   masterKey: MASTER_KEY,
   serverURL: SERVER_URL,
+  push: {
+    ios: {
+      pfx: 'Benji Signing Certificate.p12',
+      passphrase: '', // optional password to your p12/PFX
+      bundleId: 'com.Benji.Benji',
+      production: true
+    }
+  },
   liveQuery: {
     // List of classes to support for query subscriptions
     classNames: [
