@@ -153,22 +153,20 @@ Parse.Cloud.define('validateCode', async request => {
     });
 });
 
-Parse.Cloud.define("sendPush", function(request, response) {
+Parse.Cloud.define("sendPush", async request => {
 
   var query = new Parse.Query(Parse.Installation);
-  query.equalTo("userId", "QQUyqU08Fa");
+  query.equalTo("userId", user.objectId);
 
-  Parse.Push.send({
-    where: query, // Set our Installation query
+  return Parse.Push.send({
+    where: query,
     data: {
-      alert: "Willie Hayes injured by own pop fly."
+      alert: 'Test',
     }
-  })
-  .first({ useMasterKey: true })
-  .then(function() {
-    response.success("Push Sent!");
-  }, function(error) {
-    response.error("Push failed: " + error);
+  }, { useMasterKey: true }).then(() => {
+    console.log('Push ok');
+  }, (e) => {
+    console.log('Push error', e);
   });
 });
 
