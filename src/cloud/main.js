@@ -153,6 +153,28 @@ Parse.Cloud.define('validateCode', async request => {
     });
 });
 
+Parse.Cloud.define("sendPush", function(request, response) {
+
+  var installationQuery = new Parse.Query(Parse.Installation);
+  installationQuery.equalTo("user", request.user);
+  
+  Parse.Push.send({
+    expiration_interval:600,
+    where: installationQuery,
+     data: {
+       alert: "This is a test of the notification service"
+     }
+    }, {
+      success: function() {
+        response.success("Push Sent!");
+      },
+      error: function(error) {
+        response.error("Push failed: " + error);
+      },
+      useMasterKey: true
+    });
+});
+
 // /**
 //  * verify reservation
 //  */
