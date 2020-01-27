@@ -156,7 +156,7 @@ Parse.Cloud.define('validateCode', async request => {
 Parse.Cloud.define("sendPush", function(request, response) {
 
   var installationQuery = new Parse.Query(Parse.Installation);
-  installationQuery.equalTo("user", request.user);
+  installationQuery.equalTo("userId", request.userId);
   
   Parse.Push.send({
     expiration_interval:600,
