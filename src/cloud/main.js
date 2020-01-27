@@ -156,7 +156,7 @@ Parse.Cloud.define('validateCode', async request => {
 Parse.Cloud.define("sendPush", async request => {
 
   var query = new Parse.Query(Parse.Installation);
-  query.equalTo("userId", user.objectId);
+  query.equalTo("userId", request.userId);
 
   return Parse.Push.send({
     where: query,
