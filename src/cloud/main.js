@@ -170,6 +170,50 @@ Parse.Cloud.define("sendPush", async request => {
   });
 });
 
+Parse.Cloud.define("updateConnection", function(request, response) {
+
+  Parse.Cloud.useMasterKey();
+
+  var connectionID = request.params.connectionID;
+  var query = new Parse.Query("Connection");
+
+  //get the connection object
+  query.get(connectionID, {
+      success: function(connection) {
+          //get the user the request was from
+          var fromUser = connection.get("from");
+          //get the user the request is to
+          var toUser = connection.get("to");
+
+          var relation = fromUser.relation("connections");
+          //add the user the request was to (the accepting user) to the fromUsers friends
+          relation.add(toUser);
+
+          //save the fromUser
+          fromUser.save(null, {
+              success: function() {
+                  //saved the user, now edit the request status and save it
+                  connection.set("status", request.params.status);
+                  connection.save(null, {
+                      success: function() {
+                          response.success("saved relation and updated the connection");
+                      },
+                      error: function(error) {
+                          response.error(error);
+                      }
+                  });
+              },
+              error: function(error) {
+               response.error(error);
+              }
+          });
+      },
+      error: function(error) {
+          response.error(error);
+      }
+  });
+});
+
 // /**
 //  * verify reservation
 //  */
