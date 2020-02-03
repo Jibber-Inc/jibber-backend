@@ -1,19 +1,9 @@
-'use strict';
-
-const uuidv4 = require('uuid/v4');
-
-// Vendor modules
-const twilio = require('twilio');
-const AccessToken = require('twilio').jwt.AccessToken;
-const ChatGrant = AccessToken.ChatGrant;
+// Cloud functions
+import sendCode from './sendCode';
+import validateCode from './validateCode';
 
 // Environment variables
 const {
-  TWILIO_ACCOUNT_SID,
-  TWILIO_API_KEY,
-  TWILIO_API_SECRET,
-  TWILIO_AUTH_TOKEN,
-  TWILIO_SERVICE_SID,
   BENJI_SECRET_PASSWORD_TOKEN,
 } = process.env;
 
@@ -24,151 +14,8 @@ if (!BENJI_SECRET_PASSWORD_TOKEN) {
 }
 
 
-// Build twilio client
-const twilioClient = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-
-
-/**
- * createChatToken
- */
-function createChatToken(objectId) {
-  const accessToken = new AccessToken(TWILIO_ACCOUNT_SID, TWILIO_API_KEY, TWILIO_API_SECRET);
-  const chatGrant = new ChatGrant({ serviceSid: TWILIO_SERVICE_SID });
-  accessToken.addGrant(chatGrant);
-  accessToken.identity = objectId;
-  return accessToken.toJwt();
-}
-
-
-/**
- * Using the BENJI_SECRET_PASSWORD_TOKEN variable and authcode var, create a pw
- * @param {Number} authCode
- */
-function passwordGenerator(authCode) {
-  return `${ BENJI_SECRET_PASSWORD_TOKEN }${ authCode }`;
-}
-
-
-/**
- * Generate a "random" 4 digit number
- */
-function generateAuthCode() {
-  const min = 1000; const max = 9999;
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-/**
- * Return only numbers
- * @param {String} phoneNumber
- */
-function stripPhoneNumber(phoneNumber) {
-  return phoneNumber.replace(/\D/g, '');
-}
-
-/**
- * sendCode
- */
-Parse.Cloud.define('sendCode', async request => {
-  let phoneNumber = request.params.phoneNumber;
-
-  // Phone number is required in request body
-  if (!phoneNumber) {
-    throw new Error('No phone number provided in request');
-  }
-
-  // Strip phone number
-  phoneNumber = stripPhoneNumber(phoneNumber);
-
-  // Build query
-  const userQuery = new Parse.Query(Parse.User);
-  userQuery.equalTo('phoneNumber', phoneNumber);
-
-  // Generate auth code
-  const authCode = generateAuthCode();
-
-  // Query for user
-  let user = await userQuery.first({ useMasterKey: true });
-
-  if (user) {
-    user.setPassword(passwordGenerator(authCode));
-    user.save(null, { useMasterKey: true })
-      .then(function() {
-        twilioClient.messages.create({
-          body: `Your code for Benji is: ${ authCode }`,
-          from: '+12012560616',
-          to: phoneNumber,
-        });
-      });
-
-  } else {
-
-    // Create a new user
-    const newUser = new Parse.User();
-    var acl = new Parse.ACL();
-    acl.setPublicReadAccess(true);
-    newUser.setACL(acl);
-    newUser.setUsername(uuidv4());
-    newUser.setPassword(passwordGenerator(authCode));
-    newUser.set('phoneNumber', phoneNumber);
-    newUser.set('language', 'en');
-    await newUser.signUp();
-
-    twilioClient.messages.create({
-      body: `Your code for Benji is: ${ authCode }`,
-      from: '+12012560616',
-      to: phoneNumber,
-    });
-    user = newUser;
-  }
-
-  // Return the auth code
-  return authCode;
-});
-
-/**
- * validateCode
- */
-Parse.Cloud.define('validateCode', async request => {
-  let phoneNumber = request.params.phoneNumber;
-  const authCode = request.params.authCode;
-
-  // Phone number is required in request body
-  if (!phoneNumber) {
-    throw new Error('No phone number provided in request');
-  }
-
-  // Auth code is required in request body
-  if (!authCode) {
-    throw new Error('No auth code provided in request');
-  }
-
-  // Strip phone number
-  phoneNumber = stripPhoneNumber(phoneNumber);
-
-  // Build query
-  const userQuery = new Parse.Query(Parse.User);
-  userQuery.equalTo('phoneNumber', phoneNumber);
-
-  // Query for user
-  return userQuery
-    .first({ useMasterKey: true })
-    .then(function(user) {
-
-      // Login user
-      return Parse.User.logIn(user.getUsername(), passwordGenerator(authCode));
-
-    })
-    .then(function(user) {
-
-      // User not found
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      return user.getSessionToken();
-    });
-});
-
+Parse.Cloud.define('sendCode', sendCode);
+Parse.Cloud.define('validateCode', validateCode);
 Parse.Cloud.define('sendPush', async request => {
 
   var query = new Parse.Query(Parse.Installation);
