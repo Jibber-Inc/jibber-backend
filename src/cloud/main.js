@@ -17,13 +17,16 @@ const {
   BENJI_SECRET_PASSWORD_TOKEN,
 } = process.env;
 
+
 // Don't allow undefined or empty variable for secret password token
 if (!BENJI_SECRET_PASSWORD_TOKEN) {
   throw new Error('BENJI_SECRET_PASSWORD_TOKEN must be set');
 }
 
+
 // Build twilio client
 const twilioClient = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
 
 /**
  * createChatToken
@@ -36,15 +39,28 @@ function createChatToken(objectId) {
   return accessToken.toJwt();
 }
 
+
+/**
+ * Using the BENJI_SECRET_PASSWORD_TOKEN variable and authcode var, create a pw
+ * @param {Number} authCode
+ */
 function passwordGenerator(authCode) {
   return `${ BENJI_SECRET_PASSWORD_TOKEN }${ authCode }`;
 }
 
+
+/**
+ * Generate a "random" 4 digit number
+ */
 function generateAuthCode() {
   const min = 1000; const max = 9999;
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+/**
+ * Return only numbers
+ * @param {String} phoneNumber
+ */
 function stripPhoneNumber(phoneNumber) {
   return phoneNumber.replace(/\D/g, '');
 }
@@ -153,10 +169,10 @@ Parse.Cloud.define('validateCode', async request => {
     });
 });
 
-Parse.Cloud.define("sendPush", async request => {
+Parse.Cloud.define('sendPush', async request => {
 
   var query = new Parse.Query(Parse.Installation);
-  query.equalTo("userId", request.userId);
+  query.equalTo('userId', request.userId);
 
   return Parse.Push.send({
     where: query,
@@ -170,47 +186,47 @@ Parse.Cloud.define("sendPush", async request => {
   });
 });
 
-Parse.Cloud.define("updateConnection", function(request, response) {
+Parse.Cloud.define('updateConnection', function(request, response) {
 
   Parse.Cloud.useMasterKey();
 
   var connectionID = request.params.connectionID;
-  var query = new Parse.Query("Connection");
+  var query = new Parse.Query('Connection');
 
   //get the connection object
   query.get(connectionID, {
-      success: function(connection) {
-          //get the user the request was from
-          var fromUser = connection.get("from");
-          //get the user the request is to
-          var toUser = connection.get("to");
+    success: function(connection) {
+      //get the user the request was from
+      var fromUser = connection.get('from');
+      //get the user the request is to
+      var toUser = connection.get('to');
 
-          var relation = fromUser.relation("connections");
-          //add the user the request was to (the accepting user) to the fromUsers friends
-          relation.add(toUser);
+      var relation = fromUser.relation('connections');
+      //add the user the request was to (the accepting user) to the fromUsers friends
+      relation.add(toUser);
 
-          //save the fromUser
-          fromUser.save(null, {
-              success: function() {
-                  //saved the user, now edit the request status and save it
-                  connection.set("status", request.params.status);
-                  connection.save(null, {
-                      success: function() {
-                          response.success("saved relation and updated the connection");
-                      },
-                      error: function(error) {
-                          response.error(error);
-                      }
-                  });
-              },
-              error: function(error) {
-               response.error(error);
-              }
+      //save the fromUser
+      fromUser.save(null, {
+        success: function() {
+          //saved the user, now edit the request status and save it
+          connection.set('status', request.params.status);
+          connection.save(null, {
+            success: function() {
+              response.success('saved relation and updated the connection');
+            },
+            error: function(error) {
+              response.error(error);
+            }
           });
-      },
-      error: function(error) {
+        },
+        error: function(error) {
           response.error(error);
-      }
+        }
+      });
+    },
+    error: function(error) {
+      response.error(error);
+    }
   });
 });
 
