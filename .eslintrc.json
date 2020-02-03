@@ -27,5 +27,8 @@
             "always"
         ],
         "no-extra-boolean-cast": 0
+    },
+    "globals": {
+        "Parse": "readonly"
     }
 }
