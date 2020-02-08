@@ -33,7 +33,7 @@ var api = new ParseServer({
     ios: {
       pfx: 'Benji Signing Certificate.p12',
       passphrase: '', // optional password to your p12/PFX
-      bundleId: 'com.Benji.Benji',
+      topic: 'com.Benji.Benji',
       production: true
     }
   },
