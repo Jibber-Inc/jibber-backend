@@ -22,7 +22,7 @@ const {
 
 
 // Build parse server instance
-var api = new ParseServer({
+const api = new ParseServer({
   appId: APP_ID,
   appName: APP_NAME,
   cloud: CLOUD_CODE_MAIN,
