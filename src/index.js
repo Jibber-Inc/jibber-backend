@@ -1,15 +1,15 @@
-'use strict';
-
-
 // Load .env variables
 require('dotenv').config();
 
+
+// Vendor modules
 import express from 'express';
 import path from 'path';
 import { ParseServer } from 'parse-server';
 import { createServer } from 'http';
 
-// Load Environment Variables
+
+// Get Environment Variables
 const {
   APP_ID,
   APP_NAME,
@@ -19,6 +19,7 @@ const {
   SERVER_URL,
   PARSE_MOUNT,
 } = process.env;
+
 
 // Build parse server instance
 var api = new ParseServer({
