@@ -3,7 +3,9 @@
   "description": "parse-server for benji-backend",
   "scripts": {
     "start": "babel-node src/index.js",
-    "test": "jest --verbose --no-cache --runInBand --detectOpenHandles"
+    "pretest": "mongodb-runner start",
+    "test": "jest --verbose --no-cache --runInBand --detectOpenHandles",
+    "posttest": "mongodb-runner stop"
   },
   "dependencies": {
     "@babel/cli": "^7.6.3",
