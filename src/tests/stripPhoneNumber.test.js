@@ -1,5 +1,5 @@
 import stripPhoneNumber from '../utils/stripPhoneNumber';
-
+import { ArgumentTypeError } from '../errors';
 
 
 describe('test stripPhoneNumber', () => {
@@ -19,12 +19,12 @@ describe('test stripPhoneNumber', () => {
   );
 
   it('should throw error if phone number type is not a string', () => {
-    expect(() => stripPhoneNumber(2061234567)).toThrow();
-    expect(() => stripPhoneNumber({ phone: 2061234567 })).toThrow();
-    expect(() => stripPhoneNumber(null)).toThrow();
-    expect(() => stripPhoneNumber()).toThrow();
-    expect(() => stripPhoneNumber(undefined)).toThrow();
-    expect(() => stripPhoneNumber([])).toThrow();
+    expect(() => stripPhoneNumber(2061234567)).toThrow(ArgumentTypeError);
+    expect(() => stripPhoneNumber({ phone: '2061234567' })).toThrow(ArgumentTypeError);
+    expect(() => stripPhoneNumber()).toThrow(ArgumentTypeError);
+    expect(() => stripPhoneNumber(null)).toThrow(ArgumentTypeError);
+    expect(() => stripPhoneNumber(undefined)).toThrow(ArgumentTypeError);
+    expect(() => stripPhoneNumber([])).toThrow(ArgumentTypeError);
   });
 });
 
