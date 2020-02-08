@@ -50,43 +50,33 @@ var api = new ParseServer({
 // javascriptKey, restAPIKey, dotNetKey, clientKey
 
 
-
 const app = express();
-
 
 
 // Serve static assets from the /public folder
 app.use('/public', express.static(path.join(__dirname, '/public')));
 
 
-
 // Serve the Parse API on the /parse URL prefix
 app.use(PARSE_MOUNT, api);
 
 
-
 // Parse Server plays nicely with the rest of your web routes
-app
-  .get('/', (_, res) => res
-    .status(200)
-    .send('I dream of being a website.'));
-
+app.get('/', (request, response) => response
+  .status(200)
+  .send('I dream of being a website.'));
 
 
 // There will be a test page available on the /test path of your server url
 // Remove this before launching your app
-app
-  .get('/test', (_, res) => res
-    .sendFile(path.join(__dirname, '/test.html')));
+app.get('/test', (request, response) => response
+  .sendFile(path.join(__dirname, '/test.html')));
 
 
-
-const port = process.env.PORT || 1337;
+const PORT = process.env.PORT || 1337;
 const httpServer = createServer(app);
-httpServer
-  .listen(port, () => console
-    .log(`${ process.env.APP_NAME } running on port ${ port }.`));
-
+httpServer.listen(PORT, () =>
+  console.log(`${ APP_NAME } running on port ${ PORT }.`));
 
 
 // This will enable the Live Query real-time server
