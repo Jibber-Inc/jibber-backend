@@ -1,6 +1,6 @@
 install:
 	\
-	npm i
+	rm -rf node_modules&&npm i
 
 
 start: mongo
