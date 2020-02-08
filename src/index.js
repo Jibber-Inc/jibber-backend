@@ -1,15 +1,15 @@
-'use strict';
-
-
 // Load .env variables
 require('dotenv').config();
 
+
+// Vendor modules
 import express from 'express';
 import path from 'path';
 import { ParseServer } from 'parse-server';
 import { createServer } from 'http';
 
-// Load Environment Variables
+
+// Get Environment Variables
 const {
   APP_ID,
   APP_NAME,
@@ -20,8 +20,9 @@ const {
   PARSE_MOUNT,
 } = process.env;
 
+
 // Build parse server instance
-var api = new ParseServer({
+const api = new ParseServer({
   appId: APP_ID,
   appName: APP_NAME,
   cloud: CLOUD_CODE_MAIN,
@@ -32,7 +33,7 @@ var api = new ParseServer({
     ios: {
       pfx: 'Benji Signing Certificate.p12',
       passphrase: '', // optional password to your p12/PFX
-      bundleId: 'com.Benji.Benji',
+      topic: 'com.Benji.Benji',
       production: true
     }
   },
@@ -49,43 +50,33 @@ var api = new ParseServer({
 // javascriptKey, restAPIKey, dotNetKey, clientKey
 
 
-
 const app = express();
-
 
 
 // Serve static assets from the /public folder
 app.use('/public', express.static(path.join(__dirname, '/public')));
 
 
-
 // Serve the Parse API on the /parse URL prefix
 app.use(PARSE_MOUNT, api);
 
 
-
 // Parse Server plays nicely with the rest of your web routes
-app
-  .get('/', (_, res) => res
-    .status(200)
-    .send('I dream of being a website.'));
-
+app.get('/', (request, response) => response
+  .status(200)
+  .send('I dream of being a website.'));
 
 
 // There will be a test page available on the /test path of your server url
 // Remove this before launching your app
-app
-  .get('/test', (_, res) => res
-    .sendFile(path.join(__dirname, '/test.html')));
+app.get('/test', (request, response) => response
+  .sendFile(path.join(__dirname, '/test.html')));
 
 
-
-const port = process.env.PORT || 1337;
+const PORT = process.env.PORT || 1337;
 const httpServer = createServer(app);
-httpServer
-  .listen(port, () => console
-    .log(`${ process.env.APP_NAME } running on port ${ port }.`));
-
+httpServer.listen(PORT, () =>
+  console.log(`${ APP_NAME } running on port ${ PORT }.`));
 
 
 // This will enable the Live Query real-time server

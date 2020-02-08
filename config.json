@@ -1,7 +1,0 @@
-{
-  "appId": "DH1Oqq27e0dQ8M6mWLeD7I8k3T7RrfAOCvijzlGX",
-  "masterKey": "4PR0ZJaI1XAi3w1WvxjA1BRksbvY0PgX6ZiZJEgH",
-  "appName": "benji-backend",
-  "cloud": "./cloud/main",
-  "databaseURI": "mongodb://127.0.0.1:27017/parse"
-}
