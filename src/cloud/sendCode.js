@@ -11,6 +11,10 @@ import passwordGenerator from '../utils/passwordGenerator';
 
 
 
+/**
+ *
+ * @param {*} request
+ */
 const sendCode = async request => {
   let phoneNumber = request.params.phoneNumber;
 
@@ -35,7 +39,7 @@ const sendCode = async request => {
   if (user) {
     user.setPassword(passwordGenerator(authCode));
     user.save(null, { useMasterKey: true })
-      .then(function() {
+      .then(() => {
         twilioClient.messages.create({
           body: `Your code for Benji is: ${ authCode }`,
           from: '+12012560616',

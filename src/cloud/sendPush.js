@@ -18,10 +18,10 @@ const sendPush = async request => {
         data: {
           alert: 'Test'
         },
-      }, { useMasterKey: true })
-    .then(() => console.log('Push ok'),
-      error => console.log('Push error', { error })
-    );
+      }, { useMasterKey: true }
+    )
+    .then(() => console.log('Push ok'))
+    .catch(console.error);
 };
 
 

@@ -16,39 +16,32 @@ const updateConnection = (request, response) => {
 
   //get the connection object
   return query
-    .get(connectionID,
-      {
-        success: connection => {
+    .get(connectionID)
+    .then(connection => {
 
-          //get the user the request was from
-          const fromUser = connection.get('from');
+      //get the user the request was from
+      const fromUser = connection.get('from');
 
-          //get the user the request is to
-          const toUser = connection.get('to');
+      //get the user the request is to
+      const toUser = connection.get('to');
 
-          //add the user the request was to (the accepting user) to the fromUsers friends
-          fromUser.relation('connections').add(toUser);
+      //add the user the request was to (the accepting user) to the fromUsers friends
+      fromUser.relation('connections').add(toUser);
 
-          //save the fromUser
-          return fromUser
-            .save(null,
-              {
-                success: () => {
-
-                  //saved the user, now edit the request status and save it
-                  connection.set('status', request.params.status);
-                  return connection
-                    .save(null,
-                      {
-                        success: () => response.success('saved relation and updated the connection'),
-                        error: error => response.error(error),
-                      });
-                },
-                error: error => response.error(error)
-              });
-        },
-        error: error => response.error(error)
-      });
+      //save the fromUser
+      return fromUser
+        .save()
+        .then(() => {
+          //saved the user, now edit the request status and save it
+          connection.set('status', request.params.status);
+          return connection
+            .save()
+            .then(connection => response.success(`saved relation and updated the connection ${ connection.get('id') }`))
+            .catch(error => response.error(error));
+        })
+        .catch(error => response.error(error));
+    })
+    .catch(error => response.error(error));
 };
 
 
