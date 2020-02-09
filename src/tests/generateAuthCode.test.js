@@ -3,8 +3,6 @@ import generateAuthCode from '../utils/generateAuthCode';
 
 describe('test generateAuthCode function', () => {
 
-
-
   it('should always return a number', () => {
     const auth_code = generateAuthCode();
     [...Array(100)].forEach(() =>

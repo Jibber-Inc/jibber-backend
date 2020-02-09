@@ -4,7 +4,7 @@
  * Send a push notification
  * @param {Object} request
  */
-const sendPush = async request => {
+const sendPush = async (request, response) => {
 
   // Build Query
   const query = new Parse.Query(Parse.Installation);
@@ -18,10 +18,10 @@ const sendPush = async request => {
         data: {
           alert: 'Test'
         },
-      }, { useMasterKey: true })
-    .then(() => console.log('Push ok'),
-      error => console.log('Push error', { error })
-    );
+      }, { useMasterKey: true }
+    )
+    .then(() => console.log('Push ok'))
+    .catch(error => response.error(error));
 };
 
 
