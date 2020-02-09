@@ -44,7 +44,13 @@ const createConnection = (request, response) => {
             newConnection.set('status', 'invited')
             newConnection.save()
             .then((savedConneciton) => {
-                return savedConneciton
+                request.user.addUnique(newConnection, 'connections')
+                request.user.save()
+                .then((updatedUser) => {
+                    return savedConneciton
+                }, (error) => {
+                    return error
+                })
             }, (error) => {
                 return error
             });
@@ -69,7 +75,13 @@ const createConnection = (request, response) => {
             newConnection.set('status', 'invited')
             newConnection.save()
             .then((savedConneciton) => {
-                return savedConneciton
+                request.user.addUnique(newConnection, 'connections')
+                request.user.save()
+                .then((updatedUser) => {
+                    return savedConneciton
+                }, (error) => {
+                    return error
+                })
             }, (error) => {
                 return error
             });
