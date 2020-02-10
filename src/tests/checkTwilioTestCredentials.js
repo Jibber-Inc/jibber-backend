@@ -50,11 +50,6 @@ const checkTwilioTestCredentials = async () => {
           '😱 Test message returned value in response.price. Killing test run.'
         );
       }
-      if (response.from === FROM.prod) {
-        throw new TwilioTestCredentialsError(
-          '🙅‍♂️ Do not use prod "from" phone number in test credential check.'
-        );
-      }
     })
 
     .then(() => twilioClient.messages  // Try sending message *to* magic invalid number
