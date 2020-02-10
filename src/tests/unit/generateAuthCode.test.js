@@ -1,4 +1,4 @@
-import generateAuthCode from '../utils/generateAuthCode';
+import generateAuthCode from '../../utils/generateAuthCode';
 
 
 describe('test generateAuthCode function', () => {

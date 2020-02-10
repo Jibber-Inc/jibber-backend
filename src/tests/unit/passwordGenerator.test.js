@@ -1,4 +1,4 @@
-import passwordGenerator from '../utils/passwordGenerator';
+import passwordGenerator from '../../utils/passwordGenerator';
 
 const {
   BENJI_SECRET_PASSWORD_TOKEN,

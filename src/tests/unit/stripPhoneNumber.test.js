@@ -1,5 +1,5 @@
-import stripPhoneNumber from '../utils/stripPhoneNumber';
-import { ArgumentTypeError } from '../errors';
+import stripPhoneNumber from '../../utils/stripPhoneNumber';
+import { ArgumentTypeError } from '../../errors';
 
 
 describe('test stripPhoneNumber', () => {
