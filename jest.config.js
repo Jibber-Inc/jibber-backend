@@ -9,9 +9,9 @@ process.env.APP_ID ='test-app-id';
 process.env.MASTER_KEY = 'test-master-key';
 process.env.BENJI_SECRET_PASSWORD_TOKEN = 'test-secret-password-token';
 process.env.PORT = 1337;
-process.env.PARSE_MOUNT = '/parse';
 process.env.DATABASE_URI = 'mongodb://127.0.0.1:27017/parse';
 process.env.SERVER_URL = 'http://localhost:1337/parse';
+process.env.CLOUD_CODE_MAIN = 'src/cloud';
 
 
 module.exports = {

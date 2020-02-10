@@ -11,7 +11,7 @@ const globalSetup = async () => {
 
   // Spin up "jest-dev-server" to run during tests.
   await setupDevServer({
-    command: 'npm start',
+    command: 'npm run test:server',
     launchTimeout: 50000,
     port: 1337,
     debug: true,
