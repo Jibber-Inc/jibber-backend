@@ -9,7 +9,7 @@
     "dev": "npm run build && nodemon ./dist/index.js",
     "pretest": "mongodb-runner start",
     "test:server": "babel-node src",
-    "test": "jest --no-cache --runInBand --detectOpenHandles",
+    "test": "jest --no-cache --detectOpenHandles",
     "posttest": "mongodb-runner stop",
     "linter": "eslint \"./src/**/*.js\"",
     "linter:fix": "eslint \"./src/**/*.js\" --fix"
