@@ -1,9 +1,9 @@
 
 
 /**
- * 
+ * Query for reservation object
  */
-const getReservation = (request, response) => {
+const getReservation = async (request, response) => {
   const reservationId = request.params.reservationId;
 
   // Build query
@@ -15,7 +15,7 @@ const getReservation = (request, response) => {
 
   return reservationQuery
     .first({ useMasterKey: true })
-    .then(reservation => {
+    .then(async reservation => {
       if (!!reservation) {
 
         // If reservation already contains a user
@@ -42,3 +42,4 @@ const getReservation = (request, response) => {
     })
 }
 
+export default getReservation;
