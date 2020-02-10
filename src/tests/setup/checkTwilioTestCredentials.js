@@ -1,5 +1,5 @@
 import twilio from 'twilio';
-import { ExtendableError } from '../errors';
+import { ExtendableError } from '../../errors';
 
 
 class TwilioTestCredentialsError extends ExtendableError {}

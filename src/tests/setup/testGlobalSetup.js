@@ -1,4 +1,4 @@
-require('dotenv').config(); // Only env variables not hardcoded are TWILIO
+require('dotenv').config();
 
 const { setup: setupDevServer } = require('jest-dev-server');
 import testTeardown from './testGlobalTeardown';
