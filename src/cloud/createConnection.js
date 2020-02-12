@@ -15,6 +15,8 @@ const createConnection = async (request, response) => {
     throw new Error("No phone number provided in request");
   }
 
+  const Connection = Parse.Object.extend("Connection");
+
   // Strip phone number
   phoneNumber = stripPhoneNumber(phoneNumber);
 
@@ -28,7 +30,7 @@ const createConnection = async (request, response) => {
   // If target user found
   if (!!targetUser) {
     // Determine if the user already has a connection with the requesting user
-    const connectionQuery = new Parse.Query("Connection");
+    const connectionQuery = new Parse.Query(Connection);
     connectionQuery.equalTo("to", targetUser);
     connectionQuery.equalTo("from", fromUser);
 
@@ -40,7 +42,7 @@ const createConnection = async (request, response) => {
     }
 
     // Otherwise create a connection between the users and set the status to invited
-    const newConnection = new Parse.Connection();
+    const newConnection = new Connection();
     newConnection.set("to", targetUser);
     newConnection.set("from", fromUser);
     newConnection.set("phoneNumber", phoneNumber);
@@ -69,7 +71,7 @@ const createConnection = async (request, response) => {
 
   // If no target user found
   // Determine if their is already a connection with the given phoneNumber for the requesting user
-  const connectionQuery = new Parse.Query("Connection");
+  const connectionQuery = new Parse.Query(Connection);
   connectionQuery.equalTo("phoneNumber", phoneNumber);
   connectionQuery.equalTo("from", fromUser);
 
@@ -81,7 +83,7 @@ const createConnection = async (request, response) => {
   }
 
   // Otherwise create a connection with the sender and phoneNumber
-  const newConnection = new Parse.Connection();
+  const newConnection = new Connection();
   newConnection.set("from", fromUser);
   newConnection.set("phoneNumber", phoneNumber);
   newConnection.set("status", "invited");
