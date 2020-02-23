@@ -5,8 +5,7 @@ python:
 before_install:
   - pip3 install -r requirements.txt
 install:
-  - node -v
-  - npm -v
+  - nvm use v11.0.0 && node -v
   - npm i
 before_script:
   - npm run linter
