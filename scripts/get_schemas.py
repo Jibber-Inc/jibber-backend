@@ -37,4 +37,4 @@ if response.ok:
             filename = f"src/schemas/{className}.json"
             with open(filename, "w") as schema_file:
                 print(f"Saving {filename} ...")
-                schema_file.write(json.dumps(schema, indent=2))
+                schema_file.write(f"{json.dumps(schema, indent=2)}\n")
