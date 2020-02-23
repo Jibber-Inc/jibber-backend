@@ -97,9 +97,8 @@ public
 # DynamoDB Local files
 .dynamodb/
 
-
+# Build
 dist/
 
-
-
-env
+# Vscode settings
+.vscode
