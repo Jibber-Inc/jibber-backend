@@ -1,4 +1,4 @@
-.PHONY: install dev mongo schemas
+.PHONY: install dev mongo schema migrate
 
 
 install:
@@ -15,3 +15,7 @@ mongo:
 
 schema:
 	pipenv run get_schemas
+
+
+migrate:
+	pipenv run migrate

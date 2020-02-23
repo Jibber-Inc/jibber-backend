@@ -11,6 +11,8 @@ class TwilioTestCredentialsError extends ExtendableError {}
  */
 const checkTwilioTestCredentials = async () => {
 
+  console.log('\nValidating Twilio test creds...\n');
+
   const {
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,

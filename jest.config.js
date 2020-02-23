@@ -16,7 +16,7 @@ process.env.CLOUD_CODE_MAIN = 'src/cloud';
 
 module.exports = {
   collectCoverage: true,
-  collectCoverageFrom : ['src/**/*.js'],
+  collectCoverageFrom : ['src/**/*.js', '!**/tests/**/*'],
   coverageDirectory: './coverage',
   moduleDirectories: ['node_modules', 'src'],
   roots: ['<rootDir>/src/'],

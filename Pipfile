@@ -5,6 +5,7 @@ verify_ssl = true
 
 [scripts]
 get_schemas = "python scripts/get_schemas.py"
+migrate = "python scripts/migrate.py"
 
 [dev-packages]
 ipython = "*"
