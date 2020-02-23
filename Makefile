@@ -1,8 +1,17 @@
-install:
-	rm -rf node_modules&&npm i
+.PHONY: install dev mongo schemas
 
-start: mongo
-	npm start
+
+install:
+	@npm i
+
+
+dev: mongo
+	@npm run dev:src
+
 
 mongo:
-	mongodb-runner start
+	@mongodb-runner start
+
+
+schema:
+	pipenv run get_schemas
