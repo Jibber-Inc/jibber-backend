@@ -2,8 +2,12 @@ language: python
 python:
   - "3.7"
 
+before_install:
+  - pip3 install -r requirements.txt
 install:
-  - npm ci
+  - node -v
+  - npm -v
+  - npm i
 before_script:
   - npm run linter
 script:
