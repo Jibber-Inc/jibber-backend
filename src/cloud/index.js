@@ -4,6 +4,7 @@ import sendPush from './sendPush';
 import validateCode from './validateCode';
 import updateConnection from './updateConnection';
 import createConnection from './createConnection';
+import verifyReservation from './verifyReservation';
 
 
 // Load Environment variables
@@ -23,3 +24,4 @@ Parse.Cloud.define('sendPush', sendPush);
 Parse.Cloud.define('validateCode', validateCode);
 Parse.Cloud.define('updateConnection', updateConnection);
 Parse.Cloud.define('createConnection', createConnection);
+Parse.Cloud.define('verifyReservation', verifyReservation);

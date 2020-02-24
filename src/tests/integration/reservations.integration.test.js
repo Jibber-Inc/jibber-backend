@@ -24,19 +24,27 @@ import Parse from '../../services/ParseServiceProvider';
 
 describe('test verify reservation', () => {
 
-  it('should throw error if code not passed to ', async done => {
+  it('should throw error if code not in body', async done => {
 
-    const query = new Parse.Query('Reservation');
-    const reservation = await query.first();
-    console.log({ reservation }, reservation.get('code'));
+    // const query = new Parse.Query('Reservation');
+    // const reservation = await query.first();
+    // console.log({ reservation }, reservation.get('code'));
 
-    // expect.assertions(1);
+    expect.assertions(2);
+
+    return Parse.Cloud.run('verifyReservation')
+      .catch(error => {
+        expect(error.message).toBe('Missing "code" in request body');
+        expect(error.code).toBe(141);
+        done();
+      });
+
     // return http.get('http://127.0.0.1:1337/',
     //   response => {
     //     expect(response.statusCode).toBe(200);
     //     done();
     //   });
-    done();
+    // done();
   });
 
 });

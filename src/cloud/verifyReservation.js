@@ -1,6 +1,6 @@
 import twilioClient from './twilioClient';
 import generateAuthCode from '../utils/generateAuthCode';
-
+import { RequestBodyError, ObjectNotFoundError } from '../errors';
 
 /**
  * verify reservation
@@ -8,6 +8,10 @@ import generateAuthCode from '../utils/generateAuthCode';
 const verifyReservation = async request => {
 
   const code = request.params.code;
+
+  if (!code || typeof code !== 'string') {
+    throw new RequestBodyError('Missing "code" in request body');
+  }
 
   // Build query
   const query = Parse.Query(Parse.Reservation);
@@ -39,7 +43,7 @@ const verifyReservation = async request => {
       }
     }
   } else {
-    throw new Error('Reservation not found');
+    throw new ObjectNotFoundError('Reservation not found');
   }
 
   return reservation;

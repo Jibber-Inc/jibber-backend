@@ -14,3 +14,5 @@ export class ExtendableError extends Error {
 }
 
 export class ArgumentTypeError extends ExtendableError {}
+export class RequestBodyError extends ExtendableError {}
+export class ObjectNotFoundError extends ExtendableError {}
