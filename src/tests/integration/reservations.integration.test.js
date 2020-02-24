@@ -19,23 +19,12 @@
  * IF no reservation matches code, return error
  *
  */
-import Parse from 'parse/node';
-
-const {
-  APP_ID,
-  JAVASCRIPT_KEY,
-  MASTER_KEY,
-  SERVER_URL,
-} = process.env;
-
-
-Parse.initialize(APP_ID, JAVASCRIPT_KEY, MASTER_KEY);
-Parse.serverURL = SERVER_URL;
+import Parse from '../../services/ParseServiceProvider';
 
 
 describe('test verify reservation', () => {
 
-  it('should', async done => {
+  it('should throw error if code not passed to ', async done => {
 
     const query = new Parse.Query('Reservation');
     const reservation = await query.first();

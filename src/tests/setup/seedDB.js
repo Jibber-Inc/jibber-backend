@@ -1,17 +1,5 @@
-import Parse from 'parse/node';
+import Parse from '../../services/ParseServiceProvider';
 import faker from 'faker';
-
-
-const {
-  APP_ID,
-  JAVASCRIPT_KEY,
-  MASTER_KEY,
-  SERVER_URL,
-} = process.env;
-
-
-Parse.initialize(APP_ID, JAVASCRIPT_KEY, MASTER_KEY);
-Parse.serverURL = SERVER_URL;
 
 
 /**
