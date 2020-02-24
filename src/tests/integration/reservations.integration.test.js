@@ -19,19 +19,35 @@
  * IF no reservation matches code, return error
  *
  */
+import Parse from 'parse/node';
 
-import http from 'http';
+const {
+  APP_ID,
+  JAVASCRIPT_KEY,
+  MASTER_KEY,
+  SERVER_URL,
+} = process.env;
 
 
-describe('test devserver', () => {
+Parse.initialize(APP_ID, JAVASCRIPT_KEY, MASTER_KEY);
+Parse.serverURL = SERVER_URL;
 
-  it('should return 200 status code', async done => {
-    expect.assertions(1);
-    return http.get('http://127.0.0.1:1337/',
-      response => {
-        expect(response.statusCode).toBe(200);
-        done();
-      });
+
+describe('test verify reservation', () => {
+
+  it('should', async done => {
+
+    const query = new Parse.Query('Reservation');
+    const reservation = await query.first();
+    console.log({ reservation }, reservation.get('code'));
+
+    // expect.assertions(1);
+    // return http.get('http://127.0.0.1:1337/',
+    //   response => {
+    //     expect(response.statusCode).toBe(200);
+    //     done();
+    //   });
+    done();
   });
 
 });
