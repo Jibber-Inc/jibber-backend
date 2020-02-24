@@ -16,7 +16,7 @@ const sendPush = async (request, response) => {
       {
         where: query,
         data: {
-          alert: 'Test'
+          alert: 'Test',
         },
       }, { useMasterKey: true }
     )
