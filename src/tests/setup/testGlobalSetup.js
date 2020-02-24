@@ -3,6 +3,7 @@ require('dotenv').config();
 const { setup: setupDevServer } = require('jest-dev-server');
 import testTeardown from './testGlobalTeardown';
 import migrateMongo from './migrateMongo';
+import seedDB from './seedDB';
 import checkTwilioTestCredentials from './checkTwilioTestCredentials';
 
 /**
@@ -18,11 +19,12 @@ const globalSetup = async () => {
     debug: true,
   })
 
-    // "Migrate" mongoDB from schemafiles
-    .then(migrateMongo)
-
     // Integration tests connect to twilio and must use special "test" credentials.
     .then(checkTwilioTestCredentials)
+
+    // "Migrate" mongoDB from schemafiles
+    .then(migrateMongo)
+    .then(seedDB)
 
     // Catch any error, then run the test teardown script.
     // Throw back the caught error to finish terminating the test runner.

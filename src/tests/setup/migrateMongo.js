@@ -7,6 +7,9 @@ APP_ID=${process.env.APP_ID}
 MASTER_KEY=${process.env.MASTER_KEY} python3 scripts/migrate.py
 `;
 
+/**
+ * Execute the script using python.
+ */
 const migrateMongo = async () => {
   try {
     const { stdout } = await exec(script);
