@@ -15,6 +15,7 @@
     "linter:fix": "eslint \"./src/**/*.js\" --fix"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "parse-server": "^3.10.0",
     "twilio": "^3.39.4",

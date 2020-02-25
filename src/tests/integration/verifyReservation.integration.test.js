@@ -20,31 +20,31 @@
  *
  */
 import Parse from '../../services/ParseServiceProvider';
+import axios from 'axios';
+import { rest_headers } from '../../utils/headers';
 
 
 describe('test verify reservation', () => {
 
-  it('should throw error if code not in body', async done => {
-
-    // const query = new Parse.Query('Reservation');
-    // const reservation = await query.first();
-    // console.log({ reservation }, reservation.get('code'));
-
+  it('should throw no code in request body', async done => {
     expect.assertions(2);
-
     return Parse.Cloud.run('verifyReservation')
       .catch(error => {
         expect(error.message).toBe('Missing "code" in request body');
         expect(error.code).toBe(141);
         done();
       });
+  });
 
-    // return http.get('http://127.0.0.1:1337/',
-    //   response => {
-    //     expect(response.statusCode).toBe(200);
-    //     done();
-    //   });
-    // done();
+  /** I actually want this to return 422 but it wont... */
+  it('should return 400 bad request from rest api response', async done => {
+    expect.assertions(1);
+    const url = `${process.env.SERVER_URL}/functions/verifyReservation`;
+    return axios.post(url, {}, { headers: rest_headers })
+      .catch(error => {
+        expect(error.response.status).toBe(400);
+        done();
+      });
   });
 
 });

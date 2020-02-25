@@ -11,6 +11,8 @@ const {
   DATABASE_URI,
   MASTER_KEY,
   SERVER_URL,
+  REST_API_KEY,
+  PARSE_SERVER_LOG_LEVEL,
 } = process.env;
 
 
@@ -21,7 +23,9 @@ const api = new ParseServer({
   cloud: CLOUD_CODE_MAIN || 'dist/cloud',
   databaseURI: DATABASE_URI,
   masterKey: MASTER_KEY,
+  restApiKey: REST_API_KEY,
   serverURL: SERVER_URL,
+  logLevel: PARSE_SERVER_LOG_LEVEL || 'info',
   push: {
     ios: {
       pfx: 'Benji Signing Certificate.p12',

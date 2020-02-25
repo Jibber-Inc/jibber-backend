@@ -1,6 +1,8 @@
 import twilioClient from './twilioClient';
 import generateAuthCode from '../utils/generateAuthCode';
-import { RequestBodyError, ObjectNotFoundError } from '../errors';
+import { ObjectNotFoundError, RequestBodyError } from '../errors';
+import Parse from '../services/ParseServiceProvider';
+
 
 /**
  * verify reservation
@@ -10,6 +12,12 @@ const verifyReservation = async request => {
   const code = request.params.code;
 
   if (!code || typeof code !== 'string') {
+    // Doesn't seem to be a way to return custom response status codes and handle
+    // exceptions like this gracefully without blowing up the code/error log etc.
+    // I want to return a 422 response here but doesn't seem that Parse will let me
+    // It seems that Parse just "magically" handles these types of things in cloud
+    // code for ex: https://github.com/parse-community/parse-server/issues/5348
+    // 😠 Hopefully I am just wrong and there is something I'm missing...
     throw new RequestBodyError('Missing "code" in request body');
   }
 

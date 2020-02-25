@@ -15,7 +15,7 @@ const makeUser = () => {
   user.set('password', password);
   user.set('email', email);
   try {
-    console.log(`Creating user: ${user.get('username') } ${ user.get('email') }`);
+    process.stdout.write('.');
     return user.signUp();
   } catch (error) {
     console.log('Error: ' + error.code + ' ' + error.message);
@@ -31,7 +31,7 @@ const makeReservation = position => {
       reservation.set('position', position);
       reservation.set('code', faker.random.alphaNumeric(10));
       try {
-        console.log(`Creating reservation: ${ reservation.get('code') }`);
+        process.stdout.write('.');
         return reservation.save();
       } catch (error) {
         console.log('Error: ' + error.code + ' ' + error.message);
