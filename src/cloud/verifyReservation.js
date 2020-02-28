@@ -1,11 +1,34 @@
-import twilioClient from './twilioClient';
-import generateAuthCode from '../utils/generateAuthCode';
-import { ObjectNotFoundError, RequestBodyError } from '../errors';
 import Parse from '../services/ParseServiceProvider';
+import generateAuthCode from '../utils/generateAuthCode';
+import sendCode from '../services/sendCode';
+import { ObjectNotFoundError, RequestBodyError } from '../errors';
 
 
 /**
- * verify reservation
+ *   //////////////////////////
+ *  /// verify reservation ///
+ * //////////////////////////
+ *
+ * GIVEN: A user has just downloaded the app
+ * AND: They have entered a valid reservation code
+ * AND: They DO NOT have an existing account
+ * THEN: Then they are prompted to enter their phone number
+ *
+ * - Reservations will be pre made and have a code that is = to the objectId
+ * - Reservations may have an attached user
+ *
+ * IF reservation == code AND reservation.user == NULL {
+ *  then return the reservation
+ * }
+ *
+ * IF reservation == code AND reservation.user != NULL {
+ *  query for user THEN send verification code to that users phone number
+ *  return reservation one code is sent
+ * }
+ *
+ * IF no reservation matches code, return error
+ *
+ * @return {Parse.HttpResponse}
  */
 const verifyReservation = async request => {
 
@@ -28,34 +51,27 @@ const verifyReservation = async request => {
   // Query for reservation
   let reservation = await query.first({ useMasterKey: true });
 
-  if (reservation) {
-    if (reservation.has('user')) {
-      const userQuery = new Parse.Query(Parse.User);
-      userQuery.equalTo('objectId', reservation.user.objectId);
-
-      //Query for user
-      const user = await userQuery.first({ useMasterKey: true });
-
-      if (user) {
-
-        const auth_code = generateAuthCode();
-
-        // Send user a verification code
-        twilioClient.messages.create({
-          body: `Your code for Benji is: ${ auth_code }`,
-          from: '+12012560616',
-          to: user.phoneNumber,
-        });
-      } else {
-        console.log('yo');
-      }
-    }
-  } else {
+  // Throw if not found
+  if (!reservation) {
     throw new ObjectNotFoundError('Reservation not found');
   }
 
-  return reservation;
+  // Reservation found...
+  if (reservation.has('user')) {
 
+    // query for user
+    const userQuery = new Parse.Query(Parse.User);
+    userQuery.equalTo('objectId', reservation.user.objectId);
+    const user = await userQuery.first({ useMasterKey: true });
+
+    // If user found initiate 2fa login
+    if (!!user) {
+      const auth_code = generateAuthCode();
+      sendCode(auth_code, user);
+    }
+  }
+
+  return reservation;
 };
 
 
