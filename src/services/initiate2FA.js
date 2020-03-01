@@ -1,4 +1,4 @@
-import twilioClient from '../cloud/twilioClient';
+import Twilio from '../providers/TwilioServiceProvider';
 
 
 /**
@@ -6,8 +6,8 @@ import twilioClient from '../cloud/twilioClient';
  * @param {String} auth_code
  * @param {Parse.User} user
  */
-const verifyPhone = (auth_code, user) => {
-  return twilioClient.messages.create({
+const initiate2FA = (auth_code, user) => {
+  return Twilio.messages.create({
     body: `Your code for Benji is: ${ auth_code }`,
     from: '+12012560616',
     to: user.phoneNumber,
@@ -15,4 +15,4 @@ const verifyPhone = (auth_code, user) => {
 };
 
 
-export default verifyPhone;
+export default initiate2FA;
