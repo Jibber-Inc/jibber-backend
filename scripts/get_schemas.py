@@ -5,13 +5,24 @@ Get all schemas from production API and copy data to schemas dir
 """
 
 import os
+import sys
 import json
 import requests
 
 
+# Load environment variables
 PRODUCTION_SERVER_URL = os.getenv("PRODUCTION_SERVER_URL")
 PRODUCTION_APP_ID = os.getenv("PRODUCTION_APP_ID")
 PRODUCTION_MASTER_KEY = os.getenv("PRODUCTION_MASTER_KEY")
+
+
+# Check environment variables
+if not PRODUCTION_SERVER_URL:
+    sys.exit("PRODUCTION_SERVER_URL required")
+if not PRODUCTION_APP_ID:
+    sys.exit("PRODUCTION_APP_ID required")
+if not PRODUCTION_MASTER_KEY:
+    sys.exit("PRODUCTION_MASTER_KEY required")
 
 
 # Make request to production server

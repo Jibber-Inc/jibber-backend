@@ -7,13 +7,25 @@ Save schema json to fresh db
 """
 
 import os
+import sys
 import json
 import requests
 import glob
 
+
+# Load environment variables
 SERVER_URL = os.getenv("SERVER_URL")
 APP_ID = os.getenv("APP_ID")
 MASTER_KEY = os.getenv("MASTER_KEY")
+
+
+# Check environment variables
+if not SERVER_URL:
+    sys.exit("SERVER_URL required")
+if not APP_ID:
+    sys.exit("APP_ID required")
+if not MASTER_KEY:
+    sys.exit("MASTER_KEY required")
 
 
 glob_pattern = "src/schemas/*.json"
