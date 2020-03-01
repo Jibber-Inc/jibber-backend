@@ -1,5 +1,4 @@
-import stripPhoneNumber from '../../utils/stripPhoneNumber';
-import { ArgumentTypeError } from '../../errors';
+import stripPhoneNumber, { StripPhoneNumberError } from '../../utils/stripPhoneNumber';
 
 
 describe('test stripPhoneNumber', () => {
@@ -25,12 +24,12 @@ describe('test stripPhoneNumber', () => {
    * Should throw expected error if given invalid arguments
    */
   test.each([
-    [2061234567, ArgumentTypeError],
-    [206.1234567, ArgumentTypeError],
-    [{ phone: '2061234567' }, ArgumentTypeError],
-    [null, ArgumentTypeError],
-    [undefined, ArgumentTypeError],
-    [[], ArgumentTypeError],
+    [2061234567, StripPhoneNumberError],
+    [206.1234567, StripPhoneNumberError],
+    [{ phone: '2061234567' }, StripPhoneNumberError],
+    [null, StripPhoneNumberError],
+    [undefined, StripPhoneNumberError],
+    [[], StripPhoneNumberError],
   ])(
     'given %p should throw %p',
     (input, expected) => {

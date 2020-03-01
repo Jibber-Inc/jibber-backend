@@ -1,8 +1,9 @@
 // Vendor modules
-const uuidv4 = require('uuid/v4');
+import uuidv4 from 'uuid/v4';
 
-// Modules
-import twilioClient from './twilioClient';
+// Services
+import Parse from '../providers/ParseServiceProvider';
+import Twilio from '../providers/TwilioServiceProvider';
 
 // Utils
 import stripPhoneNumber from '../utils/stripPhoneNumber';
@@ -43,7 +44,7 @@ const sendCode = async request => {
     user.setPassword(passwordGenerator(authCode));
     user.save(null, { useMasterKey: true })
       .then(() => {
-        twilioClient.messages.create({
+        Twilio.messages.create({
           body: `Your code for Benji is: ${ authCode }`,
           from: '+12012560616',
           to: phoneNumber,
@@ -63,7 +64,7 @@ const sendCode = async request => {
     newUser.set('language', 'en');
     await newUser.signUp();
 
-    twilioClient.messages.create({
+    Twilio.messages.create({
       body: `Your code for Benji is: ${ authCode }`,
       from: '+12012560616',
       to: phoneNumber,

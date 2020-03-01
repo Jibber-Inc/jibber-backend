@@ -1,4 +1,4 @@
-import Parse from '../../services/ParseServiceProvider';
+import Parse from '../../providers/ParseServiceProvider';
 import faker from 'faker';
 
 
@@ -6,7 +6,7 @@ import faker from 'faker';
  * Create 1 user with faker data
  * @returns Promise
  */
-const makeUser = () => {
+export const makeUser = () => {
   const user = new Parse.User();
   const username = faker.name.findName();
   const password = faker.internet.password();
@@ -22,7 +22,7 @@ const makeUser = () => {
   }
 };
 
-const makeReservation = position => {
+export const makeReservation = position => {
   return new Parse.Schema('Reservation')
     .get()
     .then(schema => {

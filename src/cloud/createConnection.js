@@ -1,3 +1,4 @@
+import Parse from '../providers/ParseServiceProvider';
 import stripPhoneNumber from '../utils/stripPhoneNumber';
 
 /**

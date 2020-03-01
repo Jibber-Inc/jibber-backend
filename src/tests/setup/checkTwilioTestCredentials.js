@@ -1,5 +1,5 @@
 import twilio from 'twilio';
-import { ExtendableError } from '../../errors';
+import ExtendableError from 'extendable-error-class';
 
 
 class TwilioTestCredentialsError extends ExtendableError {}
@@ -25,7 +25,7 @@ const checkTwilioTestCredentials = async () => {
     );
   }
 
-  const twilioClient = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+  const Twilio = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
   /**
    * Twilio magic testing numbers
@@ -40,7 +40,7 @@ const checkTwilioTestCredentials = async () => {
     valid: '+16127779311',
   };
 
-  return twilioClient.messages
+  return Twilio.messages
     .create({
       to: TO.valid,
       from: FROM.valid,
@@ -54,14 +54,14 @@ const checkTwilioTestCredentials = async () => {
       }
     })
 
-    .then(() => twilioClient.messages  // Try sending message *to* magic invalid number
+    .then(() => Twilio.messages  // Try sending message *to* magic invalid number
       .create({
         to: TO.invalid,
         from: FROM.valid,
         body: 'test2',
       }))
 
-    .then(() => twilioClient.messages  // Try sending message *from* magic invalid number
+    .then(() => Twilio.messages  // Try sending message *from* magic invalid number
       .create({
         to: TO.valid,
         from: FROM.invalid,
