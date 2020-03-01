@@ -27,9 +27,9 @@ app.get('/', async (request, response) =>
 
 // There will be a test page available on the /test path of your server url
 // Remove this before launching your app
-app.get('/test', async (request, response) =>
+app.get('/hello', async (request, response) =>
   response
-    .sendFile(path.join(__dirname, '/test.html')));
+    .sendFile(path.join(__dirname, '/hello.html')));
 
 
 export default createServer(app);
