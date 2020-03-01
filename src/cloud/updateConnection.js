@@ -1,3 +1,4 @@
+import Parse from '../providers/ParseProvider';
 
 
 /**

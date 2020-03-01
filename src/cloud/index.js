@@ -1,3 +1,5 @@
+import Parse from '../providers/ParseProvider';
+
 // Cloud functions
 import sendCode from './sendCode';
 import sendPush from './sendPush';
