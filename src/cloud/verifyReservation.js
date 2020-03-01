@@ -1,8 +1,11 @@
-import Parse from '../services/ParseServiceProvider';
-import generateAuthCode from '../utils/generateAuthCode';
-import sendCode from '../services/sendCode';
-import { ObjectNotFoundError, RequestBodyError } from '../errors';
+import ExtendableError from 'extendable-error-class';
 
+import Parse from '../providers/ParseServiceProvider';
+import generateAuthCode from '../utils/generateAuthCode';
+import initiate2FA from '../services/initiate2FA';
+
+
+class VerifyReservationError extends ExtendableError {}
 
 /**
  *   //////////////////////////
@@ -41,19 +44,19 @@ const verifyReservation = async request => {
     // It seems that Parse just "magically" handles these types of things in cloud
     // code for ex: https://github.com/parse-community/parse-server/issues/5348
     // 😠 Hopefully I am just wrong and there is something I'm missing...
-    throw new RequestBodyError('Missing "code" in request body');
+    throw new VerifyReservationError('Missing "code" in request body');
   }
 
   // Build query
-  const query = Parse.Query(Parse.Reservation);
-  query.equalTo('code', code);
+  const reservation_query = new Parse.Query('Reservation');
+  reservation_query.equalTo('code', code);
 
   // Query for reservation
-  let reservation = await query.first({ useMasterKey: true });
+  let reservation = await reservation_query.first({ useMasterKey: true });
 
   // Throw if not found
   if (!reservation) {
-    throw new ObjectNotFoundError('Reservation not found');
+    throw new VerifyReservationError('Reservation not found');
   }
 
   // Reservation found...
@@ -67,10 +70,11 @@ const verifyReservation = async request => {
     // If user found initiate 2fa login
     if (!!user) {
       const auth_code = generateAuthCode();
-      sendCode(auth_code, user);
+      initiate2FA(auth_code, user);
     }
   }
 
+  // return reservation;
   return reservation;
 };
 

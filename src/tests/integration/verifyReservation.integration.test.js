@@ -19,16 +19,17 @@
  * IF no reservation matches code, return error
  *
  */
-import Parse from '../../services/ParseServiceProvider';
+import Parse from '../../providers/ParseServiceProvider';
 import axios from 'axios';
 import { rest_headers } from '../../utils/headers';
+import { makeReservation } from '../setup/seedDB';
 
 
 describe('test verify reservation', () => {
 
-  it('should throw no code in request body', async done => {
+  it('should throw if no code in request body', async done => {
     expect.assertions(2);
-    return Parse.Cloud.run('verifyReservation')
+    return Parse.Cloud.run('verifyReservation', {})
       .catch(error => {
         expect(error.message).toBe('Missing "code" in request body');
         expect(error.code).toBe(141);
@@ -47,4 +48,21 @@ describe('test verify reservation', () => {
       });
   });
 
+  /** */
+  it('should return reservation if given valid code', async done => {
+    expect.assertions(2);
+
+    // Seed a single reservation
+    const position = 69;
+    const reservation = await makeReservation(position);
+
+    // Use verifyReservation endpoint to find the reservation
+    const params = { code: reservation.get('code') };
+    return Parse.Cloud.run('verifyReservation', params)
+      .then(reservation => {
+        expect(reservation.get('code')).toBe(params.code);
+        expect(reservation.get('position')).toBe(position);
+        done();
+      });
+  });
 });
