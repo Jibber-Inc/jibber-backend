@@ -1,17 +1,34 @@
 import Parse from '../../providers/ParseProvider';
 import faker from 'faker';
+import { isMobilePhone } from 'validator';
+import ExtendableError from 'extendable-error-class';
+
+
+class SeedDBError extends ExtendableError {}
 
 
 /**
  * Create 1 user with faker data
  * @returns Promise
  */
-export const makeUser = () => {
+export const makeUser = (options={}) => {
   const user = new Parse.User();
-  const username = faker.name.findName();
-  const password = faker.internet.password();
-  const email = faker.internet.email();
-  const phoneNumber = faker.phone.phoneNumber();
+
+  // Build fake user
+  const givenName = options.givenName || faker.name.firstName();
+  const familyName = options.familyName || faker.name.lastName();
+  const username = options.username || faker.internet.userName(`${givenName} ${familyName}`);
+  const password = options.password || faker.internet.password();
+  const email = options.email || faker.internet.email();
+
+  // Faker generates some invalid phone numbers (leading 0/1 etc)...
+  // https://github.com/Marak/faker.js/issues/297
+  const phoneNumber = options.phoneNumber || `206-${Math.floor(200 + Math.random() * 800)}-${Math.floor(1000 + Math.random() * 9000)}`;
+  if (!isMobilePhone(phoneNumber)) {
+    throw new SeedDBError('[gDtUeBum] Invalid phone number');
+  }
+
+  // Save fake user
   user.set('username', username);
   user.set('password', password);
   user.set('email', email);
