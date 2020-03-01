@@ -64,11 +64,12 @@ const verifyReservation = async request => {
 
     // query for user
     const userQuery = new Parse.Query(Parse.User);
-    userQuery.equalTo('objectId', reservation.user.objectId);
+    const user_id = reservation.get('user').id;
+    userQuery.equalTo('objectId', user_id);
     const user = await userQuery.first({ useMasterKey: true });
 
     // If user found initiate 2fa login
-    if (!!user) {
+    if (user instanceof Parse.User) {
       const auth_code = generateAuthCode();
       initiate2FA(auth_code, user);
     }
