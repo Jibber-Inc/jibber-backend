@@ -1,6 +1,7 @@
 import Parse from '../providers/ParseProvider';
 import Twilio from '../providers/TwilioProvider';
 import ExtendableError from 'extendable-error-class';
+import { isMobilePhone } from 'validator';
 
 
 export class Inititate2FAError extends ExtendableError {}
@@ -28,6 +29,12 @@ export const initiate2FA = (auth_code, user) => {
   if (!user.get('phoneNumber')) {
     throw new Inititate2FAError(
       '[qV6Heiv8] Cannot initiate 2FA, no value in user.phoneNumber'
+    );
+  }
+
+  if (!isMobilePhone(user.get('phoneNumber'))) {
+    throw new Inititate2FAError(
+      '[SIjXK1Xm] Invalid phone number'
     );
   }
 
