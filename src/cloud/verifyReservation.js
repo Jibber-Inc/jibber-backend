@@ -56,6 +56,7 @@ const verifyReservation = async request => {
 
   // Throw if not found
   if (!reservation) {
+    // @todo: add phone number to waitlist?
     throw new VerifyReservationError('Reservation not found');
   }
 
