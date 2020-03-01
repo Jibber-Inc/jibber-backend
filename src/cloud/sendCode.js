@@ -2,8 +2,8 @@
 import uuidv4 from 'uuid/v4';
 
 // Services
-import Parse from '../providers/ParseServiceProvider';
-import Twilio from '../providers/TwilioServiceProvider';
+import Parse from '../providers/ParseProvider';
+import Twilio from '../providers/TwilioProvider';
 
 // Utils
 import stripPhoneNumber from '../utils/stripPhoneNumber';
@@ -44,11 +44,12 @@ const sendCode = async request => {
     user.setPassword(passwordGenerator(authCode));
     user.save(null, { useMasterKey: true })
       .then(() => {
-        Twilio.messages.create({
-          body: `Your code for Benji is: ${ authCode }`,
-          from: '+12012560616',
-          to: phoneNumber,
-        });
+        new Twilio()
+          .client.messages.create({
+            body: `Your code for Benji is: ${ authCode }`,
+            from: '+12012560616',
+            to: phoneNumber,
+          });
       });
 
   } else {
@@ -64,11 +65,12 @@ const sendCode = async request => {
     newUser.set('language', 'en');
     await newUser.signUp();
 
-    Twilio.messages.create({
-      body: `Your code for Benji is: ${ authCode }`,
-      from: '+12012560616',
-      to: phoneNumber,
-    });
+    new Twilio()
+      .client.messages.create({
+        body: `Your code for Benji is: ${ authCode }`,
+        from: '+12012560616',
+        to: phoneNumber,
+      });
     user = newUser;
   }
 

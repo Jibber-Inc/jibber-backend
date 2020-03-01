@@ -19,14 +19,15 @@
  * IF no reservation matches code, return error
  *
  */
-import Parse from '../../providers/ParseServiceProvider';
+import Parse from '../../providers/ParseProvider';
 import axios from 'axios';
 import { rest_headers } from '../../utils/headers';
 import { makeReservation } from '../setup/seedDB';
 
 
-describe('test verify reservation', () => {
+describe('test cloud function /verifyReservation', () => {
 
+  /** case: no code sent */
   it('should throw if no code in request body', async done => {
     expect.assertions(2);
     return Parse.Cloud.run('verifyReservation', {})
@@ -37,8 +38,8 @@ describe('test verify reservation', () => {
       });
   });
 
-  /** I actually want this to return 422 but it wont... */
-  it('should return 400 bad request from rest api response', async done => {
+  /** case: no code sent -- I actually want this to return 422 but it wont... */
+  it('should return 400 response status if no code sent with request to rest api', async done => {
     expect.assertions(1);
     const url = `${process.env.SERVER_URL}/functions/verifyReservation`;
     return axios.post(url, {}, { headers: rest_headers })
@@ -48,7 +49,7 @@ describe('test verify reservation', () => {
       });
   });
 
-  /** */
+  /** case: valid code sent,  */
   it('should return reservation if given valid code', async done => {
     expect.assertions(2);
 
@@ -65,4 +66,6 @@ describe('test verify reservation', () => {
         done();
       });
   });
+
+  // it('should call ');
 });

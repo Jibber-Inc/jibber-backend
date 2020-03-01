@@ -1,4 +1,5 @@
-import twilio from 'twilio';
+// import twilio from 'twilio';
+import Twilio from '../../providers/TwilioProvider';
 import ExtendableError from 'extendable-error-class';
 
 
@@ -7,25 +8,13 @@ class TwilioTestCredentialsError extends ExtendableError {}
 
 /**
  * Confirm that the twilio client is using test credentials
- * https://www.twilio.com/docs/iam/test-credentials
+ * https://www.Twilio.client.com/docs/iam/test-credentials
  */
 const checkTwilioTestCredentials = async () => {
 
-  console.log('\nValidating Twilio test creds...\n');
+  process.stdout.write('\n\nValidating Twilio test creds...');
 
-  const {
-    TWILIO_ACCOUNT_SID,
-    TWILIO_AUTH_TOKEN,
-  } = process.env;
-
-  // Throw if required env vars are not declared
-  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
-    throw new TwilioTestCredentialsError(
-      'TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN environment variables are required.'
-    );
-  }
-
-  const Twilio = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+  const twilio = new Twilio();
 
   /**
    * Twilio magic testing numbers
@@ -40,13 +29,14 @@ const checkTwilioTestCredentials = async () => {
     valid: '+16127779311',
   };
 
-  return Twilio.messages
+  return twilio.client.messages
     .create({
       to: TO.valid,
       from: FROM.valid,
       body: 'test1',
     })
     .then(response => {
+      process.stdout.write('.');
       if (!!response.price) {
         throw new TwilioTestCredentialsError(
           '😱 Test message returned value in response.price. Killing test run.'
@@ -54,29 +44,38 @@ const checkTwilioTestCredentials = async () => {
       }
     })
 
-    .then(() => Twilio.messages  // Try sending message *to* magic invalid number
-      .create({
-        to: TO.invalid,
-        from: FROM.valid,
-        body: 'test2',
-      }))
+    .then(() => {
+      process.stdout.write('.');
+      return twilio.client.messages  // Try sending message *to* magic invalid number
+        .create({
+          to: TO.invalid,
+          from: FROM.valid,
+          body: 'test2',
+        });
+    })
 
-    .then(() => Twilio.messages  // Try sending message *from* magic invalid number
-      .create({
-        to: TO.valid,
-        from: FROM.invalid,
-        body: 'test3',
-      }))
+    .then(() => {
+      process.stdout.write('.');
+      return twilio.client.messages  // Try sending message *from* magic invalid number
+        .create({
+          to: TO.valid,
+          from: FROM.invalid,
+          body: 'test3',
+        });
+    })
     .then(() => {
       throw new TwilioTestCredentialsError(
-        'The last promise should never have resolved.'
+        '❌ The last promise should never have resolved.'
       );
     })
     .catch(error => {
-      if (error.code === 21211) return; // expected from test2 and test3
+      if (error.code === 21211) {
+        process.stdout.write('👍 Twilio is using test credentials.\n');
+        return; // expected from test2 and test3
+      }
       if (error.code === 21606) {
         throw new TwilioTestCredentialsError(
-          '🤑 Do not use production credentials in test env. Killing test run.'
+          '❌ Do not use production credentials in test env. Killing test run.'
         );
       }
       throw error;

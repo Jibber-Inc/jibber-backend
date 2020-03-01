@@ -1,6 +1,6 @@
 import ExtendableError from 'extendable-error-class';
 
-import Parse from '../providers/ParseServiceProvider';
+import Parse from '../providers/ParseProvider';
 import generateAuthCode from '../utils/generateAuthCode';
 import initiate2FA from '../services/initiate2FA';
 

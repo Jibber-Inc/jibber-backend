@@ -1,4 +1,4 @@
-import Parse from '../../providers/ParseServiceProvider';
+import Parse from '../../providers/ParseProvider';
 import faker from 'faker';
 
 
