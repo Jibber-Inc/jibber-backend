@@ -1,5 +1,11 @@
 import Parse from '../providers/ParseProvider';
 import stripPhoneNumber from '../utils/stripPhoneNumber';
+import ExtendableError from 'extendable-error-class';
+import { isMobilePhone } from 'validator';
+
+
+export class CreateConnectionError extends ExtendableError {}
+
 
 /**
  * Create a connection
@@ -7,13 +13,22 @@ import stripPhoneNumber from '../utils/stripPhoneNumber';
  * @param {*} response
  */
 const createConnection = async (request, response) => {
+
   // The target users phone number
   let fromUser = request.user;
   let phoneNumber = request.params.phoneNumber;
 
   // Phone number is required in request body
   if (!phoneNumber) {
-    throw new Error('No phone number provided in request');
+    throw new CreateConnectionError(
+      '[ubSM6Dzb] No phone number provided in request'
+    );
+  }
+
+  if (!isMobilePhone(phoneNumber)) {
+    throw new CreateConnectionError(
+      '[QEbUz6mr] Invalid phone number'
+    );
   }
 
   const Connection = Parse.Object.extend('Connection');
