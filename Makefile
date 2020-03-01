@@ -19,3 +19,7 @@ schema:
 
 migrate:
 	pipenv run migrate
+
+
+requirements:
+	pipenv lock -r > requirements.txt
