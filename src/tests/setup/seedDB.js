@@ -11,9 +11,11 @@ export const makeUser = () => {
   const username = faker.name.findName();
   const password = faker.internet.password();
   const email = faker.internet.email();
+  const phoneNumber = faker.phone.phoneNumber();
   user.set('username', username);
   user.set('password', password);
   user.set('email', email);
+  user.set('phoneNumber', phoneNumber);
   try {
     process.stdout.write('.');
     return user.signUp();
@@ -22,7 +24,7 @@ export const makeUser = () => {
   }
 };
 
-export const makeReservation = position => {
+export const makeReservation = (position=1, user=null) => {
   return new Parse.Schema('Reservation')
     .get()
     .then(schema => {
@@ -30,6 +32,9 @@ export const makeReservation = position => {
       const reservation = new Reservation();
       reservation.set('position', position);
       reservation.set('code', faker.random.alphaNumeric(10));
+      if (user instanceof Parse.User) {
+        reservation.set('user', user);
+      }
       try {
         process.stdout.write('.');
         return reservation.save();
