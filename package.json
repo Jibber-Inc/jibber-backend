@@ -9,7 +9,7 @@
     "dev:src": "babel-node src",
     "dev:dist": "npm run build && nodemon ./dist/index.js",
     "pretest": "mongodb-runner start",
-    "test": "jest --detectOpenHandles",
+    "test": "jest --detectOpenHandles --no-cache",
     "posttest": "mongodb-runner stop",
     "linter": "eslint \"./src/**/*.js\"",
     "linter:fix": "eslint \"./src/**/*.js\" --fix"
@@ -18,7 +18,9 @@
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "extendable-error-class": "^0.1.2",
+    "mongoose": "^5.9.2",
     "parse-server": "^3.10.0",
+    "tcp-port-used": "^1.0.1",
     "twilio": "^3.39.5",
     "uuid": "^3.4.0"
   },
