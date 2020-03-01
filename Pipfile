@@ -6,6 +6,7 @@ verify_ssl = true
 [scripts]
 get_schemas = "python scripts/get_schemas.py"
 migrate = "python scripts/migrate.py"
+manage_mongo = "python scripts/manage_mongo.py"
 
 [dev-packages]
 ipython = "*"
@@ -13,6 +14,7 @@ black = "*"
 
 [packages]
 requests = "*"
+pymongo = "*"
 
 [requires]
 python_version = "3.7"
