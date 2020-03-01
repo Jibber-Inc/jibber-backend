@@ -26,7 +26,7 @@ class VerifyReservationError extends ExtendableError {}
  *
  * IF reservation == code AND reservation.user != NULL {
  *  query for user THEN send verification code to that users phone number
- *  return reservation one code is sent
+ *  return reservation once code is sent
  * }
  *
  * IF no reservation matches code, return error
