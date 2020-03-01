@@ -18,8 +18,5 @@
     "comma-dangle": ["error", "always-multiline"],
     "no-extra-boolean-cast": 0,
     "arrow-parens": ["warn", "as-needed"]
-  },
-  "globals": {
-    "Parse": "readonly"
   }
 }
