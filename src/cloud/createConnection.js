@@ -25,7 +25,8 @@ const createConnection = async (request, response) => {
     );
   }
 
-  if (!isMobilePhone(phoneNumber)) {
+  // Make sure phone number is valid
+  if (!isMobilePhone(phoneNumber, 'en-US')) {
     throw new CreateConnectionError(
       '[QEbUz6mr] Invalid phone number'
     );

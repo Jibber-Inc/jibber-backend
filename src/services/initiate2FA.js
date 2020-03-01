@@ -32,7 +32,7 @@ export const initiate2FA = (auth_code, user) => {
     );
   }
 
-  if (!isMobilePhone(user.get('phoneNumber'))) {
+  if (!isMobilePhone(user.get('phoneNumber'), 'en-US')) {
     throw new Inititate2FAError(
       '[SIjXK1Xm] Invalid phone number'
     );
