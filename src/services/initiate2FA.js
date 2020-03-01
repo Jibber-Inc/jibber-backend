@@ -5,8 +5,9 @@ import ExtendableError from 'extendable-error-class';
 
 export class Inititate2FAError extends ExtendableError {}
 
+
 /**
- *
+ * Given an auth code and instance of Parse.User, send text to the user phone #
  * @param {Number} auth_code
  * @param {Parse.User} user
  */
