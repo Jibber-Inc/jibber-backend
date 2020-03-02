@@ -1,0 +1,68 @@
+{
+  "className": "Reservation",
+  "fields": {
+    "objectId": {
+      "type": "String"
+    },
+    "createdAt": {
+      "type": "Date"
+    },
+    "updatedAt": {
+      "type": "Date"
+    },
+    "ACL": {
+      "type": "ACL"
+    },
+    "position": {
+      "type": "Number",
+      "required": true
+    },
+    "code": {
+      "type": "String",
+      "required": true
+    },
+    "isClaimed": {
+      "type": "Boolean",
+      "required": true,
+      "defaultValue": false
+    },
+    "user": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": false
+    },
+    "link": {
+      "type": "String",
+      "required": false
+    }
+  },
+  "classLevelPermissions": {
+    "find": {
+      "*": true
+    },
+    "count": {
+      "*": true
+    },
+    "get": {
+      "*": true
+    },
+    "create": {
+      "*": true
+    },
+    "update": {
+      "*": true
+    },
+    "delete": {
+      "*": true
+    },
+    "addField": {
+      "*": true
+    },
+    "protectedFields": {}
+  },
+  "indexes": {
+    "_id_": {
+      "_id": 1
+    }
+  }
+}

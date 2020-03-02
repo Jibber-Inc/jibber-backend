@@ -1,4 +1,7 @@
-import { ArgumentTypeError } from '../errors';
+import ExtendableError from 'extendable-error-class';
+
+
+export class StripPhoneNumberError extends ExtendableError {}
 
 /**
  * Return only numbers
@@ -8,7 +11,7 @@ const stripPhoneNumber = phoneNumber => {
 
   // Enforce argument type
   if (typeof phoneNumber !== 'string') {
-    throw new ArgumentTypeError(`Phone number type should be string - got ${ typeof phoneNumber }`);
+    throw new StripPhoneNumberError(`Phone number type should be string - got ${ typeof phoneNumber }`);
   }
 
   return phoneNumber.replace(/\D/g, '');

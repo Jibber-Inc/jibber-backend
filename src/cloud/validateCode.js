@@ -1,3 +1,4 @@
+import Parse from '../providers/ParseProvider';
 import stripPhoneNumber from '../utils/stripPhoneNumber';
 import passwordGenerator from '../utils/passwordGenerator';
 

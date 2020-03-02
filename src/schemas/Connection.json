@@ -1,0 +1,64 @@
+{
+  "className": "Connection",
+  "fields": {
+    "objectId": {
+      "type": "String"
+    },
+    "createdAt": {
+      "type": "Date"
+    },
+    "updatedAt": {
+      "type": "Date"
+    },
+    "ACL": {
+      "type": "ACL"
+    },
+    "status": {
+      "type": "String",
+      "required": false
+    },
+    "to": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": true
+    },
+    "from": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": true
+    },
+    "toPhoneNumber": {
+      "type": "String",
+      "required": false
+    },
+    "phoneNumber": {
+      "type": "String"
+    }
+  },
+  "classLevelPermissions": {
+    "find": {
+      "*": true
+    },
+    "count": {
+      "*": true
+    },
+    "get": {
+      "*": true
+    },
+    "create": {
+      "*": true
+    },
+    "update": {
+      "*": true
+    },
+    "delete": {
+      "*": true
+    },
+    "addField": {
+      "*": true
+    },
+    "protectedFields": {
+      "*": []
+    }
+  }
+}

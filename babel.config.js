@@ -4,6 +4,13 @@ module.exports = {
     '@babel/plugin-transform-strict-mode',
   ],
   presets: [
-    '@babel/preset-env',
+    [
+      '@babel/preset-env',
+      {
+        'targets': {
+          'node': 'current'
+        }
+      },
+    ]
   ],
 };
