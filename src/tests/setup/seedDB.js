@@ -60,7 +60,29 @@ export const makeReservation = (position=1, user=null) => {
         process.stdout.write('.');
         return reservation.save();
       } catch (error) {
-        console.log('Error: ' + error.code + ' ' + error.message);
+        console.error(`error ${error.code} ${error.message}`);
+      }
+    });
+};
+
+/**
+ * Create a connection
+ * @param {Parse.User} to
+ * @param {Parse.User} from
+ */
+export const makeConnection = (to, from) => {
+  return new Parse.Schema('Connection')
+    .get()
+    .then(schema => {
+      const Connection = Parse.Object.extend(schema);
+      const connection = new Connection();
+      connection.set('to', to);
+      connection.set('from', from);
+      try {
+        process.stdout.write('.');
+        return connection.save();
+      } catch(error) {
+        console.error(`error ${error.code} ${error.message}`);
       }
     });
 };
