@@ -43,38 +43,64 @@ except ConnectionFailure:
 db = client.get_default_database()
 
 
+def make_unique_indexes(name, field, collection):
+    """Ensure that index for field in collection is unique.
+
+    Parameters
+    ----------
+    name : str
+        The name of the collection
+    field : str
+        The name of the field
+    collection : Collection
+        The collection
+    """
+    # Should have 1 unique index
+    indexes = []
+    for index in collection.list_indexes():
+        if index.get("key").has_key(field):
+            indexes.append(index)
+
+    # create index if doesn't exist
+    if not indexes:
+        print(f"{name}: no index with field {field}, creating...")
+        collection.create_index(field, unique=True)
+        collection.reindex()
+    else:
+        # Should only be 1 index
+        if len(indexes) > 1:
+            print(f"{name}: too many index for {field}, dropping*/recreating...")
+            for index in indexes:
+                collection.drop_index(index.get("name"))
+            collection.create_index(field, unique=True)
+            collection.reindex()
+        else:
+            # To modify an existing index, you need to drop and recreate the index.
+            if not indexes[0].get("unique"):
+                print(f"{name}: {field} index not unique, dropping/recreating...")
+                collection.drop_index(indexes[0].get("name"))
+                collection.create_index(field, unique=True)
+                collection.reindex()
+        print(f"{name}: Nothing to update.")
+
+
+###############################################################################
+### Manage User Collection ####################################################
+###############################################################################
+
+# Get User Collection
+name = "User"
+field = "phoneNumber"
+collection = Collection(db, name)
+make_unique_indexes(name, field, Collection(db, name))
+
 ###############################################################################
 ### Manage Reservation Collection #############################################
 ###############################################################################
 
 # Get Reservation Collection
-reservation_collection = Collection(db, "Reservation")
-
-# Should have 1 unique "code" index
-code_indexes = []
-for index in reservation_collection.list_indexes():
-    if index.get("key").has_key("code"):
-        code_indexes.append(index)
-
-# create "code" index if doesnt exist
-if not code_indexes:
-    print("Reservation: no index with field 'code', creating...")
-    reservation_collection.create_index("code", unique=True)
-    reservation_collection.reindex()
-else:
-    # Should only be 1 code index
-    if len(code_indexes) > 1:
-        print("Reservation: too many index for 'code', dropping all and recreating...")
-        for index in code_indexes:
-            reservation_collection.drop_index(index.get("name"))
-        reservation_collection.create_index("code", unique=True)
-        reservation_collection.reindex()
-    else:
-        # To modify an existing index, you need to drop and recreate the index.
-        if not code_indexes[0].get("unique"):
-            print("Reservation: 'code' index is not unique, dropping/recreating...")
-            reservation_collection.drop_index(code_indexes[0].get("name"))
-            reservation_collection.create_index("code", unique=True)
-            reservation_collection.reindex()
-    print("Reservation: Nothing to update.")
+name = "Reservation"
+field = "code"
+collection = Collection(db, name)
+make_unique_indexes(name, field, collection)
 
