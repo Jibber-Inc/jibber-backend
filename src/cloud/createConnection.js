@@ -18,6 +18,12 @@ const createConnection = async (request, response) => {
   let fromUser = request.user;
   let phoneNumber = request.params.phoneNumber;
 
+  if (!Boolean(fromUser instanceof Parse.User)) {
+    throw new CreateConnectionError(
+      '[2wMux0QT] request.user is invalid.'
+    );
+  }
+
   // Phone number is required in request body
   if (!phoneNumber) {
     throw new CreateConnectionError(
