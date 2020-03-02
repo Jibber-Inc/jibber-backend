@@ -44,7 +44,7 @@ const verifyReservation = async request => {
     // It seems that Parse just "magically" handles these types of things in cloud
     // code for ex: https://github.com/parse-community/parse-server/issues/5348
     // 😠 Hopefully I am just wrong and there is something I'm missing...
-    throw new VerifyReservationError('Missing "code" in request body');
+    throw new VerifyReservationError('[KYUOOAOE] Missing "code" in request body');
   }
 
   // Build query
@@ -57,7 +57,7 @@ const verifyReservation = async request => {
   // Throw if not found
   if (!reservation) {
     // @todo: add phone number to waitlist?
-    throw new VerifyReservationError('Reservation not found');
+    throw new VerifyReservationError('[vR09CIUf] Reservation not found');
   }
 
   // Reservation found...

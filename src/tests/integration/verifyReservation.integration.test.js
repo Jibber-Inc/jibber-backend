@@ -32,7 +32,7 @@ describe('test cloud function /verifyReservation', () => {
     expect.assertions(2);
     return Parse.Cloud.run('verifyReservation', {})
       .catch(error => {
-        expect(error.message).toBe('Missing "code" in request body');
+        expect(error.message).toBe('[KYUOOAOE] Missing "code" in request body');
         expect(error.code).toBe(141);
         done();
       });
@@ -44,7 +44,7 @@ describe('test cloud function /verifyReservation', () => {
     expect.assertions(2);
     return Parse.Cloud.run('verifyReservation', { code: 'JtXzfJQgIIpGFnSga2RxLIaDgSYfRRir' })
       .catch(error => {
-        expect(error.message).toBe('Reservation not found');
+        expect(error.message).toBe('[vR09CIUf] Reservation not found');
         expect(error.code).toBe(141);
         done();
       });
