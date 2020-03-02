@@ -12,7 +12,7 @@ export class CreateConnectionError extends ExtendableError {}
  * @param {*} request
  * @param {*} response
  */
-const createConnection = async (request, response) => {
+const createConnection = async request => {
 
   // The target users phone number
   let fromUser = request.user;
@@ -50,84 +50,32 @@ const createConnection = async (request, response) => {
   // Query for user
   let targetUser = await userQuery.first({ useMasterKey: true });
 
-  // If target user found
-  if (!!targetUser) {
-    // Determine if the user already has a connection with the requesting user
-    const connectionQuery = new Parse.Query(Connection);
-    connectionQuery.equalTo('to', targetUser);
-    connectionQuery.equalTo('from', fromUser);
-
-    let connection = await connectionQuery.first({ useMasterKey: true });
-
-    // If there is a connection, return it
-    if (!!connection) {
-      return connection;
-    }
-
-    // Otherwise create a connection between the users and set the status to invited
-    const newConnection = new Connection();
-    newConnection.set('to', targetUser);
-    newConnection.set('from', fromUser);
-    newConnection.set('phoneNumber', phoneNumber);
-    newConnection.set('status', 'invited');
-
-    return newConnection
-      .save()
-      .then(savedConnection => {
-        // add the new connection to user making the request
-        fromUser.addUnique(newConnection, 'connections');
-
-        return fromUser
-          .save()
-          .then(updatedFromUser => {
-            console.log(
-              `[createConnection] Saved a new connection [${newConnection.get(
-                'id'
-              )}] to user [${updatedFromUser.get('id')}]`
-            );
-            return savedConnection;
-          })
-          .catch(error => response.error(error));
-      })
-      .catch(error => response.error(error));
+  // Throw if user not found
+  if (!Boolean(targetUser instanceof Parse.User)) {
+    throw new CreateConnectionError(
+      '[sYydNsZl] Target user not found'
+    );
   }
 
-  // If no target user found
-  // Determine if their is already a connection with the given phoneNumber for the requesting user
+  // If target user found
+  // Determine if the user already has a connection with the requesting user
   const connectionQuery = new Parse.Query(Connection);
-  connectionQuery.equalTo('phoneNumber', phoneNumber);
+  connectionQuery.equalTo('to', targetUser);
   connectionQuery.equalTo('from', fromUser);
-
   let connection = await connectionQuery.first({ useMasterKey: true });
 
-  // If there is a connection, return it
-  if (!!connection) {
+  // If there is an existing connection, return it
+  if (connection instanceof Connection) {
     return connection;
   }
 
-  // Otherwise create a connection with the sender and phoneNumber
+  // Otherwise create a connection between the users and set the status to invited
   const newConnection = new Connection();
+  newConnection.set('to', targetUser);
   newConnection.set('from', fromUser);
   newConnection.set('phoneNumber', phoneNumber);
   newConnection.set('status', 'invited');
-
-  return newConnection
-    .save()
-    .then(savedConnection => {
-      fromUser.addUnique(newConnection, 'connections');
-      return fromUser
-        .save()
-        .then(updatedFromUser => {
-          console.log(
-            `[createConnection] Saved a new connection: ${savedConnection.get(
-              'id'
-            )} to user: ${updatedFromUser.get('id')}`
-          );
-          return savedConnection;
-        })
-        .catch(error => response.error(error));
-    })
-    .catch(error => response.error(error));
+  return newConnection.save();
 };
 
 export default createConnection;
