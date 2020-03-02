@@ -20,6 +20,13 @@ const manageMongo = () => mongoose
 
     console.log(`manageMongo: Mongoose connected to ${ DATABASE_URI }`);
 
+    // Manage User indexes
+    // requires 'phoneNumber' to be unique
+    const UserSchema = new Schema({
+      phoneNumber: { type: [String], index: true, unique: true },
+    });
+    const User = Mongoose.model('User', UserSchema);
+
     // Manage Reservation indexes
     // requires 'code' unique
     const ReservationSchema = new Schema({
@@ -29,6 +36,7 @@ const manageMongo = () => mongoose
 
 
     const promises = [
+      User.init(),
       Reservation.init(),
     ];
 
