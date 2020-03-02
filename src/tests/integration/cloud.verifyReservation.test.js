@@ -65,18 +65,16 @@ describe('test cloud function /verifyReservation', () => {
 
   /** case: valid code sent -- no user  */
   it('should return reservation with no user if given valid code', async done => {
-    expect.assertions(3);
+    expect.assertions(2);
 
     // Seed a single reservation
-    const position = 69;
-    const reservation = await makeReservation(position); // no user
+    const reservation = await makeReservation(); // no user
 
     // Use verifyReservation endpoint to find the reservation
     const params = { code: reservation.get('code') };
     return Parse.Cloud.run('verifyReservation', params)
       .then(response => {
         expect(response.get('code')).toBe(params.code);
-        expect(response.get('position')).toBe(position);
         expect(response.get('user')).toBe(undefined);
         return done();
       });
@@ -85,21 +83,19 @@ describe('test cloud function /verifyReservation', () => {
 
   /** case: valid code send -- with user */
   it('should return reservation and user if given valid code', async done => {
-    expect.assertions(3);
+    expect.assertions(2);
 
     // Get some user
     const userQuery = new Parse.Query(Parse.User);
     const user = await userQuery.first({ useMasterKey: true });
 
     // Seed a reservation with a user property
-    const position = 70;
-    const reservation = await makeReservation(position, user); // with user
+    const reservation = await makeReservation(user); // with user
 
     const params = { code: reservation.get('code') };
     return Parse.Cloud.run('verifyReservation', params)
       .then(response => {
         expect(response.get('code')).toBe(params.code);
-        expect(response.get('position')).toBe(position);
         expect(response.get('user') instanceof Parse.User).toBe(true);
         return done();
       });

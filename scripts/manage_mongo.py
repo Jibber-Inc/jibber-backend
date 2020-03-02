@@ -61,26 +61,28 @@ def make_unique_indexes(name, field, collection):
         if index.get("key").has_key(field):
             indexes.append(index)
 
+    def create():
+        # Create
+        collection.create_index(field, unique=True)
+        collection.reindex()
+
     # create index if doesn't exist
     if not indexes:
         print(f"{name}: no index with field {field}, creating...")
-        collection.create_index(field, unique=True)
-        collection.reindex()
+        create()
     else:
         # Should only be 1 index
         if len(indexes) > 1:
             print(f"{name}: too many index for {field}, dropping*/recreating...")
             for index in indexes:
                 collection.drop_index(index.get("name"))
-            collection.create_index(field, unique=True)
-            collection.reindex()
+            create()
         else:
             # To modify an existing index, you need to drop and recreate the index.
             if not indexes[0].get("unique"):
                 print(f"{name}: {field} index not unique, dropping/recreating...")
                 collection.drop_index(indexes[0].get("name"))
-                collection.create_index(field, unique=True)
-                collection.reindex()
+                create()
         print(f"{name}: Nothing to update.")
 
 
@@ -90,9 +92,9 @@ def make_unique_indexes(name, field, collection):
 
 # Get User Collection
 name = "User"
-field = "phoneNumber"
 collection = Collection(db, name)
-make_unique_indexes(name, field, Collection(db, name))
+make_unique_indexes(name, "phoneNumber", Collection(db, name))
+make_unique_indexes(name, "handle", Collection(db, name))
 
 ###############################################################################
 ### Manage Reservation Collection #############################################
@@ -100,7 +102,6 @@ make_unique_indexes(name, field, Collection(db, name))
 
 # Get Reservation Collection
 name = "Reservation"
-field = "code"
 collection = Collection(db, name)
-make_unique_indexes(name, field, collection)
-
+make_unique_indexes(name, "code", collection)
+make_unique_indexes(name, "position", collection)

@@ -31,6 +31,7 @@ const manageMongo = () => mongoose
     // requires 'code' unique
     const ReservationSchema = new Schema({
       code: { type: [String], index: true, unique: true },
+      position: { type: [Number], index: true, unique: true },
     });
     const Reservation = Mongoose.model('Reservation', ReservationSchema);
 

@@ -10,6 +10,8 @@ import verifyReservation from './verifyReservation';
 
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
+import userBeforeSave from './webhooks/userBeforeSave';
+import reservationBeforeSave from './webhooks/reservationBeforeSave';
 
 
 // Load Environment variables
@@ -42,3 +44,5 @@ Parse.Cloud.define('verifyReservation', verifyReservation);
 
 // Cloud code webhooks
 Parse.Cloud.afterSave('Connection', connectionAfterSave);
+Parse.Cloud.beforeSave(Parse.User, userBeforeSave);
+Parse.Cloud.beforeSave('Reservation', reservationBeforeSave);

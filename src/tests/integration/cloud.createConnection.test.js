@@ -78,7 +78,7 @@ describe('test cloud function /createConnection', () => {
 
   /** case: target user found and connection to user does not exist */
   it('should return new connection if user found and no existing connection', async done => {
-    // expect.assertions(3);
+    expect.assertions(3);
 
     // Get Connection schema
     const Connection = Parse.Object.extend('Connection');
