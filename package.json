@@ -19,7 +19,7 @@
     "dotenv": "^8.2.0",
     "extendable-error-class": "^0.1.2",
     "mongoose": "^5.9.2",
-    "parse-server": "^3.10.0",
+    "parse-server": "^4.1.0",
     "tcp-port-used": "^1.0.1",
     "twilio": "^3.39.5",
     "uuid": "^3.4.0",
