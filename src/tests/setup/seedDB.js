@@ -34,7 +34,6 @@ export const makeUser = async (options={}) => {
   user.set('username', username);
   user.set('givenName', givenName);
   user.set('familyName', familyName);
-  // user.set('handle', handle);
   user.set('password', password);
   user.set('email', email);
   user.set('phoneNumber', phoneNumber);
@@ -54,7 +53,6 @@ export const makeReservation = (user=null) => {
     .then(schema => {
       const Reservation = Parse.Object.extend(schema);
       const reservation = new Reservation();
-      reservation.set('code', faker.random.alphaNumeric(10));
       if (user instanceof Parse.User) {
         reservation.set('user', user);
       }
