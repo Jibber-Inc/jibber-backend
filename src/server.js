@@ -1,6 +1,7 @@
 // Vendor modules
 import express from 'express';
 import path from 'path';
+import twilio from 'twilio';
 import { createServer } from 'http';
 
 // Benji api
@@ -16,6 +17,10 @@ const { PARSE_MOUNT } = process.env;
 
 // create express app
 const app = express();
+
+// Built in middleware
+app.use(express.urlencoded());
+app.use(express.json());
 
 // Serve static assets from the /public folder
 app.use('/public', express.static(path.join(__dirname, '/public')));
@@ -35,9 +40,9 @@ app.get('/hello', async (request, response) =>
   response
     .sendFile(path.join(__dirname, '/hello.html')));
 
-
-app.get('/chatBeforeEvent', chatBeforeEvent);
-app.get('/chatAfterEvent', chatAfterEvent);
+// Twilio Pre/Post Even Webhooks
+app.post('/chatBeforeEvent', twilio.webhook(), chatBeforeEvent);
+app.post('/chatAfterEvent', twilio.webhook(), chatAfterEvent);
 
 
 export default createServer(app);

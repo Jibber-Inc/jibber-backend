@@ -1,5 +1,15 @@
-
-
+// Event handlers
+import onChannelAdd from './onChannelAdd';
+import onChannelDestroy from './onChannelDestroy';
+import onChannelUpdate from './onChannelUpdate';
+import onMediaMessageSend from './onMediaMessageSend';
+import onMemberAdd from './onMemberAdd';
+import onMemberRemove from './onMemberRemove';
+import onMemberUpdate from './onMemberUpdate';
+import onMessageRemove from './onMessageRemove';
+import onMessageSend from './onMessageSend';
+import onMessageUpdate from './onMessageUpdate';
+import onUserUpdate from './onUserUpdate';
 
 
 /**
@@ -32,9 +42,31 @@
  */
 const chatBeforeEvent = async (request, response) => {
 
-  return response
-    .status(200)
-    .json({});
+  // Route function by Event Type
+  const { EventType } = request.body;
+  const handlers = {
+    onChannelAdd,
+    onChannelDestroy,
+    onChannelUpdate,
+    onMediaMessageSend,
+    onMemberAdd,
+    onMemberRemove,
+    onMemberUpdate,
+    onMessageRemove,
+    onMessageSend,
+    onMessageUpdate,
+    onUserUpdate,
+  };
+
+  // Return error if no route for EventType
+  if (!Object.prototype.hasOwnProperty.call(handlers, EventType)) {
+    return response
+      .status(403)
+      .send(`No handler found for ${ EventType }`);
+  }
+
+  return handlers[EventType](request, response);
 };
+
 
 export default chatBeforeEvent;
