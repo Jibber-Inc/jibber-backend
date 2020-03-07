@@ -9,6 +9,7 @@ const reservationBeforeSave = async request => {
 
   const reservation = request.object;
 
+  // Auto increment position if new reservation
   if (reservation.isNew()) {
     const ReservationCount = Parse.Object.extend('ReservationCount');
     const countQuery = new Parse.Query(ReservationCount);
