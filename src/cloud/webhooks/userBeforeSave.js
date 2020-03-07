@@ -32,8 +32,11 @@ const userBeforeSave = async request => {
 
       // Update reservation "isClaimed" = true
       .then(reservation => {
-        reservation.set('isClaimed', true);
-        return reservation.save();
+        if (!reservation.get('isClaimed')) {
+          reservation.set('isClaimed', true);
+          return reservation.save();
+        }
+        return reservation;
       })
 
       // Update user handle
