@@ -7,6 +7,7 @@ import validateCode from './validateCode';
 import updateConnection from './updateConnection';
 import createConnection from './createConnection';
 import verifyReservation from './verifyReservation';
+import createHandle from './createHandle';
 
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
@@ -40,6 +41,7 @@ Parse.Cloud.define('validateCode', validateCode);
 Parse.Cloud.define('updateConnection', updateConnection);
 Parse.Cloud.define('createConnection', createConnection);
 Parse.Cloud.define('verifyReservation', verifyReservation);
+Parse.Cloud.define('createHandle', createHandle);
 
 
 // Cloud code webhooks
