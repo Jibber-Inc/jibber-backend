@@ -10,6 +10,7 @@ process.env.MASTER_KEY = 'test-master-key';
 process.env.REST_API_KEY = 'rest-api-key';
 process.env.BENJI_SECRET_PASSWORD_TOKEN = 'test-secret-password-token';
 process.env.PORT = 1337;
+process.env.HOST = 'http://localhost';
 process.env.DATABASE_URI = 'mongodb://127.0.0.1:27017/parse';
 process.env.SERVER_URL = 'http://localhost:1337/parse';
 process.env.CLOUD_CODE_MAIN = 'src/cloud';
@@ -22,6 +23,7 @@ module.exports = {
   coverageDirectory: './coverage',
   moduleDirectories: ['node_modules', 'src'],
   roots: ['<rootDir>/src/'],
+  testEnvironment: 'node',
   verbose: true,
   globalSetup: '<rootDir>/src/tests/setup/testGlobalSetup.js',
   globalTeardown: '<rootDir>/src/tests/setup/testGlobalTeardown.js',
