@@ -3,6 +3,8 @@ import faker from 'faker';
 import { isMobilePhone } from 'validator';
 import ExtendableError from 'extendable-error-class';
 
+import generateReservationCode from '../../utils/generateReservationCode';
+
 
 class SeedDBError extends ExtendableError {}
 
@@ -34,7 +36,6 @@ export const makeUser = async (options={}) => {
   user.set('username', username);
   user.set('givenName', givenName);
   user.set('familyName', familyName);
-  // user.set('handle', handle);
   user.set('password', password);
   user.set('email', email);
   user.set('phoneNumber', phoneNumber);
@@ -54,7 +55,7 @@ export const makeReservation = (user=null) => {
     .then(schema => {
       const Reservation = Parse.Object.extend(schema);
       const reservation = new Reservation();
-      reservation.set('code', faker.random.alphaNumeric(10));
+      reservation.set('code', generateReservationCode());
       if (user instanceof Parse.User) {
         reservation.set('user', user);
       }
