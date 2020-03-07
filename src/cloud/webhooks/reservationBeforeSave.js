@@ -2,7 +2,7 @@ import Parse from '../../providers/ParseProvider';
 
 
 /**
- * After save webhook for Connection objects.
+ * After save webhook for Reservation objects.
  * @param {Object} request
  */
 const reservationBeforeSave = async request => {
