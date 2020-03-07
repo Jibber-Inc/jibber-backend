@@ -1,4 +1,3 @@
-// import twilio from 'twilio';
 import Twilio from '../../providers/TwilioProvider';
 import ExtendableError from 'extendable-error-class';
 
