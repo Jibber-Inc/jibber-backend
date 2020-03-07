@@ -18,6 +18,7 @@ const stripWhitespace = str => str.replace(/\s+/g, '');
  * @param {String} givenName
  * @param {String} familyName
  * @param {Number} position
+ * @returns {String}
  */
 const createHandle = (givenName, familyName, position) => {
   if (!givenName || typeof givenName !== 'string') {
@@ -26,12 +27,15 @@ const createHandle = (givenName, familyName, position) => {
   if (!familyName || typeof familyName !== 'string') {
     throw new CreateHandleError('[r67Qe8j4] Invalid arg familyName');
   }
+  if (typeof position !== 'number') {
+    throw new CreateHandleError('[PbtV1ku9] Invalid arg position');
+  }
 
   return `${
     stripWhitespace(givenName).toLowerCase()
   }${
     familyName.charAt(0).toLowerCase()
-  }-${
+  }_${
     stripWhitespace(String(position))
   }`;
 };

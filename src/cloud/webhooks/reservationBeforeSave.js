@@ -2,13 +2,14 @@ import Parse from '../../providers/ParseProvider';
 
 
 /**
- * After save webhook for Connection objects.
+ * After save webhook for Reservation objects.
  * @param {Object} request
  */
 const reservationBeforeSave = async request => {
 
   const reservation = request.object;
 
+  // Auto increment position if new reservation
   if (reservation.isNew()) {
     const ReservationCount = Parse.Object.extend('ReservationCount');
     const countQuery = new Parse.Query(ReservationCount);

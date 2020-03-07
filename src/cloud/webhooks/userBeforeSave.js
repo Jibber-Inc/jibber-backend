@@ -32,8 +32,11 @@ const userBeforeSave = async request => {
 
       // Update reservation "isClaimed" = true
       .then(reservation => {
-        reservation.set('isClaimed', true);
-        return reservation.save();
+        if (reservation.get('isClaimed') !== true) {
+          reservation.set('isClaimed', true);
+          return reservation.save();
+        }
+        return reservation;
       })
 
       // Update user handle
@@ -43,7 +46,7 @@ const userBeforeSave = async request => {
           const phoneNumber = user.get('phoneNumber');
           const givenName = user.get('givenName');
           const familyName = user.get('familyName');
-          if (!!phoneNumber && givenName && familyName) {
+          if (!!phoneNumber && !!givenName && !!familyName) {
             const handle = createHandle(givenName, familyName, position);
             user.set('handle', handle);
           }
