@@ -54,7 +54,6 @@ export const makeReservation = (user=null) => {
     .then(schema => {
       const Reservation = Parse.Object.extend(schema);
       const reservation = new Reservation();
-      // reservation.set('position', position);
       reservation.set('code', faker.random.alphaNumeric(10));
       if (user instanceof Parse.User) {
         reservation.set('user', user);
