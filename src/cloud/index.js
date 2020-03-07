@@ -8,6 +8,7 @@ import updateConnection from './updateConnection';
 import createConnection from './createConnection';
 import verifyReservation from './verifyReservation';
 import createHandle from './createHandle';
+import getChatToken from './getChatToken';
 
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
@@ -42,6 +43,7 @@ Parse.Cloud.define('updateConnection', updateConnection);
 Parse.Cloud.define('createConnection', createConnection);
 Parse.Cloud.define('verifyReservation', verifyReservation);
 Parse.Cloud.define('createHandle', createHandle);
+Parse.Cloud.define('getChatToken', getChatToken);
 
 
 // Cloud code webhooks
