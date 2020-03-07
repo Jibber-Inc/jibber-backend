@@ -19,7 +19,7 @@ const { PARSE_MOUNT } = process.env;
 const app = express();
 
 // Built in middleware
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Serve static assets from the /public folder
