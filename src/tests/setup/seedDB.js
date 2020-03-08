@@ -18,7 +18,6 @@ export const makeUser = async (options={}) => {
   const username = faker.random.uuid();
   const givenName = options.givenName || faker.name.firstName();
   const familyName = options.familyName || faker.name.lastName();
-  // const handle = options.username || faker.internet.userName(`${givenName} ${familyName}`);
   const password = options.password || faker.internet.password();
   const email = options.email || faker.internet.email();
   const reservation = options.reservation || undefined;

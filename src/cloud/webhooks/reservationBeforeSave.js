@@ -1,5 +1,6 @@
 import Parse from '../../providers/ParseProvider';
 import generateReservationCode from '../../utils/generateReservationCode';
+import generateReservationLink from '../../utils/generateReservationLink';
 
 
 /**
@@ -29,6 +30,12 @@ const reservationBeforeSave = async request => {
     // We might want to handle edge case in code of these values colliding
     // Although, mongo db managed index "code" already enforces unique values.
     reservation.set('code', generateReservationCode());
+  }
+
+  // Set link property
+  const link = generateReservationLink(reservation.get('code'));
+  if (reservation.get('link') !== link) {
+    reservation.set('link', link);
   }
 };
 
