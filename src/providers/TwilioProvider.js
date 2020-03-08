@@ -1,6 +1,4 @@
-// Vendor modules
-const twilio = require('twilio');
-
+import twilio from 'twilio';
 
 
 class Twilio {

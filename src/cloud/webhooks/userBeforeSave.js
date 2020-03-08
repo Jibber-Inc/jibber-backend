@@ -1,5 +1,10 @@
-import Parse from '../../providers/ParseProvider';
+// Vendor
 import ExtendableError from 'extendable-error-class';
+
+// Providers
+import Parse from '../../providers/ParseProvider';
+
+// Utils
 import createHandle from '../../utils/createHandle';
 
 

@@ -13,6 +13,7 @@ import getChatToken from './getChatToken';
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
 import userBeforeSave from './webhooks/userBeforeSave';
+import userAfterSave from './webhooks/userAfterSave';
 import reservationBeforeSave from './webhooks/reservationBeforeSave';
 
 
@@ -49,4 +50,5 @@ Parse.Cloud.define('getChatToken', getChatToken);
 // Cloud code webhooks
 Parse.Cloud.afterSave('Connection', connectionAfterSave);
 Parse.Cloud.beforeSave(Parse.User, userBeforeSave);
+Parse.Cloud.afterSave(Parse.User, userAfterSave);
 Parse.Cloud.beforeSave('Reservation', reservationBeforeSave);
