@@ -4,8 +4,7 @@
  * @param {Object} request
  */
 const connectionAfterSave = request => {
-  const connection = request.object;
-  console.log('connection saved:', connection.id);
+  const connection = request.object;  // eslint-disable-line no-unused-vars
 };
 
 
