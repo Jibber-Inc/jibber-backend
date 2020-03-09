@@ -1,6 +1,5 @@
 import Parse from '../../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
-import { isISO8601 } from 'validator';
 
 import createChatChannel from '../../utils/createChatChannel';
 
@@ -20,14 +19,14 @@ const userAfterSave = request => {
       '[c4V3VYAu] Expected user in request.object'
     );
   }
-  if (!isISO8601(user.createdAt)) {
+  if (!Boolean(user.createdAt instanceof Date)) {
     throw new UserAfterSaveError(
-      '[hplRppBn] Expected user.createdAt to be ISO timestamp'
+      '[hplRppBn] Expected user.createdAt to be instanceof Date'
     );
   }
-  if (!isISO8601(user.updatedAt)) {
+  if (!Boolean(user.updatedAt instanceof Date)) {
     throw new UserAfterSaveError(
-      '[3Npvri9X] Expected user.updatedAt to be ISO timestamp'
+      '[3Npvri9X] Expected user.updatedAt to be instanceof Date'
     );
   }
 
