@@ -11,15 +11,14 @@ import createHandle from '../../utils/createHandle';
 class UserBeforeSaveError extends ExtendableError {}
 
 
-
 /**
- * After save webhook for Connection objects.
+ * Before save webhook for users.
  * @param {Object} request
  */
 const userBeforeSave = async request => {
   const user = request.object;
 
-  if (!user) {
+  if (!Boolean(user instanceof Parse.User)) {
     throw new UserBeforeSaveError(
       '[iHkt4G3p] Expected user in request.object'
     );
