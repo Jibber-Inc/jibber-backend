@@ -9,7 +9,9 @@ const userAfterSave = request => {
   const user = request.object;
 
   // Create new user chat channels
-  if (user.isNew()) {
+  // Since user.isNew() will always be false in the afterSave hook
+  // we're comparing the createdAt/updatedAt timestamps to determine a new user
+  if (user.createdAt === user.updatedAt) {
     Promise.all([
       createChatChannel(user, `Welcome_${user.id}`, 'Welcome!'),
       createChatChannel(user, `Feedback_${user.id}`, 'Feedback'),
