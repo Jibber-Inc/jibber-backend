@@ -8,7 +8,7 @@
     "start": "node ./dist/index.js",
     "dev:src": "babel-node src",
     "dev:dist": "npm run build && nodemon ./dist/index.js",
-    "pretest": "mongodb-runner start",
+    "pretest": "MONGODB_VERSION=4.2.3 mongodb-runner start",
     "test": "jest --detectOpenHandles --no-cache",
     "posttest": "mongodb-runner stop",
     "linter": "eslint \"./src/**/*.js\"",
