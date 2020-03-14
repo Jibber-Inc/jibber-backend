@@ -18,7 +18,7 @@
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "extendable-error-class": "^0.1.2",
-    "mongoose": "^5.9.3",
+    "mongoose": "^5.9.4",
     "parse-server": "^4.1.0",
     "tcp-port-used": "^1.0.1",
     "twilio": "^3.40.0",
