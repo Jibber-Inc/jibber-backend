@@ -1,18 +1,20 @@
 // Vendor modules
 import uuidv4 from 'uuid/v4';
+import ExtendableError from 'extendable-error-class';
+
+// Providers
+import Parse from '../providers/ParseProvider';
 
 // Services
-import Parse from '../providers/ParseProvider';
-import Twilio from '../providers/TwilioProvider';
+import initiate2FA from '../services/initiate2FA';
 
 // Utils
 import stripPhoneNumber from '../utils/stripPhoneNumber';
 import generateAuthCode from '../utils/generateAuthCode';
 import passwordGenerator from '../utils/passwordGenerator';
 
-// Services
-// @todo
-// import phoneVerificationService from '../services/phoneVerificationService';
+
+class SendCodeError extends ExtendableError {}
 
 
 /**
@@ -24,7 +26,7 @@ const sendCode = async request => {
 
   // Phone number is required in request body
   if (!phoneNumber) {
-    throw new Error('No phone number provided in request');
+    throw new SendCodeError('[Zc1UZev9] No phone number provided in request');
   }
 
   // Strip phone number
@@ -40,38 +42,40 @@ const sendCode = async request => {
   // Query for user
   let user = await userQuery.first({ useMasterKey: true });
 
-  if (user) {
+  if (!!user) {
     user.setPassword(passwordGenerator(authCode));
     user.save(null, { useMasterKey: true })
-      .then(() => {
-        new Twilio()
-          .client.messages.create({
-            body: `Your code for Benji is: ${ authCode }`,
-            from: '+12012560616',
-            to: phoneNumber,
-          });
+      .then(user => {
+
+        if (!Boolean(user instanceof Parse.User)) {
+          throw new SendCodeError(
+            '[z0KveYVV] expected instanceof Parse.User'
+          );
+        }
+
+        initiate2FA(authCode, user);
       });
 
   } else {
 
     // Create a new user
     const newUser = new Parse.User();
-    var acl = new Parse.ACL();
+    let acl = new Parse.ACL();
     acl.setPublicReadAccess(true);
     newUser.setACL(acl);
     newUser.setUsername(uuidv4());
     newUser.setPassword(passwordGenerator(authCode));
     newUser.set('phoneNumber', phoneNumber);
     newUser.set('language', 'en');
-    await newUser.signUp();
+    const user = await newUser.signUp();
 
-    new Twilio()
-      .client.messages.create({
-        body: `Your code for Benji is: ${ authCode }`,
-        from: '+12012560616',
-        to: phoneNumber,
-      });
-    user = newUser;
+    if (!Boolean(user instanceof Parse.User)) {
+      throw new SendCodeError(
+        '[hRE4DM1d] expected user = instanceof Parse.User'
+      );
+    }
+
+    initiate2FA(authCode, user);
   }
 
   // Return the auth code
