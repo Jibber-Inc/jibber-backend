@@ -1,6 +1,10 @@
 import Parse from '../providers/ParseProvider';
+import ExtendableError from 'extendable-error-class';
 import stripPhoneNumber from '../utils/stripPhoneNumber';
 import passwordGenerator from '../utils/passwordGenerator';
+
+
+class ValidateCodeError extends ExtendableError {}
 
 
 const validateCode = async request => {
@@ -9,12 +13,16 @@ const validateCode = async request => {
 
   // Phone number is required in request body
   if (!phoneNumber) {
-    throw new Error('No phone number provided in request');
+    throw new ValidateCodeError(
+      '[JXK8SYA4] No phone number provided in request'
+    );
   }
 
   // Auth code is required in request body
   if (!authCode) {
-    throw new Error('No auth code provided in request');
+    throw new ValidateCodeError(
+      '[xDETWSYH] No auth code provided in request'
+    );
   }
 
   // Strip phone number
@@ -27,17 +35,21 @@ const validateCode = async request => {
   // Query for user
   return userQuery
     .first({ useMasterKey: true })
-    .then(function(user) {
+    .then(user => {
+
+      if (!Boolean(user instanceof Parse.User)) {
+        throw new ValidateCodeError('[zIslmc6c] User not found');
+      }
 
       // Login user
       return Parse.User.logIn(user.getUsername(), passwordGenerator(authCode));
 
     })
-    .then(function(user) {
+    .then(user => {
 
       // User not found
       if (!user) {
-        throw new Error('User not found');
+        throw new ValidateCodeError('[bJHe2Jgj] User not found');
       }
 
       return user.getSessionToken();
