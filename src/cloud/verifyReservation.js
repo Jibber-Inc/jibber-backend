@@ -76,7 +76,6 @@ const verifyReservation = async request => {
     }
   }
 
-  // return reservation;
   return reservation;
 };
 
