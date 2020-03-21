@@ -45,7 +45,40 @@ const createConnection = async request => {
 
   // Throw if user not found
   if (!Boolean(targetUser instanceof Parse.User)) {
-    throw new CreateConnectionError("[sYydNsZl] Target user not found");
+    // If no user exists, create a user with the given phoneNumber, and add it to the connection
+    // Create a new user
+    // Generate auth code
+    const authCode = generateAuthCode();
+    const newUser = new Parse.User();
+    let acl = new Parse.ACL();
+    acl.setPublicReadAccess(true);
+    newUser.setACL(acl);
+    newUser.setUsername(uuidv4());
+    // This should be fine because the sendCode func just sets a new password if it finds a user.
+    newUser.setPassword(passwordGenerator(authCode));
+    newUser.set("phoneNumber", phoneNumber);
+    newUser.set("language", "en");
+    const user = await newUser.signUp();
+
+    return findOrCreateConnectionWith(user, fromUser);
+  } else {
+    return findOrCreateConnectionWith(targetUser, fromUser);
+  }
+};
+
+/**
+ * Create or return a connection
+ * @param {Parse.User} toUser
+ * @param {Parse.User} fromUser
+ * @returns {Promise}
+ */
+const findOrCreateConnectionWith = async (toUser, fromUser) => {
+  if (!Boolean(toUser instanceof Parse.User)) {
+    throw new CreateChatChannelError("[SmQNWk96] toUser is required");
+  }
+
+  if (!Boolean(fromUser instanceof Parse.User)) {
+    throw new CreateChatChannelError("[SmQNWk96] fromUser is required");
   }
 
   // If target user found
