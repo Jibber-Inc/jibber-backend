@@ -1,4 +1,4 @@
-import Parse from "../../providers/ParseProvider";
+import Parse from '../../providers/ParseProvider';
 
 class ConnectionAfterSaveError extends ExtendableError {}
 
@@ -14,15 +14,15 @@ const connectionAfterSave = async request => {
     const promises = [];
 
     //Add the connection object to the "toUser" and "fromUser" connections array
-    if (!connection.get("toUser")) {
+    if (!connection.get('toUser')) {
       const toUser = connection.toUser;
-      toUser.addUnique("connections", connection);
+      toUser.addUnique('connections', connection);
       promises.push(toUser.save());
     }
 
-    if (!connection.get("fromUser")) {
+    if (!connection.get('fromUser')) {
       const fromUser = connection.fromUser;
-      fromUser.addUnique("connections", connection);
+      fromUser.addUnique('connections', connection);
       promises.push(fromUser.save());
     }
 
