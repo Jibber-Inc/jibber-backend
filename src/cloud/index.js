@@ -47,8 +47,13 @@ Parse.Cloud.define('createHandle', createHandle);
 Parse.Cloud.define('getChatToken', getChatToken);
 
 
-// Cloud code webhooks
+// --- Cloud code webhooks ----------------------------------------------------
+// Connection webhooks
 Parse.Cloud.afterSave('Connection', connectionAfterSave);
+
+// User webhooks
 Parse.Cloud.beforeSave(Parse.User, userBeforeSave);
 Parse.Cloud.afterSave(Parse.User, userAfterSave);
+
+// Reservation webhooks
 Parse.Cloud.beforeSave('Reservation', reservationBeforeSave);

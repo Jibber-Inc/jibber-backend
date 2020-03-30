@@ -1,32 +1,25 @@
-import Parse from '../../providers/ParseProvider';
+// Vendor
+import ExtendableError from 'extendable-error-class';
 
-class ConnectionAfterSaveError extends ExtendableError {}
+
+class ConnectionBeforeSaveError extends ExtendableError {}
+
 
 /**
  * After save webhook for Connection objects.
  * @param {Object} request
  */
 const connectionAfterSave = async request => {
-  const connection = request.object; // eslint-disable-line no-unused-vars
+  const connection = request.object;
 
-  if (connection.isNew()) {
-    // Add save calls to the promises array
-    const promises = [];
+  if (connection.className !== 'Connection') {
+    throw new ConnectionBeforeSaveError(
+      '[L4DAuorJ] Expected connection.className to be "Connection"'
+    );
+  }
 
-    //Add the connection object to the "toUser" and "fromUser" connections array
-    if (!connection.get('toUser')) {
-      const toUser = connection.toUser;
-      toUser.addUnique('connections', connection);
-      promises.push(toUser.save());
-    }
-
-    if (!connection.get('fromUser')) {
-      const fromUser = connection.fromUser;
-      fromUser.addUnique('connections', connection);
-      promises.push(fromUser.save());
-    }
-
-    Promise.all(promises);
+  if (!connection.existed()) {
+    // this is a new connection
   }
 };
 
