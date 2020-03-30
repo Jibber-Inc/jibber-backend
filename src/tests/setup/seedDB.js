@@ -77,6 +77,7 @@ export const makeConnection = (to, from) => {
       const connection = new Connection();
       connection.set('to', to);
       connection.set('from', from);
+      connection.set('status', 'invited');
       try {
         process.stdout.write('.');
         return connection.save();
