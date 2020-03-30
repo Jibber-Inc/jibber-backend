@@ -20,12 +20,17 @@ describe('test getConnections service', () => {
     const user2Connections = await getConnectionsService(user2);
     const user3Connections = await getConnectionsService(user3);
 
-    expect(user1Connections.to.length).toBe(0);
-    expect(user1Connections.from.length).toBe(2);
-    expect(user2Connections.to.length).toBe(1);
-    expect(user2Connections.from.length).toBe(0);
-    expect(user3Connections.to.length).toBe(1);
-    expect(user3Connections.from.length).toBe(0);
+    // Count user1 connections
+    expect(user1Connections.incoming.length).toBe(0);
+    expect(user1Connections.outgoing.length).toBe(2);
+
+    // Count user2 connections
+    expect(user2Connections.incoming.length).toBe(1);
+    expect(user2Connections.outgoing.length).toBe(0);
+
+    // Count user3 connections
+    expect(user3Connections.incoming.length).toBe(1);
+    expect(user3Connections.outgoing.length).toBe(0);
     done();
   });
 });

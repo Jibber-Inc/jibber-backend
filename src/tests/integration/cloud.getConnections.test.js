@@ -21,8 +21,8 @@ describe('test getConnections cloud function', () => {
     return Parse.Cloud
       .run('getConnections', null, options)
       .then(response => {
-        expect(response.from.length).toBe(2);
-        expect(response.to.length).toBe(0);
+        expect(response.outgoing.length).toBe(2);
+        expect(response.incoming.length).toBe(0);
         done();
       });
   });

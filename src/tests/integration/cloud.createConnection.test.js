@@ -35,7 +35,7 @@ describe('test cloud function /createConnection', () => {
 
 
   /** case: no matching user to given phone number */
-  it('should return a new Connection if given phoneNumber is not linked to any existing user ', async done => {
+  it('should return a new Connection if given phoneNumber is not linked to any existing user', async done => {
     expect.assertions(2);
 
     // Get Connection schema

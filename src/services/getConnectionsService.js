@@ -31,8 +31,8 @@ const getConnectionsService = async user => {
   fromQuery.equalTo('from', user);
 
   return {
-    to: await toQuery.find(),
-    from: await fromQuery.find(),
+    incoming: await toQuery.find(),
+    outgoing: await fromQuery.find(),
   };
 };
 
