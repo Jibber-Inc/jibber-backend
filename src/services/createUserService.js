@@ -1,6 +1,7 @@
 // Vendor
 import uuidv4 from 'uuid/v4';
 import ExtendableError from 'extendable-error-class';
+import { isMobilePhone } from 'validator';
 
 // Providers
 import Parse from '../providers/ParseProvider';
@@ -8,6 +9,7 @@ import Parse from '../providers/ParseProvider';
 // Utils
 import passwordGenerator from '../utils/passwordGenerator';
 import generateAuthCode from '../utils/generateAuthCode';
+
 
 class CreateUserError extends ExtendableError {}
 
@@ -25,6 +27,14 @@ const createUser = async (phoneNumber, authCode) => {
   if (!phoneNumber) {
     throw new CreateUserError('[5qlkGfPY] Phone number is required');
   }
+
+  // Make sure phone number is valid
+  if (!isMobilePhone(phoneNumber, 'en-US')) {
+    throw new CreateUserError(
+      '[fmlfoloy] Invalid phone number'
+    );
+  }
+
 
   const newUser = new Parse.User();
 
