@@ -4,11 +4,11 @@ import Parse from '../providers/ParseProvider';
 import sendCode from './sendCode';
 import sendPush from './sendPush';
 import validateCode from './validateCode';
-import updateConnection from './updateConnection';
 import createConnection from './createConnection';
 import verifyReservation from './verifyReservation';
 import createHandle from './createHandle';
 import getChatToken from './getChatToken';
+import getConnections from './getConnections';
 
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
@@ -40,11 +40,11 @@ Parse.Cloud.define('hello', () => {
 Parse.Cloud.define('sendCode', sendCode);
 Parse.Cloud.define('sendPush', sendPush);
 Parse.Cloud.define('validateCode', validateCode);
-Parse.Cloud.define('updateConnection', updateConnection);
 Parse.Cloud.define('createConnection', createConnection);
 Parse.Cloud.define('verifyReservation', verifyReservation);
 Parse.Cloud.define('createHandle', createHandle);
 Parse.Cloud.define('getChatToken', getChatToken);
+Parse.Cloud.define('getConnections', getConnections);
 
 
 // --- Cloud code webhooks ----------------------------------------------------
