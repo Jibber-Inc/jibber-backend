@@ -26,13 +26,6 @@
       "type": "Pointer",
       "targetClass": "_User",
       "required": true
-    },
-    "toPhoneNumber": {
-      "type": "String",
-      "required": false
-    },
-    "phoneNumber": {
-      "type": "String"
     }
   },
   "classLevelPermissions": {
@@ -59,6 +52,11 @@
     },
     "protectedFields": {
       "*": []
+    }
+  },
+  "indexes": {
+    "_id_": {
+      "_id": 1
     }
   }
 }
