@@ -35,16 +35,20 @@ describe('test cloud function /createConnection', () => {
 
 
   /** case: no matching user to given phone number */
-  it('should return error if phoneNumber not linked to user ', async done => {
-    expect.assertions(2);
+  it('should return a Connection if given phoneNumber is not linked to any existing user ', async done => {
+    expect.assertions(1);
+
+    // Get Connection schema
+    const Connection = Parse.Object.extend('Connection');
+
+    // Try to create connection to user that does not exist
     const user = await makeUser();
     const data = { phoneNumber: '15099876543' }; // user seeder phoneNumber area code is always 206
     const options = { sessionToken: user.getSessionToken() };
     return Parse.Cloud
       .run('createConnection', data, options)
-      .catch(error => {
-        expect(error.message).toBe('[sYydNsZl] Target user not found');
-        expect(error.code).toBe(141);
+      .then(response => {
+        expect(response instanceof Connection).toBe(true);
         done();
       });
   });
@@ -95,7 +99,8 @@ describe('test cloud function /createConnection', () => {
       .then(response => {
         expect(response instanceof Connection).toBe(true);
         expect(response.get('status')).toBe('invited');
-        expect(response.get('phoneNumber')).toBe(user2.get('phoneNumber'));
+        expect(response.get('to').get('phoneNumber'))
+          .toBe(user2.get('phoneNumber'));
         done();
       });
   });
