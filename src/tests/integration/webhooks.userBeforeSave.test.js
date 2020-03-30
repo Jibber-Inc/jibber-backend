@@ -1,6 +1,6 @@
 import Parse from '../../providers/ParseProvider';
 import { makeUser, makeReservation } from '../setup/seedDB';
-import createHandle from '../../utils/createHandle';
+import generateHandle from '../../utils/generateHandle';
 
 
 describe('test userBeforeSave webhook', () => {
@@ -17,7 +17,7 @@ describe('test userBeforeSave webhook', () => {
     const position = reservation.get('position');
 
     expect(user.get('handle'))
-      .toBe(createHandle(givenName, familyName, position));
+      .toBe(generateHandle(givenName, familyName, position));
     done();
 
   });
@@ -39,7 +39,7 @@ describe('test userBeforeSave webhook', () => {
     const position = reservation.get('position');
 
     expect(user.get('handle'))
-      .toBe(createHandle(givenName, familyName, position));
+      .toBe(generateHandle(givenName, familyName, position));
     done();
 
   });

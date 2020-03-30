@@ -7,9 +7,9 @@ const {
  * Using the BENJI_SECRET_PASSWORD_TOKEN variable and authcode var, create a pw
  * @param {Number} authCode
  */
-const passwordGenerator = authCode => {
+const generatePassword = authCode => {
   return `${ BENJI_SECRET_PASSWORD_TOKEN }${ authCode }`;
 };
 
 
-export default passwordGenerator;
+export default generatePassword;

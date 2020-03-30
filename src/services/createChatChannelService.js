@@ -1,7 +1,7 @@
 import Parse from '../providers/ParseProvider';
 const Chat = require('twilio-chat');
 import ExtendableError from 'extendable-error-class';
-import createChatToken from './createChatToken';
+import createChatToken from './createChatTokenService';
 
 
 export class CreateChatChannelError extends ExtendableError {}
@@ -15,7 +15,7 @@ export class CreateChatChannelError extends ExtendableError {}
  * @param {Boolean} isPrivate
  * @returns {Promise}
  */
-const createChatChannel = async (user, uniqueName, friendlyName, isPrivate=false) => {
+const createChatChannelService = async (user, uniqueName, friendlyName, isPrivate=false) => {
 
   if (!Boolean(user instanceof Parse.User)) {
     throw new CreateChatChannelError('[SmQNWk96] user is required');
@@ -47,11 +47,11 @@ const createChatChannel = async (user, uniqueName, friendlyName, isPrivate=false
       });
     })
     .then(channel => {
-      console.log(`[createChatChannel:success] ${JSON.stringify(channel)}`);
+      console.log(`[createChatChannelService:success] ${JSON.stringify(channel)}`);
       return channel;
     })
     .catch(error => {
-      console.error(`[createChatChannel:failure] ${JSON.stringify(error)}`);
+      console.error(`[createChatChannelService:failure] ${JSON.stringify(error)}`);
       throw error;
     })
   ;
@@ -59,4 +59,4 @@ const createChatChannel = async (user, uniqueName, friendlyName, isPrivate=false
 
 
 
-export default createChatChannel;
+export default createChatChannelService;

@@ -1,6 +1,6 @@
 import ExtendableError from 'extendable-error-class';
 
-import _createHandle from '../utils/createHandle';
+import generateHandle from '../utils/generateHandle';
 
 
 class CreateHandleCloudError extends ExtendableError {}
@@ -34,7 +34,7 @@ const createHandle = request => {
     );
   }
 
-  return _createHandle(givenName, familyName, position);
+  return generateHandle(givenName, familyName, position);
 };
 
 

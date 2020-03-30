@@ -1,7 +1,7 @@
 import Parse from '../../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
 
-import createChatChannel from '../../utils/createChatChannel';
+import createChatChannelService from '../../services/createChatChannelService';
 
 
 class UserAfterSaveError extends ExtendableError {}
@@ -33,9 +33,9 @@ const userAfterSave = request => {
   // Create new user chat channels
   if (!user.existed()) {
     Promise.all([
-      createChatChannel(user, `Welcome_${user.id}`, 'Welcome!'),
-      createChatChannel(user, `Feedback_${user.id}`, 'Feedback'),
-      createChatChannel(user, `Ideas_${user.id}`, 'Ideas'),
+      createChatChannelService(user, `Welcome_${user.id}`, 'Welcome!'),
+      createChatChannelService(user, `Feedback_${user.id}`, 'Feedback'),
+      createChatChannelService(user, `Ideas_${user.id}`, 'Ideas'),
     ]);
   }
 };

@@ -1,8 +1,8 @@
 import Parse from '../../providers/ParseProvider';
-import createChatChannel, { CreateChatChannelError } from '../../utils/createChatChannel';
+import createChatChannelService, { CreateChatChannelError } from '../../services/createChatChannelService';
 
 
-describe('test createChatChannel utility', () => {
+describe('test createChatChannelService utility', () => {
 
   const user = new Parse.User();
 
@@ -17,7 +17,7 @@ describe('test createChatChannel utility', () => {
     'given arguments (%p, %p, %p) should throw CreateChatChannelError',
     async (...args) => {
       expect.assertions(1);
-      return createChatChannel(...args)
+      return createChatChannelService(...args)
         .catch(error => expect(error instanceof CreateChatChannelError)
           .toBe(true));
     }

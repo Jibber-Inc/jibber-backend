@@ -1,7 +1,7 @@
 import Parse from '../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
 import stripPhoneNumber from '../utils/stripPhoneNumber';
-import passwordGenerator from '../utils/passwordGenerator';
+import generatePassword from '../utils/generatePassword';
 
 
 class ValidateCodeError extends ExtendableError {}
@@ -42,7 +42,7 @@ const validateCode = async request => {
       }
 
       // Login user
-      return Parse.User.logIn(user.getUsername(), passwordGenerator(authCode));
+      return Parse.User.logIn(user.getUsername(), generatePassword(authCode));
 
     })
     .then(user => {

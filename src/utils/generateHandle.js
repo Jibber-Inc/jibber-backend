@@ -1,7 +1,7 @@
 import ExtendableError from 'extendable-error-class';
 
 
-export class CreateHandleError extends ExtendableError {}
+export class GenerateHandleError extends ExtendableError {}
 
 
 /**
@@ -20,15 +20,15 @@ const stripWhitespace = str => str.replace(/\s+/g, '');
  * @param {Number} position
  * @returns {String}
  */
-const createHandle = (givenName, familyName, position) => {
+const generateHandle = (givenName, familyName, position) => {
   if (!givenName || typeof givenName !== 'string') {
-    throw new CreateHandleError('[s4j9fgYe] Invalid arg givenName');
+    throw new GenerateHandleError('[s4j9fgYe] Invalid arg givenName');
   }
   if (!familyName || typeof familyName !== 'string') {
-    throw new CreateHandleError('[r67Qe8j4] Invalid arg familyName');
+    throw new GenerateHandleError('[r67Qe8j4] Invalid arg familyName');
   }
   if (typeof position !== 'number') {
-    throw new CreateHandleError('[PbtV1ku9] Invalid arg position');
+    throw new GenerateHandleError('[PbtV1ku9] Invalid arg position');
   }
 
   return `${
@@ -41,4 +41,4 @@ const createHandle = (givenName, familyName, position) => {
 };
 
 
-export default createHandle;
+export default generateHandle;

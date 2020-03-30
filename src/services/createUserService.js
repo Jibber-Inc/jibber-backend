@@ -7,7 +7,7 @@ import { isMobilePhone } from 'validator';
 import Parse from '../providers/ParseProvider';
 
 // Utils
-import passwordGenerator from '../utils/passwordGenerator';
+import generatePassword from '../utils/generatePassword';
 import generateAuthCode from '../utils/generateAuthCode';
 
 
@@ -45,7 +45,7 @@ const createUser = async (phoneNumber, authCode) => {
 
   // Set username, password, phone number, and default language
   newUser.setUsername(uuidv4());
-  newUser.setPassword(passwordGenerator(authCode || generateAuthCode()));
+  newUser.setPassword(generatePassword(authCode || generateAuthCode()));
   newUser.set('phoneNumber', phoneNumber);
   newUser.set('language', 'en');
 

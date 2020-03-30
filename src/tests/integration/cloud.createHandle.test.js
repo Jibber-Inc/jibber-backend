@@ -1,5 +1,5 @@
 import Parse from '../../providers/ParseProvider';
-import createHandle from '../../utils/createHandle';
+import generateHandle from '../../utils/generateHandle';
 
 
 describe('createHandle endpoint', () => {
@@ -71,7 +71,7 @@ describe('createHandle endpoint', () => {
     return Parse.Cloud
       .run('createHandle', body)
       .then(response => {
-        expect(response).toBe(createHandle(givenName, familyName, position));
+        expect(response).toBe(generateHandle(givenName, familyName, position));
         done();
       });
   });

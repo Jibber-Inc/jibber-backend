@@ -11,7 +11,7 @@ import createUserService from '../services/createUserService';
 // Utils
 import stripPhoneNumber from '../utils/stripPhoneNumber';
 import generateAuthCode from '../utils/generateAuthCode';
-import passwordGenerator from '../utils/passwordGenerator';
+import generatePassword from '../utils/generatePassword';
 
 
 class SendCodeError extends ExtendableError {}
@@ -44,7 +44,7 @@ const sendCode = async request => {
 
   // If user exists, update their password
   if (!!user) {
-    user.setPassword(passwordGenerator(authCode));
+    user.setPassword(generatePassword(authCode));
     user = await user.save(null, { useMasterKey: true })
       .then(user => {
         if (!Boolean(user instanceof Parse.User)) {
