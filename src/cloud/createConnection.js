@@ -1,9 +1,20 @@
-import Parse from "../providers/ParseProvider";
-import stripPhoneNumber from "../utils/stripPhoneNumber";
-import ExtendableError from "extendable-error-class";
-import { isMobilePhone } from "validator";
+// Vendor
+import ExtendableError from 'extendable-error-class';
+
+// Providers
+import Parse from '../providers/ParseProvider';
+
+// Utils
+import stripPhoneNumber from '../utils/stripPhoneNumber';
+import { isMobilePhone } from 'validator';
+
+// Services
+import createUserService from '../services/createUserService';
+import createConnectionService from '../services/createConnectionService';
+
 
 export class CreateConnectionError extends ExtendableError {}
+
 
 /**
  * Create a connection
@@ -11,61 +22,47 @@ export class CreateConnectionError extends ExtendableError {}
  * @param {*} response
  */
 const createConnection = async request => {
-  // The target users phone number
-  let fromUser = request.user;
-  let phoneNumber = request.params.phoneNumber;
 
+  let fromUser = request.user;
+  let phoneNumber = request.params.phoneNumber; // The target users phone number
+
+  // "From User" is required
   if (!Boolean(fromUser instanceof Parse.User)) {
-    throw new CreateConnectionError("[2wMux0QT] request.user is invalid.");
+    throw new CreateConnectionError(
+      '[2wMux0QT] request.user is invalid.'
+    );
   }
 
   // Phone number is required in request body
   if (!phoneNumber) {
     throw new CreateConnectionError(
-      "[ubSM6Dzb] No phone number provided in request"
+      '[ubSM6Dzb] No phone number provided in request'
     );
   }
 
   // Make sure phone number is valid
-  if (!isMobilePhone(phoneNumber, "en-US")) {
-    throw new CreateConnectionError("[QEbUz6mr] Invalid phone number");
+  if (!isMobilePhone(phoneNumber, 'en-US')) {
+    throw new CreateConnectionError(
+      '[QEbUz6mr] Invalid phone number'
+    );
   }
-
-  const Connection = Parse.Object.extend("Connection");
 
   // Strip phone number
   phoneNumber = stripPhoneNumber(phoneNumber);
 
   // Build query to find user with phoneNumber
   const userQuery = new Parse.Query(Parse.User);
-  userQuery.equalTo("phoneNumber", phoneNumber);
+  userQuery.equalTo('phoneNumber', phoneNumber);
 
   // Query for user
   let targetUser = await userQuery.first({ useMasterKey: true });
 
-  // Throw if user not found
+  // If no user exists, create a user with the given phoneNumber
   if (!Boolean(targetUser instanceof Parse.User)) {
-    throw new CreateConnectionError("[sYydNsZl] Target user not found");
+    targetUser = await createUserService(phoneNumber);
   }
 
-  // If target user found
-  // Determine if the user already has a connection with the requesting user
-  const connectionQuery = new Parse.Query(Connection);
-  connectionQuery.equalTo("to", targetUser);
-  connectionQuery.equalTo("from", fromUser);
-  let connection = await connectionQuery.first({ useMasterKey: true });
-
-  // If there is an existing connection, return it
-  if (connection instanceof Connection) {
-    return connection;
-  }
-
-  // Otherwise create a connection between the users and set the status to invited
-  const newConnection = new Connection();
-  newConnection.set("to", targetUser);
-  newConnection.set("from", fromUser);
-  newConnection.set("status", "invited");
-  return newConnection.save();
+  return createConnectionService(targetUser, fromUser);
 };
 
 export default createConnection;

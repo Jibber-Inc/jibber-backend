@@ -5,7 +5,7 @@ import ExtendableError from 'extendable-error-class';
 import Parse from '../../providers/ParseProvider';
 
 // Utils
-import createHandle from '../../utils/createHandle';
+import generateHandle from '../../utils/generateHandle';
 
 
 class UserBeforeSaveError extends ExtendableError {}
@@ -51,7 +51,7 @@ const userBeforeSave = async request => {
           const givenName = user.get('givenName');
           const familyName = user.get('familyName');
           if (!!phoneNumber && !!givenName && !!familyName) {
-            const handle = createHandle(givenName, familyName, position);
+            const handle = generateHandle(givenName, familyName, position);
             user.set('handle', handle);
           }
         }

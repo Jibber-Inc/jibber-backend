@@ -1,24 +1,24 @@
 // Vendor modules
-import uuidv4 from 'uuid/v4';
 import ExtendableError from 'extendable-error-class';
 
 // Providers
 import Parse from '../providers/ParseProvider';
 
 // Services
-import initiate2FA from '../services/initiate2FA';
+import initiate2FAService from '../services/initiate2FAService';
+import createUserService from '../services/createUserService';
 
 // Utils
 import stripPhoneNumber from '../utils/stripPhoneNumber';
 import generateAuthCode from '../utils/generateAuthCode';
-import passwordGenerator from '../utils/passwordGenerator';
+import generatePassword from '../utils/generatePassword';
 
 
 class SendCodeError extends ExtendableError {}
 
 
 /**
- *
+ * Initiate 2-Factor Authentication for given phone number
  * @param {*} request
  */
 const sendCode = async request => {
@@ -42,45 +42,38 @@ const sendCode = async request => {
   // Query for user
   let user = await userQuery.first({ useMasterKey: true });
 
+  // If user exists, update their password
   if (!!user) {
-    user.setPassword(passwordGenerator(authCode));
-    user.save(null, { useMasterKey: true })
+    user.setPassword(generatePassword(authCode));
+    user = await user.save(null, { useMasterKey: true })
       .then(user => {
-
         if (!Boolean(user instanceof Parse.User)) {
           throw new SendCodeError(
             '[z0KveYVV] expected instanceof Parse.User'
           );
         }
-
-        initiate2FA(authCode, user);
+        return user;
       });
 
+  // If no user exists, create one
   } else {
-
-    // Create a new user
-    const newUser = new Parse.User();
-    let acl = new Parse.ACL();
-    acl.setPublicReadAccess(true);
-    newUser.setACL(acl);
-    newUser.setUsername(uuidv4());
-    newUser.setPassword(passwordGenerator(authCode));
-    newUser.set('phoneNumber', phoneNumber);
-    newUser.set('language', 'en');
-    const user = await newUser.signUp();
-
-    if (!Boolean(user instanceof Parse.User)) {
-      throw new SendCodeError(
-        '[hRE4DM1d] expected user = instanceof Parse.User'
-      );
-    }
-
-    initiate2FA(authCode, user);
+    user = await createUserService(phoneNumber, authCode)
+      .then(user => {
+        if (!Boolean(user instanceof Parse.User)) {
+          throw new SendCodeError(
+            '[8SzSfMKC] expected instanceof Parse.User'
+          );
+        }
+        return user;
+      });
   }
 
-  // Return the auth code
-  return authCode;
+  // Send the code to the phone number
+  initiate2FAService(authCode, user);
+
+  // Do not return auth code in the response!!
 };
+
 
 
 export default sendCode;

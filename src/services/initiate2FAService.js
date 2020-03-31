@@ -4,36 +4,37 @@ import ExtendableError from 'extendable-error-class';
 import { isMobilePhone } from 'validator';
 
 
-export class Inititate2FAError extends ExtendableError {}
+export class Inititate2FAServiceError extends ExtendableError {}
 
 
 /**
  * Given an auth code and instance of Parse.User, send text to the user phone #
  * @param {Number} auth_code
  * @param {Parse.User} user
+ * @return {Promise}
  */
-export const initiate2FA = (auth_code, user) => {
+export const initiate2FAService = (auth_code, user) => {
 
   if (!auth_code || typeof auth_code !== 'string') {
-    throw new Inititate2FAError(
+    throw new Inititate2FAServiceError(
       '[HspaCMAg] Invalid auth_code argument'
     );
   }
 
   if (!Boolean(user instanceof Parse.User)) {
-    throw new Inititate2FAError(
+    throw new Inititate2FAServiceError(
       '[w395DBDy] Invalid user argument'
     );
   }
 
   if (!user.get('phoneNumber')) {
-    throw new Inititate2FAError(
+    throw new Inititate2FAServiceError(
       '[qV6Heiv8] Cannot initiate 2FA, no value in user.phoneNumber'
     );
   }
 
   if (!isMobilePhone(user.get('phoneNumber'), 'en-US')) {
-    throw new Inititate2FAError(
+    throw new Inititate2FAServiceError(
       '[SIjXK1Xm] Invalid phone number'
     );
   }
@@ -46,4 +47,4 @@ export const initiate2FA = (auth_code, user) => {
 };
 
 
-export default initiate2FA;
+export default initiate2FAService;

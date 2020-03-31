@@ -2,7 +2,7 @@ import ExtendableError from 'extendable-error-class';
 
 import Parse from '../providers/ParseProvider';
 import generateAuthCode from '../utils/generateAuthCode';
-import initiate2FA from '../services/initiate2FA';
+import initiate2FAService from '../services/initiate2FAService';
 
 
 class VerifyReservationError extends ExtendableError {}
@@ -72,7 +72,7 @@ const verifyReservation = async request => {
     // If user found initiate 2fa login
     if (user instanceof Parse.User) {
       const auth_code = generateAuthCode();
-      initiate2FA(auth_code, user);
+      initiate2FAService(auth_code, user);
     }
   }
 

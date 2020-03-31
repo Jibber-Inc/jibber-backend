@@ -1,4 +1,4 @@
-import createHandle, { CreateHandleError } from '../../utils/createHandle';
+import generateHandle, { GenerateHandleError } from '../../utils/generateHandle';
 
 
 
@@ -6,25 +6,25 @@ describe('test creatHandle utility function', () => {
 
   /** case: invalid "givenName" property */
   it('should return error if missing "givenName" property in request body', () => {
-    expect(() => createHandle(undefined, 'Bar', 69))
-      .toThrow(CreateHandleError);
+    expect(() => generateHandle(undefined, 'Bar', 69))
+      .toThrow(GenerateHandleError);
   });
 
   /** case: invalid "familyName" property */
   it('should return error if missing "familyName" property in request body', () => {
-    expect(() => createHandle('Foo', '', 69))
-      .toThrow(CreateHandleError);
+    expect(() => generateHandle('Foo', '', 69))
+      .toThrow(GenerateHandleError);
   });
 
   /** case: invalid "position" property */
   it('should return error if missing "familyName" property in request body', () => {
-    expect(() => createHandle('Foo', 'Bar', undefined))
-      .toThrow(CreateHandleError);
+    expect(() => generateHandle('Foo', 'Bar', undefined))
+      .toThrow(GenerateHandleError);
   });
 
   /** case: valid body sent */
-  it('should return result of createHandle utility function', () => {
-    expect(createHandle('Foo', 'Bar', 69)).toBe('foob_69');
+  it('should return result of generateHandle utility function', () => {
+    expect(generateHandle('Foo', 'Bar', 69)).toBe('foob_69');
   });
 
 });

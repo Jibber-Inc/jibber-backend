@@ -1,6 +1,6 @@
 import Parse from '../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
-import createChatToken from '../utils/createChatToken';
+import createChatTokenService from '../services/createChatTokenService';
 
 
 class GetChatCredentialsError extends ExtendableError {}
@@ -17,7 +17,7 @@ const getChatToken = request => {
     );
   }
 
-  return createChatToken(user.id);
+  return createChatTokenService(user.id);
 };
 
 
