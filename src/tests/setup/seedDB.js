@@ -2,6 +2,7 @@ import Parse from '../../providers/ParseProvider';
 import faker from 'faker';
 import { isMobilePhone } from 'validator';
 import ExtendableError from 'extendable-error-class';
+import { STATUS_INVITED } from '../../constants';
 
 
 class SeedDBError extends ExtendableError {}
@@ -77,7 +78,7 @@ export const makeConnection = (to, from) => {
       const connection = new Connection();
       connection.set('to', to);
       connection.set('from', from);
-      connection.set('status', 'invited');
+      connection.set('status', STATUS_INVITED);
       try {
         process.stdout.write('.');
         return connection.save();
