@@ -1,5 +1,6 @@
 import Parse from '../../providers/ParseProvider';
 import { makeUser, makeConnection } from '../setup/seedDB';
+import { STATUS_INVITED } from '../../constants';
 
 
 describe('test cloud function /createConnection', () => {
@@ -49,7 +50,7 @@ describe('test cloud function /createConnection', () => {
       .run('createConnection', data, options)
       .then(response => {
         expect(response instanceof Connection).toBe(true);
-        expect(response.get('status')).toBe('invited');
+        expect(response.get('status')).toBe(STATUS_INVITED);
         done();
       });
   });
@@ -99,7 +100,7 @@ describe('test cloud function /createConnection', () => {
       .run('createConnection', data, options)
       .then(response => {
         expect(response instanceof Connection).toBe(true);
-        expect(response.get('status')).toBe('invited');
+        expect(response.get('status')).toBe(STATUS_INVITED);
         expect(response.get('to').get('phoneNumber'))
           .toBe(user2.get('phoneNumber'));
         done();

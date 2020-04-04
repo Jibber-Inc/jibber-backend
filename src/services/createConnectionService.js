@@ -1,6 +1,7 @@
 // Providers
 import Parse from '../providers/ParseProvider';
 
+import { STATUS_INVITED } from '../constants';
 
 
 /**
@@ -30,7 +31,7 @@ const createConnectionService = async (targetUser, fromUser) => {
   connection = new Connection();
   connection.set('to', targetUser);
   connection.set('from', fromUser);
-  connection.set('status', 'invited');
+  connection.set('status', STATUS_INVITED);
   return connection.save();
 };
 
