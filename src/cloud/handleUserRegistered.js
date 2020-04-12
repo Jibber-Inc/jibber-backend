@@ -1,6 +1,8 @@
 import Parse from '../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
 
+import createChatChannelService from '../../services/createChatChannelService';
+
 class HandleUserRegisteredError extends ExtendableError {}
 
 const handleUserRegistered = request => {
