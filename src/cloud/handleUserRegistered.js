@@ -24,4 +24,4 @@ const handleUserRegistered = request => {
 
 
 
-export default handleUserRegistered;
+ export default handleUserRegistered;
