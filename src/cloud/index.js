@@ -10,7 +10,7 @@ import createHandle from './createHandle';
 import getChatToken from './getChatToken';
 import getConnections from './getConnections';
 import updateConnection from './updateConnection';
-//import handleUserRegistered from './handleUserRegistered';
+import handleUserRegistered from './handleUserRegistered';
 
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
@@ -47,7 +47,7 @@ Parse.Cloud.define('createHandle', createHandle);
 Parse.Cloud.define('getChatToken', getChatToken);
 Parse.Cloud.define('getConnections', getConnections);
 Parse.Cloud.define('updateConnection', updateConnection);
-//Parse.Cloud.define('handleUserRegistered', handleUserRegistered);
+Parse.Cloud.define('handleUserRegistered', handleUserRegistered);
 
 // --- Cloud code webhooks ----------------------------------------------------
 // Connection webhooks
