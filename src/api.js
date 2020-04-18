@@ -13,8 +13,9 @@ const {
   SERVER_URL,
   REST_API_KEY,
   PARSE_SERVER_LOG_LEVEL,
+  IOS_PFX_CERTIFICATE,
+  IOS_PASSPHRASE
 } = process.env;
-
 
 // Build parse server instance
 const api = new ParseServer({
@@ -28,8 +29,8 @@ const api = new ParseServer({
   logLevel: PARSE_SERVER_LOG_LEVEL || 'info',
   push: {
     ios: {
-      pfx: 'Benji Signing Certificate.p12',
-      passphrase: '', // optional password to your p12/PFX
+      pfx: IOS_PFX_CERTIFICATE,
+      passphrase: IOS_PASSPHRASE,
       topic: 'com.Benji.Benji',
       production: true,
     },
