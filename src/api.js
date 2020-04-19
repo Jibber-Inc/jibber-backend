@@ -14,7 +14,8 @@ const {
   REST_API_KEY,
   PARSE_SERVER_LOG_LEVEL,
   IOS_PFX_CERTIFICATE,
-  IOS_PASSPHRASE
+  IOS_PASSPHRASE,
+  IOS_PUSH_PRODUCTION = false,
 } = process.env;
 
 // Build parse server instance
@@ -32,7 +33,7 @@ const api = new ParseServer({
       pfx: IOS_PFX_CERTIFICATE,
       passphrase: IOS_PASSPHRASE,
       topic: 'com.Benji.Benji',
-      production: true,
+      production: IOS_PUSH_PRODUCTION,
     },
   },
   liveQuery: {
