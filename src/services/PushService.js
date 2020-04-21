@@ -36,7 +36,7 @@ const sendToUser = async (data, user) => {
   );
 };
 
-const prepareNotificationData = (type, message, data = {}) => {
+const prepareNotificationData = (type, message, extraData = {}) => {
   if (!Object.keys(NOTIFICATION_TYPES).includes(type)) {
     throw new Error(`Unsoported push notification type ${type}`);
   }
@@ -49,6 +49,7 @@ const prepareNotificationData = (type, message, data = {}) => {
     push_type: 'background',
     type,
     message,
+    data: extraData,
   };
 
   return data;
