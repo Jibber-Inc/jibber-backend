@@ -1,17 +1,8 @@
 import { NOTIFICATION_TYPES } from '../constants';
 
-const send = async (message) =>
-  Parse.Push.send(
-    {
-      channels: ['All'],
-      data: {
-        message,
-      },
-    },
-    {
-      useMasterKey: true,
-    },
-  );
+const sendToChannel = () => ({
+  result: 'needs to be implemented'
+})
 
 const sendToUser = async (data, user) => {
   if (!data) throw new Error('Cannot send notificaction. Data is required');
@@ -36,36 +27,29 @@ const sendToUser = async (data, user) => {
   );
 };
 
-const prepareNotificationData = (type, message, extraData = {}) => {
+const prepareNotificationData = (type, data = {}) => {
   if (!Object.keys(NOTIFICATION_TYPES).includes(type)) {
     throw new Error(`Unsoported push notification type ${type}`);
   }
 
-  const data = {
-    aps: {
-      'apns-priority': 5,
-      'push_type': 'background',
-    },
+  return {
+    'content-available': 1,
     push_type: 'background',
-    type,
-    message,
-    data: extraData,
+    priority: 5,
+    data,
   };
-
-  return data;
 };
 
 const sendPushNotificationToUser = async (
   type,
-  message,
-  extraData,
+  data,
   user,
 ) => {
-  const data = prepareNotificationData(type, message.trim(), extraData);
-  return sendToUser(data, user);
+  const customData = prepareNotificationData(type, data);
+  return sendToUser(customData, user);
 };
 
 export default {
-  send,
+  sendToChannel,
   sendPushNotificationToUser,
 };
