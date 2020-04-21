@@ -1,4 +1,6 @@
-
+import Twilio from '../../providers/TwilioProvider';
+import PushService from "../../services/PushService";
+import { NOTIFICATION_TYPES } from "../../constants";
 
 /**
  * EventType - string - Always onMessageUpdated
@@ -16,10 +18,37 @@
  * DateCreated - date string - The timestamp of message creation
  * DateUpdated - date string - The timestamp of update of the message
  */
-const onMessageUpdated = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+const onMessageUpdated = async (request, response) => {
+  try {
+    let pushStatus = {}
+    const { ChannelSid, Attributes = {}, From, ModifiedBy } = request.body;
+    const { consumers =[]} = Attributes;
+    if (consumers.includes(ModifiedBy)) {
+      const query = new Parse.Query(Parse.User);
+      const [author, reader] = await Promise.all([
+        query.get(From, { useMasterKey: true }),
+        query.get(ModifiedBy, { useMasterKey: true })
+      ]);
+  
+      const channel = await new Twilio().client.chat.services(process.env.TWILIO_SERVICE_SID).channels(ChannelSid).fetch();
+  
+      const body = `${reader.get('username')} read your message in ${channel.friendlyName}`
+      const data = { 
+        identifier: ChannelSid + "read" + reader.id,
+        title: "Message Read 🤓",
+        body,
+        target: 'channel',
+      }
+      pushStatus = await PushService.sendPushNotificationToUser(NOTIFICATION_TYPES.MESSAGE_READ, data, author);
+    }
+    return response
+      .status(200)
+      .json(pushStatus);
+  } catch (error) {
+    return response
+    .status(500)
+    .json({ error: error.message });
+  }
 };
 
 export default onMessageUpdated;
