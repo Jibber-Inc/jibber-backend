@@ -1,8 +1,9 @@
+import Parse from '../providers/ParseProvider';
 import { NOTIFICATION_TYPES } from '../constants';
 
 const sendToChannel = () => ({
-  result: 'needs to be implemented'
-})
+  result: 'needs to be implemented',
+});
 
 const sendToUser = async (data, user) => {
   if (!data) throw new Error('Cannot send notificaction. Data is required');
@@ -23,7 +24,7 @@ const sendToUser = async (data, user) => {
     },
     {
       useMasterKey: true,
-    },
+    }
   );
 };
 
@@ -40,11 +41,7 @@ const prepareNotificationData = (type, data = {}) => {
   };
 };
 
-const sendPushNotificationToUser = async (
-  type,
-  data,
-  user,
-) => {
+const sendPushNotificationToUser = async (type, data, user) => {
   const customData = prepareNotificationData(type, data);
   return sendToUser(customData, user);
 };

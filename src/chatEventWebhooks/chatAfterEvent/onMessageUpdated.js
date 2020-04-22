@@ -1,6 +1,7 @@
+import Parse from '../providers/ParseProvider';
 import Twilio from '../../providers/TwilioProvider';
-import PushService from "../../services/PushService";
-import { NOTIFICATION_TYPES } from "../../constants";
+import PushService from '../../services/PushService';
+import { NOTIFICATION_TYPES } from '../../constants';
 
 /**
  * EventType - string - Always onMessageUpdated
@@ -20,34 +21,37 @@ import { NOTIFICATION_TYPES } from "../../constants";
  */
 const onMessageUpdated = async (request, response) => {
   try {
-    let pushStatus = {}
-    const { ChannelSid, Attributes = {}, From, ModifiedBy } = request.body;
-    const { consumers =[]} = Attributes;
+    let pushStatus = {};
+    let { ChannelSid, Attributes = {}, From, ModifiedBy } = request.body;
+    const { consumers = [] } = Attributes;
     if (consumers.includes(ModifiedBy)) {
       const query = new Parse.Query(Parse.User);
       const [author, reader] = await Promise.all([
         query.get(From, { useMasterKey: true }),
-        query.get(ModifiedBy, { useMasterKey: true })
+        query.get(ModifiedBy, { useMasterKey: true }),
       ]);
-  
-      const channel = await new Twilio().client.chat.services(process.env.TWILIO_SERVICE_SID).channels(ChannelSid).fetch();
-      const username = `${user.get('givenName')} ${user.get('familyName')}`
-      const body = `${username} read your message in ${channel.friendlyName}`
-      const data = { 
-        identifier: ChannelSid + "read" + reader.id,
-        title: "Message Read 🤓",
+
+      const channel = await new Twilio().client.chat
+        .services(process.env.TWILIO_SERVICE_SID)
+        .channels(ChannelSid)
+        .fetch();
+      const username = `${reader.get('givenName')} ${reader.get('familyName')}`;
+      const body = `${username} read your message in ${channel.friendlyName}`;
+      const data = {
+        identifier: ChannelSid + 'read' + reader.id,
+        title: 'Message Read 🤓',
         body,
         target: 'channel',
-      }
-      pushStatus = await PushService.sendPushNotificationToUser(NOTIFICATION_TYPES.MESSAGE_READ, data, author);
+      };
+      pushStatus = await PushService.sendPushNotificationToUser(
+        NOTIFICATION_TYPES.MESSAGE_READ,
+        data,
+        author
+      );
     }
-    return response
-      .status(200)
-      .json(pushStatus);
+    return response.status(200).json(pushStatus);
   } catch (error) {
-    return response
-    .status(500)
-    .json({ error: error.message });
+    return response.status(500).json({ error: error.message });
   }
 };
 
