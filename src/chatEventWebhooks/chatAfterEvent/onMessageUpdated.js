@@ -31,8 +31,8 @@ const onMessageUpdated = async (request, response) => {
       ]);
   
       const channel = await new Twilio().client.chat.services(process.env.TWILIO_SERVICE_SID).channels(ChannelSid).fetch();
-  
-      const body = `${reader.get('username')} read your message in ${channel.friendlyName}`
+      const username = `${user.get('givenName')} ${user.get('familyName')}`
+      const body = `${username} read your message in ${channel.friendlyName}`
       const data = { 
         identifier: ChannelSid + "read" + reader.id,
         title: "Message Read 🤓",
