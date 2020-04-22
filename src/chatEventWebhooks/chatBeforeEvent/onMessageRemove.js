@@ -1,4 +1,3 @@
-
 /**
  * EventType - string - Always onMessageRemove
  * MessageSid - string - The Message SID
@@ -13,9 +12,7 @@
  * RemovedBy - string - The remover of the message
  */
 const onMessageRemove = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMessageRemove;

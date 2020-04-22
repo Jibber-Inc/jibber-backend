@@ -1,5 +1,3 @@
-
-
 /**
  * EventType - string - Always onChannelAdded
  * ChannelSid - string - The SID of the newly added Channel
@@ -12,9 +10,7 @@
  * ChannelType - string - The Channel type. Either private or public
  */
 const onChannelAdded = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onChannelAdded;

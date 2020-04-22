@@ -1,4 +1,3 @@
-
 /**
  * EventType - string - Always onChannelUpdate
  * ChannelSid - string - Channel String Identifier
@@ -11,9 +10,7 @@
  * UniqueName - string, optional - The unique name of the channel, if set
  */
 const onChannelUpdate = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onChannelUpdate;

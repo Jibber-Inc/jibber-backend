@@ -13,9 +13,7 @@ import stripPhoneNumber from '../utils/stripPhoneNumber';
 import generateAuthCode from '../utils/generateAuthCode';
 import generatePassword from '../utils/generatePassword';
 
-
 class SendCodeError extends ExtendableError {}
-
 
 /**
  * Initiate 2-Factor Authentication for given phone number
@@ -45,27 +43,21 @@ const sendCode = async request => {
   // If user exists, update their password
   if (!!user) {
     user.setPassword(generatePassword(authCode));
-    user = await user.save(null, { useMasterKey: true })
-      .then(user => {
-        if (!Boolean(user instanceof Parse.User)) {
-          throw new SendCodeError(
-            '[z0KveYVV] expected instanceof Parse.User'
-          );
-        }
-        return user;
-      });
+    user = await user.save(null, { useMasterKey: true }).then(user => {
+      if (!Boolean(user instanceof Parse.User)) {
+        throw new SendCodeError('[z0KveYVV] expected instanceof Parse.User');
+      }
+      return user;
+    });
 
-  // If no user exists, create one
+    // If no user exists, create one
   } else {
-    user = await createUserService(phoneNumber, authCode)
-      .then(user => {
-        if (!Boolean(user instanceof Parse.User)) {
-          throw new SendCodeError(
-            '[8SzSfMKC] expected instanceof Parse.User'
-          );
-        }
-        return user;
-      });
+    user = await createUserService(phoneNumber, authCode).then(user => {
+      if (!Boolean(user instanceof Parse.User)) {
+        throw new SendCodeError('[8SzSfMKC] expected instanceof Parse.User');
+      }
+      return user;
+    });
   }
 
   // Send the code to the phone number
@@ -73,7 +65,5 @@ const sendCode = async request => {
 
   // Do not return auth code in the response!!
 };
-
-
 
 export default sendCode;

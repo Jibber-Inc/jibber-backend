@@ -3,9 +3,7 @@ import ExtendableError from 'extendable-error-class';
 
 import createChatChannelService from '../../services/createChatChannelService';
 
-
 class UserAfterSaveError extends ExtendableError {}
-
 
 /**
  * After save webhook for User objects.
@@ -15,18 +13,16 @@ const userAfterSave = request => {
   const user = request.object;
 
   if (!Boolean(user instanceof Parse.User)) {
-    throw new UserAfterSaveError(
-      '[c4V3VYAu] Expected user in request.object'
-    );
+    throw new UserAfterSaveError('[c4V3VYAu] Expected user in request.object');
   }
   if (!Boolean(user.createdAt instanceof Date)) {
     throw new UserAfterSaveError(
-      '[hplRppBn] Expected user.createdAt to be instanceof Date'
+      '[hplRppBn] Expected user.createdAt to be instanceof Date',
     );
   }
   if (!Boolean(user.updatedAt instanceof Date)) {
     throw new UserAfterSaveError(
-      '[3Npvri9X] Expected user.updatedAt to be instanceof Date'
+      '[3Npvri9X] Expected user.updatedAt to be instanceof Date',
     );
   }
 
@@ -39,6 +35,5 @@ const userAfterSave = request => {
     ]);
   }
 };
-
 
 export default userAfterSave;

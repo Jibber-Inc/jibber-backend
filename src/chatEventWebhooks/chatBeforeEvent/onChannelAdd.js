@@ -1,4 +1,3 @@
-
 /**
  * EventType - string - Always onChannelAdd
  * Attributes - string, optional, valid JSON structure or null
@@ -10,9 +9,7 @@
  * ChannelType - string - The Channel type. Either private or public
  */
 const onChannelAdd = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onChannelAdd;

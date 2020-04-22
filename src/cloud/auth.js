@@ -1,4 +1,3 @@
-
 // Parse.Cloud.define("auth", function(request,response) {
 //   const AccessToken = require('twilio').jwt.AccessToken;
 //   const ChatGrant = AccessToken.ChatGrant;

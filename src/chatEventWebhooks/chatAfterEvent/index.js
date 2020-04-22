@@ -11,7 +11,6 @@ import onMessageUpdated from './onMessageUpdated';
 import onUserAdded from './onUserAdded';
 import onUserUpdated from './onUserUpdated';
 
-
 /**
  * Post-Event Webhooks fire after any action taken on a Chat Service.
  *
@@ -33,7 +32,6 @@ import onUserUpdated from './onUserUpdated';
  * @returns {Response}
  */
 const chatAfterEvent = async (request, response) => {
-
   // Route function by Event Type
   const { EventType } = request.body;
   const handlers = {
@@ -53,9 +51,7 @@ const chatAfterEvent = async (request, response) => {
 
   // Return error if no route for EventType
   if (!Object.prototype.hasOwnProperty.call(handlers, EventType)) {
-    return response
-      .status(403)
-      .send(`No handler found for ${ EventType }`);
+    return response.status(403).send(`No handler found for ${EventType}`);
   }
 
   return handlers[EventType](request, response);

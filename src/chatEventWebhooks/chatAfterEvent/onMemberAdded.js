@@ -1,4 +1,3 @@
-
 /**
  * EventType - string - Always onMemberAdded
  * MemberSid - string - The Member SID of the newly added Member
@@ -11,9 +10,7 @@
  * DateCreated - date string - The date of Member addition
  */
 const onMemberAdded = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMemberAdded;

@@ -1,9 +1,7 @@
 // Vendor
 import ExtendableError from 'extendable-error-class';
 
-
 class ConnectionBeforeSaveError extends ExtendableError {}
-
 
 /**
  * After save webhook for Connection objects.
@@ -14,7 +12,7 @@ const connectionAfterSave = async request => {
 
   if (connection.className !== 'Connection') {
     throw new ConnectionBeforeSaveError(
-      '[L4DAuorJ] Expected connection.className to be "Connection"'
+      '[L4DAuorJ] Expected connection.className to be "Connection"',
     );
   }
 

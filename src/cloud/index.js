@@ -18,12 +18,8 @@ import userBeforeSave from './webhooks/userBeforeSave';
 import userAfterSave from './webhooks/userAfterSave';
 import reservationBeforeSave from './webhooks/reservationBeforeSave';
 
-
 // Load Environment variables
-const {
-  BENJI_SECRET_PASSWORD_TOKEN,
-} = process.env;
-
+const { BENJI_SECRET_PASSWORD_TOKEN } = process.env;
 
 // Don't allow undefined or empty variable for secret password token
 if (!BENJI_SECRET_PASSWORD_TOKEN) {

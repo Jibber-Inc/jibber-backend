@@ -1,5 +1,3 @@
-
-
 /**
  * EventType - string - Always onMessageSent
  * MessageSid - string - The Message SID of the new Message
@@ -15,9 +13,7 @@
  * DateCreated - date string - The timestamp of message creation
  */
 const onMessageSent = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMessageSent;

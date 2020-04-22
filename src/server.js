@@ -14,7 +14,6 @@ import chatAfterEvent from './chatEventWebhooks/chatAfterEvent';
 // Load Environment Variables
 const { PARSE_MOUNT } = process.env;
 
-
 // create express app
 const app = express();
 
@@ -30,19 +29,17 @@ app.use(PARSE_MOUNT || '/parse', api);
 
 // Parse Server plays nicely with the rest of your web routes
 app.get('/', async (request, response) =>
-  response
-    .status(200)
-    .send('I dream of being a website.'));
+  response.status(200).send('I dream of being a website.'),
+);
 
 // There will be a test page available on the /test path of your server url
 // Remove this before launching your app
 app.get('/hello', async (request, response) =>
-  response
-    .sendFile(path.join(__dirname, '/hello.html')));
+  response.sendFile(path.join(__dirname, '/hello.html')),
+);
 
 // Twilio Pre/Post Even Webhooks
 app.post('/chatBeforeEvent', twilio.webhook(), chatBeforeEvent);
 app.post('/chatAfterEvent', twilio.webhook(), chatAfterEvent);
-
 
 export default createServer(app);

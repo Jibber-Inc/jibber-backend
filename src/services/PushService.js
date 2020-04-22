@@ -1,6 +1,7 @@
+import Parse from '../providers/ParseProvider';
 import { NOTIFICATION_TYPES } from '../constants';
 
-const send = async (message) =>
+const send = async message =>
   Parse.Push.send(
     {
       channels: ['All'],
@@ -44,7 +45,7 @@ const prepareNotificationData = (type, message, extraData = {}) => {
   const data = {
     aps: {
       'apns-priority': 5,
-      'push_type': 'background',
+      push_type: 'background',
     },
     push_type: 'background',
     type,
@@ -55,12 +56,7 @@ const prepareNotificationData = (type, message, extraData = {}) => {
   return data;
 };
 
-const sendPushNotificationToUser = async (
-  type,
-  message,
-  extraData,
-  user,
-) => {
+const sendPushNotificationToUser = async (type, message, extraData, user) => {
   const data = prepareNotificationData(type, message.trim(), extraData);
   return sendToUser(data, user);
 };

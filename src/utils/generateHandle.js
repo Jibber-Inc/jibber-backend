@@ -1,8 +1,6 @@
 import ExtendableError from 'extendable-error-class';
 
-
 export class GenerateHandleError extends ExtendableError {}
-
 
 /**
  * Remove whitespace from string
@@ -10,7 +8,6 @@ export class GenerateHandleError extends ExtendableError {}
  * @returns {String}
  */
 const stripWhitespace = str => str.replace(/\s+/g, '');
-
 
 /**
  * HANDLE is the user friendly address for users in a conversation
@@ -31,14 +28,9 @@ const generateHandle = (givenName, familyName, position) => {
     throw new GenerateHandleError('[PbtV1ku9] Invalid arg position');
   }
 
-  return `${
-    stripWhitespace(givenName).toLowerCase()
-  }${
-    familyName.charAt(0).toLowerCase()
-  }_${
-    stripWhitespace(String(position))
-  }`;
+  return `${stripWhitespace(givenName).toLowerCase()}${familyName
+    .charAt(0)
+    .toLowerCase()}_${stripWhitespace(String(position))}`;
 };
-
 
 export default generateHandle;
