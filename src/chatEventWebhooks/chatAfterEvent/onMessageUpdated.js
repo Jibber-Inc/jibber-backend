@@ -1,4 +1,4 @@
-import Parse from '../providers/ParseProvider';
+import Parse from '../../providers/ParseProvider';
 import Twilio from '../../providers/TwilioProvider';
 import PushService from '../../services/PushService';
 import { NOTIFICATION_TYPES } from '../../constants';
@@ -22,7 +22,13 @@ import { NOTIFICATION_TYPES } from '../../constants';
 const onMessageUpdated = async (request, response) => {
   try {
     let pushStatus = {};
-    let { ChannelSid, Attributes = {}, From, ModifiedBy } = request.body;
+    let {
+      ChannelSid,
+      MessageSid,
+      Attributes = {},
+      From,
+      ModifiedBy,
+    } = request.body;
     const { consumers = [] } = Attributes;
     if (consumers.includes(ModifiedBy)) {
       const query = new Parse.Query(Parse.User);
@@ -38,6 +44,8 @@ const onMessageUpdated = async (request, response) => {
       const username = `${reader.get('givenName')} ${reader.get('familyName')}`;
       const body = `${username} read your message in ${channel.friendlyName}`;
       const data = {
+        messageId: MessageSid,
+        channelId: ChannelSid,
         identifier: ChannelSid + 'read' + reader.id,
         title: 'Message Read 🤓',
         body,
