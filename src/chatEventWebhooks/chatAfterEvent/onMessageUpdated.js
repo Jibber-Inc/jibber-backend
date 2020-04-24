@@ -1,5 +1,3 @@
-
-
 /**
  * EventType - string - Always onMessageUpdated
  * MessageSid - string - The Message SID of the updated Message
@@ -17,9 +15,7 @@
  * DateUpdated - date string - The timestamp of update of the message
  */
 const onMessageUpdated = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMessageUpdated;

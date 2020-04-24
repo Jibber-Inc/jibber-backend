@@ -4,7 +4,6 @@ import Parse from '../providers/ParseProvider';
 import generateAuthCode from '../utils/generateAuthCode';
 import initiate2FAService from '../services/initiate2FAService';
 
-
 class VerifyReservationError extends ExtendableError {}
 
 /**
@@ -34,7 +33,6 @@ class VerifyReservationError extends ExtendableError {}
  * @return {Parse.HttpResponse}
  */
 const verifyReservation = async request => {
-
   const code = request.params.code;
 
   if (!code || typeof code !== 'string') {
@@ -44,7 +42,9 @@ const verifyReservation = async request => {
     // It seems that Parse just "magically" handles these types of things in cloud
     // code for ex: https://github.com/parse-community/parse-server/issues/5348
     // 😠 Hopefully I am just wrong and there is something I'm missing...
-    throw new VerifyReservationError('[KYUOOAOE] Missing "code" in request body');
+    throw new VerifyReservationError(
+      '[KYUOOAOE] Missing "code" in request body',
+    );
   }
 
   // Build query
@@ -62,7 +62,6 @@ const verifyReservation = async request => {
 
   // Reservation found...
   if (reservation.has('user')) {
-
     // query for user
     const userQuery = new Parse.Query(Parse.User);
     const user_id = reservation.get('user').id;
@@ -78,6 +77,5 @@ const verifyReservation = async request => {
 
   return reservation;
 };
-
 
 export default verifyReservation;

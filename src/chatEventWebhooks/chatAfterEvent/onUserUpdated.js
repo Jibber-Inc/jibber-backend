@@ -1,4 +1,3 @@
-
 /**
  * UserSid - string, SID - The SID of the User that was updated.
  * EventType - string - Always onUserUpdated
@@ -24,9 +23,7 @@
  *                least one Push Notification registration for Chat.
  */
 const onuserUpdated = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onuserUpdated;

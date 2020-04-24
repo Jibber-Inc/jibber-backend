@@ -3,9 +3,7 @@ const Chat = require('twilio-chat');
 import ExtendableError from 'extendable-error-class';
 import createChatToken from './createChatTokenService';
 
-
 export class CreateChatChannelError extends ExtendableError {}
-
 
 /**
  * Create a chat channel
@@ -15,8 +13,12 @@ export class CreateChatChannelError extends ExtendableError {}
  * @param {Boolean} isPrivate
  * @returns {Promise}
  */
-const createChatChannelService = async (user, uniqueName, friendlyName, isPrivate=false) => {
-
+const createChatChannelService = async (
+  user,
+  uniqueName,
+  friendlyName,
+  isPrivate = false,
+) => {
   if (!Boolean(user instanceof Parse.User)) {
     throw new CreateChatChannelError('[SmQNWk96] user is required');
   }
@@ -36,8 +38,7 @@ const createChatChannelService = async (user, uniqueName, friendlyName, isPrivat
 
   // Make chat client
   const token = createChatToken(user.id);
-  return Chat.Client
-    .create(token)
+  return Chat.Client.create(token)
     .then(client => {
       // Create and return channel
       return client.createChannel({
@@ -47,16 +48,17 @@ const createChatChannelService = async (user, uniqueName, friendlyName, isPrivat
       });
     })
     .then(channel => {
-      console.log(`[createChatChannelService:success] ${JSON.stringify(channel)}`);
+      console.log(
+        `[createChatChannelService:success] ${JSON.stringify(channel)}`,
+      );
       return channel;
     })
     .catch(error => {
-      console.error(`[createChatChannelService:failure] ${JSON.stringify(error)}`);
+      console.error(
+        `[createChatChannelService:failure] ${JSON.stringify(error)}`,
+      );
       throw error;
-    })
-  ;
+    });
 };
-
-
 
 export default createChatChannelService;

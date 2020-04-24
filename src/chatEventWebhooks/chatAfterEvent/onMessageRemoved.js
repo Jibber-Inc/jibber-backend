@@ -1,5 +1,3 @@
-
-
 /**
  * EventType - string - Always onMessageRemoved
  * MessageSid - string - The Message SID of the removed Message
@@ -17,9 +15,7 @@
  * DateRemoved - date string - The timestamp of removal of the message
  */
 const onMessageRemoved = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMessageRemoved;

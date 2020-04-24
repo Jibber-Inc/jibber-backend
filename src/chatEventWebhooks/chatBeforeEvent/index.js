@@ -11,7 +11,6 @@ import onMessageSend from './onMessageSend';
 import onMessageUpdate from './onMessageUpdate';
 import onUserUpdate from './onUserUpdate';
 
-
 /**
  * "In the case of Pre-Event webhooks, Twilio will wait for a response from
  * your service before publishing a result. The arrival, HTTP status code, and
@@ -41,7 +40,6 @@ import onUserUpdate from './onUserUpdate';
  * @returns {Response}
  */
 const chatBeforeEvent = async (request, response) => {
-
   // Route function by Event Type
   const { EventType } = request.body;
   const handlers = {
@@ -60,13 +58,10 @@ const chatBeforeEvent = async (request, response) => {
 
   // Return error if no route for EventType
   if (!Object.prototype.hasOwnProperty.call(handlers, EventType)) {
-    return response
-      .status(403)
-      .send(`No handler found for ${ EventType }`);
+    return response.status(403).send(`No handler found for ${EventType}`);
   }
 
   return handlers[EventType](request, response);
 };
-
 
 export default chatBeforeEvent;

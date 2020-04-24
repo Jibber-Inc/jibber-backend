@@ -3,7 +3,6 @@ import Parse from '../providers/ParseProvider';
 
 import { STATUS_INVITED } from '../constants';
 
-
 /**
  * Create a connection between 2 users and return
  * If connection already exists, return it
@@ -12,7 +11,6 @@ import { STATUS_INVITED } from '../constants';
  * @return {Promise->Connection}
  */
 const createConnectionService = async (targetUser, fromUser) => {
-
   // Get "Connection" schema
   const Connection = Parse.Object.extend('Connection');
 
@@ -34,6 +32,5 @@ const createConnectionService = async (targetUser, fromUser) => {
   connection.set('status', STATUS_INVITED);
   return connection.save();
 };
-
 
 export default createConnectionService;
