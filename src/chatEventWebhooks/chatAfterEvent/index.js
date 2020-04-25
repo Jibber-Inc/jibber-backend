@@ -1,3 +1,4 @@
+import Parse from '../../providers/ParseProvider';
 import onChannelAdded from './onChannelAdded';
 import onChannelDestroyed from './onChannelDestroyed';
 import onChannelUpdated from './onChannelUpdated';
@@ -53,6 +54,12 @@ const chatAfterEvent = async (request, response) => {
   if (!Object.prototype.hasOwnProperty.call(handlers, EventType)) {
     return response.status(403).send(`No handler found for ${EventType}`);
   }
+
+  const eventLog = new Parse.Object('EventLog');
+  eventLog.set('provider', 'twilio');
+  eventLog.set('eventType', EventType);
+  eventLog.set('payload', request.body);
+  await eventLog.save(null, { useMasterKey: true });
 
   return handlers[EventType](request, response);
 };
