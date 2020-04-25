@@ -6,13 +6,20 @@ import generatePassword from '../utils/generatePassword';
 class ValidateCodeError extends ExtendableError {}
 
 const validateCode = async request => {
-  let phoneNumber = request.params.phoneNumber;
-  const authCode = request.params.authCode;
+  let { phoneNumber } = request.params;
+  const { installationId, authCode } = request.params;
 
   // Phone number is required in request body
   if (!phoneNumber) {
     throw new ValidateCodeError(
       '[JXK8SYA4] No phone number provided in request',
+    );
+  }
+
+  // Installation Id is required in request body
+  if (!installationId) {
+    throw new ValidateCodeError(
+      '[STK8SYR9] No installationId provided in request',
     );
   }
 
@@ -37,7 +44,9 @@ const validateCode = async request => {
       }
 
       // Login user
-      return Parse.User.logIn(user.getUsername(), generatePassword(authCode));
+      return Parse.User.logIn(user.getUsername(), generatePassword(authCode), {
+        installationId,
+      });
     })
     .then(user => {
       // User not found

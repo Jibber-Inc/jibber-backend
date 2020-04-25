@@ -42,7 +42,7 @@ const createUser = async (phoneNumber, authCode) => {
   newUser.set('phoneNumber', phoneNumber);
   newUser.set('language', 'en');
 
-  return newUser.signUp();
+  return newUser.save(null, { useMasterKey: true });
 };
 
 export default createUser;
