@@ -29,7 +29,10 @@ const onMessageUpdated = async (request, response) => {
       From,
       ModifiedBy,
     } = request.body;
-    const { consumers = [] } = Attributes;
+
+    if (!Attributes) throw new Error('No Attributes present on the resquest.');
+
+    const { consumers = [] } = JSON.parse(Attributes);
     if (consumers.includes(ModifiedBy)) {
       const query = new Parse.Query(Parse.User);
       const [author, reader] = await Promise.all([
@@ -54,7 +57,7 @@ const onMessageUpdated = async (request, response) => {
       pushStatus = await PushService.sendPushNotificationToUser(
         NOTIFICATION_TYPES.MESSAGE_READ,
         data,
-        author
+        author,
       );
     }
     return response.status(200).json(pushStatus);
