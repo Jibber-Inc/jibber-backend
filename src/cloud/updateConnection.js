@@ -9,16 +9,16 @@ import {
   STATUS_PENDING,
 } from '../constants';
 
-
-const STATUS_LIST = [STATUS_INVITED, STATUS_ACCEPTED, STATUS_DECLINED, STATUS_PENDING];
-
+const STATUS_LIST = [
+  STATUS_INVITED,
+  STATUS_ACCEPTED,
+  STATUS_DECLINED,
+  STATUS_PENDING,
+];
 
 class UpdateConnectionError extends ExtendableError {}
 
-
-
 const updateConnection = async request => {
-
   const user = request.user;
   const connectionId = request.params.connectionId;
   const status = request.params.status;
@@ -36,7 +36,9 @@ const updateConnection = async request => {
   }
 
   if (!STATUS_LIST.includes(status)) {
-    throw new UpdateConnectionError(`[68wCOpBi] status must be one of ${STATUS_LIST}`);
+    throw new UpdateConnectionError(
+      `[68wCOpBi] status must be one of ${STATUS_LIST}`,
+    );
   }
 
   // Get "Connection" schema
@@ -48,7 +50,7 @@ const updateConnection = async request => {
 
   if (connection.get('to').id !== user.id) {
     throw new UpdateConnectionError(
-      '[z5oe1hzG] Connections can only be updated by receiving user.'
+      '[z5oe1hzG] Connections can only be updated by receiving user.',
     );
   }
 

@@ -1,4 +1,3 @@
-
 /**
  * EventType - string - Always onMessageSend
  * ChannelSid - string - Channel SID identifier of the Channel the Message is being sent to
@@ -10,9 +9,7 @@
  *
  */
 const onMessageSend = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMessageSend;

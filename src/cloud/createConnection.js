@@ -12,9 +12,7 @@ import { isMobilePhone } from 'validator';
 import createUserService from '../services/createUserService';
 import createConnectionService from '../services/createConnectionService';
 
-
 export class CreateConnectionError extends ExtendableError {}
-
 
 /**
  * Create a connection
@@ -22,29 +20,24 @@ export class CreateConnectionError extends ExtendableError {}
  * @param {*} response
  */
 const createConnection = async request => {
-
   let fromUser = request.user;
   let phoneNumber = request.params.phoneNumber; // The target users phone number
 
   // "From User" is required
   if (!Boolean(fromUser instanceof Parse.User)) {
-    throw new CreateConnectionError(
-      '[2wMux0QT] request.user is invalid.'
-    );
+    throw new CreateConnectionError('[2wMux0QT] request.user is invalid.');
   }
 
   // Phone number is required in request body
   if (!phoneNumber) {
     throw new CreateConnectionError(
-      '[ubSM6Dzb] No phone number provided in request'
+      '[ubSM6Dzb] No phone number provided in request',
     );
   }
 
   // Make sure phone number is valid
   if (!isMobilePhone(phoneNumber, 'en-US')) {
-    throw new CreateConnectionError(
-      '[QEbUz6mr] Invalid phone number'
-    );
+    throw new CreateConnectionError('[QEbUz6mr] Invalid phone number');
   }
 
   // Strip phone number

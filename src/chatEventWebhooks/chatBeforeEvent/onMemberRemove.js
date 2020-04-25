@@ -1,4 +1,3 @@
-
 /**
  * EventType - string - Always onMemberRemove
  * ChannelSid - string - Channel String Identifier
@@ -9,9 +8,7 @@
  *        - The reason of the removal of the member. Could be: REMOVED or LEFT
  */
 const onMemberRemove = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMemberRemove;

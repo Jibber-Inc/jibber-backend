@@ -2,9 +2,7 @@ import ExtendableError from 'extendable-error-class';
 const AccessToken = require('twilio').jwt.AccessToken;
 const ChatGrant = AccessToken.ChatGrant;
 
-
 export class CreateChatTokenError extends ExtendableError {}
-
 
 /**
  * createChatToken utility function
@@ -38,7 +36,7 @@ const createChatToken = userId => {
   const accessToken = new AccessToken(
     TWILIO_ACCOUNT_SID,
     TWILIO_API_KEY,
-    TWILIO_API_SECRET
+    TWILIO_API_SECRET,
   );
   const chatGrant = new ChatGrant({
     serviceSid: TWILIO_SERVICE_SID,
@@ -47,6 +45,5 @@ const createChatToken = userId => {
   accessToken.identity = userId;
   return accessToken.toJwt();
 };
-
 
 export default createChatToken;

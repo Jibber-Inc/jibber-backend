@@ -1,5 +1,3 @@
-
-
 /**
  * EventType - string - Always onChannelDestroyed
  * ChannelSid - string - Channel String Identifier
@@ -13,9 +11,7 @@
  * ChannelType - string - The Channel type. Either private or public
  */
 const onChannelDestroyed = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onChannelDestroyed;

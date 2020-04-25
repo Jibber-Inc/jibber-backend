@@ -1,4 +1,3 @@
-
 /**
  * EventType - string - Always onMemberRemoved
  * ChannelSid - string - Channel String Identifier
@@ -11,9 +10,7 @@
  * DateRemoved - date string - The date of Member remo
  */
 const onMemberRemoved = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMemberRemoved;

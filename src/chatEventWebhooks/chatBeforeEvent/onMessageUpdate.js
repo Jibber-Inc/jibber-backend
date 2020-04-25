@@ -1,4 +1,3 @@
-
 /**
  * EventType - string - Always onMessageUpdate
  * MessageSid - string - The Message SID
@@ -13,9 +12,7 @@
  * ModifiedBy - string - The updater/modifier of the message
  */
 const onMessageUpdate = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMessageUpdate;

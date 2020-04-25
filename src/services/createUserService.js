@@ -10,10 +10,7 @@ import Parse from '../providers/ParseProvider';
 import generatePassword from '../utils/generatePassword';
 import generateAuthCode from '../utils/generateAuthCode';
 
-
 class CreateUserError extends ExtendableError {}
-
-
 
 /**
  * Create a new user.
@@ -22,7 +19,6 @@ class CreateUserError extends ExtendableError {}
  * @returns {Promise->Parse.User}
  */
 const createUser = async (phoneNumber, authCode) => {
-
   // Phone number argument is required
   if (!phoneNumber) {
     throw new CreateUserError('[5qlkGfPY] Phone number is required');
@@ -30,11 +26,8 @@ const createUser = async (phoneNumber, authCode) => {
 
   // Make sure phone number is valid
   if (!isMobilePhone(phoneNumber, 'en-US')) {
-    throw new CreateUserError(
-      '[fmlfoloy] Invalid phone number'
-    );
+    throw new CreateUserError('[fmlfoloy] Invalid phone number');
   }
-
 
   const newUser = new Parse.User();
 
@@ -49,8 +42,7 @@ const createUser = async (phoneNumber, authCode) => {
   newUser.set('phoneNumber', phoneNumber);
   newUser.set('language', 'en');
 
-  return newUser.signUp();
+  return newUser.save(null, { useMasterKey: true });
 };
-
 
 export default createUser;

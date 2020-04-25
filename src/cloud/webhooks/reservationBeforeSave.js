@@ -2,25 +2,21 @@ import Parse from '../../providers/ParseProvider';
 import generateReservationCode from '../../utils/generateReservationCode';
 import generateReservationLink from '../../utils/generateReservationLink';
 
-
 /**
  * After save webhook for Reservation objects.
  * @param {Object} request
  */
 const reservationBeforeSave = async request => {
-
   const reservation = request.object;
 
   // Auto increment position if new reservation
   if (reservation.isNew()) {
     const ReservationCount = Parse.Object.extend('ReservationCount');
     const countQuery = new Parse.Query(ReservationCount);
-    const count = await countQuery
-      .first()
-      .then(count => {
-        count.increment('currentCount');
-        return count.save();
-      });
+    const count = await countQuery.first().then(count => {
+      count.increment('currentCount');
+      return count.save();
+    });
     reservation.set('position', count.get('currentCount'));
   }
 
@@ -38,6 +34,5 @@ const reservationBeforeSave = async request => {
     reservation.set('link', link);
   }
 };
-
 
 export default reservationBeforeSave;

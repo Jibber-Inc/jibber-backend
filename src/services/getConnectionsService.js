@@ -2,9 +2,7 @@ import ExtendableError from 'extendable-error-class';
 
 import Parse from '../providers/ParseProvider';
 
-
 class GetConnectionsServiceError extends ExtendableError {}
-
 
 /**
  * Return any Connection objects where the "to" or "from" user is the given user
@@ -12,11 +10,8 @@ class GetConnectionsServiceError extends ExtendableError {}
  * @returns {Object}
  */
 const getConnectionsService = async user => {
-
   if (!Boolean(user instanceof Parse.User)) {
-    throw new GetConnectionsServiceError(
-      '[29heIw2r] Expected Parse.User'
-    );
+    throw new GetConnectionsServiceError('[29heIw2r] Expected Parse.User');
   }
 
   // Get Connection schema
@@ -35,6 +30,5 @@ const getConnectionsService = async user => {
     outgoing: await fromQuery.find(),
   };
 };
-
 
 export default getConnectionsService;

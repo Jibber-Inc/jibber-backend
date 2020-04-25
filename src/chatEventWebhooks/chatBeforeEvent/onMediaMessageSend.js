@@ -1,4 +1,3 @@
-
 /**
  * EventType - string - Always onMediaMessageSend
  * ChannelSid - string
@@ -17,9 +16,7 @@
  * MediaSize - int - Media size in bytes
  */
 const onMediaMessageSend = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMediaMessageSend;

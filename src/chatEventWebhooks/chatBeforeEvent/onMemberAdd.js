@@ -1,4 +1,3 @@
-
 /**
  * EventType - string - Always onMemberAdd
  * ChannelSid - string - Channel String Identifier
@@ -10,9 +9,7 @@
  *          Could be: ADDED or JOINED
  */
 const onMemberAdd = (request, response) => {
-  return response
-    .status(200)
-    .json({});
+  return response.status(200).json({});
 };
 
 export default onMemberAdd;
