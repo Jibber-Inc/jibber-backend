@@ -26,7 +26,7 @@ const onMessageUpdated = async (request, response) => {
       ChannelSid,
       MessageSid,
       Attributes = {},
-      ClientIdentity,
+      From,
       ModifiedBy,
     } = request.body;
 
@@ -36,7 +36,7 @@ const onMessageUpdated = async (request, response) => {
     if (consumers.includes(ModifiedBy)) {
       const query = new Parse.Query(Parse.User);
       const [author, reader] = await Promise.all([
-        query.get(ClientIdentity, { useMasterKey: true }),
+        query.get(From, { useMasterKey: true }),
         query.get(ModifiedBy, { useMasterKey: true }),
       ]);
 
