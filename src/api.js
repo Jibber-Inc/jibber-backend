@@ -21,7 +21,7 @@ const {
 const api = new ParseServer({
   appId: APP_ID,
   appName: APP_NAME,
-  cloud: CLOUD_CODE_MAIN || 'dist/cloud',
+  cloud: CLOUD_CODE_MAIN || `${__dirname}/cloud/`,
   databaseURI: DATABASE_URI,
   masterKey: MASTER_KEY,
   restApiKey: REST_API_KEY,
