@@ -34,10 +34,11 @@ const onMessageUpdated = async (request, response) => {
 
     const { consumers = [] } = JSON.parse(Attributes);
     if (consumers.includes(ModifiedBy)) {
-      const query = new Parse.Query(Parse.User);
       const [author, reader] = await Promise.all([
-        query.get(From, { useMasterKey: true }),
-        query.get(ModifiedBy, { useMasterKey: true }),
+        new Parse.Query(Parse.User).get(From, { useMasterKey: true }),
+        new Parse.Query(Parse.User).get(ModifiedBy, {
+          useMasterKey: true,
+        }),
       ]);
 
       const channel = await new Twilio().client.chat
