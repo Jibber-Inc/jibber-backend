@@ -26,8 +26,8 @@ const onMessageUpdated = async (request, response) => {
 
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
 
-    const { consumers = [] } = JSON.parse(Attributes);
-    if (consumers.includes(ModifiedBy)) {
+    const { consumers = [], context = '' } = JSON.parse(Attributes);
+    if (consumers.includes(ModifiedBy) && context === 'emergency') {
       const [author, reader] = await Promise.all([
         new Parse.Query(Parse.User).get(From, { useMasterKey: true }),
         new Parse.Query(Parse.User).get(ModifiedBy, {
