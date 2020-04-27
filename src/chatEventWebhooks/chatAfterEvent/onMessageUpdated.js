@@ -22,18 +22,12 @@ import { NOTIFICATION_TYPES } from '../../constants';
 const onMessageUpdated = async (request, response) => {
   try {
     let pushStatus = {};
-    let {
-      ChannelSid,
-      MessageSid,
-      Attributes = {},
-      From,
-      ModifiedBy,
-    } = request.body;
+    let { ChannelSid, MessageSid, Attributes, From, ModifiedBy } = request.body;
 
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
 
-    const { consumers = [] } = JSON.parse(Attributes);
-    if (consumers.includes(ModifiedBy)) {
+    const { consumers = [], context = '' } = JSON.parse(Attributes);
+    if (consumers.includes(ModifiedBy) && context === 'emergency') {
       const [author, reader] = await Promise.all([
         new Parse.Query(Parse.User).get(From, { useMasterKey: true }),
         new Parse.Query(Parse.User).get(ModifiedBy, {
@@ -55,10 +49,10 @@ const onMessageUpdated = async (request, response) => {
         body,
         target: 'channel',
       };
-      pushStatus = await PushService.sendPushNotificationToUser(
+      pushStatus = await PushService.sendPushNotificationToUsers(
         NOTIFICATION_TYPES.MESSAGE_READ,
         data,
-        author,
+        [author],
       );
     }
     return response.status(200).json(pushStatus);
