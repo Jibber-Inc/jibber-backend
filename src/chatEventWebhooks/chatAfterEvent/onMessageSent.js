@@ -42,7 +42,7 @@ const onMessageSent = async (request, response) => {
           messageId: MessageSid,
           channelId: ChannelSid,
           identifier: MessageSid + context,
-          title: `${context} message`,
+          title: 'Emergency Message 🚨',
           body: Body,
           target: 'channel',
         };
