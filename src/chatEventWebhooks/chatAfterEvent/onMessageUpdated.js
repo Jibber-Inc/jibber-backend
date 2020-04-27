@@ -22,13 +22,7 @@ import { NOTIFICATION_TYPES } from '../../constants';
 const onMessageUpdated = async (request, response) => {
   try {
     let pushStatus = {};
-    let {
-      ChannelSid,
-      MessageSid,
-      Attributes = {},
-      From,
-      ModifiedBy,
-    } = request.body;
+    let { ChannelSid, MessageSid, Attributes, From, ModifiedBy } = request.body;
 
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
 
@@ -55,10 +49,10 @@ const onMessageUpdated = async (request, response) => {
         body,
         target: 'channel',
       };
-      pushStatus = await PushService.sendPushNotificationToUser(
+      pushStatus = await PushService.sendPushNotificationToUsers(
         NOTIFICATION_TYPES.MESSAGE_READ,
         data,
-        author,
+        [author],
       );
     }
     return response.status(200).json(pushStatus);
