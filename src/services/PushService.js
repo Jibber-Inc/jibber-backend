@@ -5,11 +5,11 @@ const sendToChannel = () => ({
   result: 'needs to be implemented',
 });
 
-const sendToUser = async (data, user) => {
+const sendToUsers = async (data, users = []) => {
   if (!data) throw new Error('Cannot send notificaction. Data is required');
   // Find sessions of the user.
   const query = new Parse.Query(Parse.Session);
-  query.equalTo('user', user);
+  query.containedIn('user', users);
   const now = new Date();
   query.greaterThan('expiresAt', now);
   // Find installations associated with the user
@@ -24,7 +24,7 @@ const sendToUser = async (data, user) => {
     },
     {
       useMasterKey: true,
-    }
+    },
   );
 };
 
@@ -41,12 +41,12 @@ const prepareNotificationData = (type, data = {}) => {
   };
 };
 
-const sendPushNotificationToUser = async (type, data, user) => {
+const sendPushNotificationToUsers = async (type, data, users = []) => {
   const customData = prepareNotificationData(type, data);
-  return sendToUser(customData, user);
+  return sendToUsers(customData, users);
 };
 
 export default {
   sendToChannel,
-  sendPushNotificationToUser,
+  sendPushNotificationToUsers,
 };
