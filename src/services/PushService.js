@@ -34,7 +34,6 @@ const prepareNotificationData = (type, data = {}) => {
   }
 
   return {
-    'content-available': 1,
     push_type: 'background',
     priority: 5,
     data,
