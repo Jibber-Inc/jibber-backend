@@ -5,12 +5,10 @@ import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 
 // Services
-import initiate2FAService from '../services/initiate2FAService';
-import createUserService from '../services/createUserService';
+import TwoFAService from '../services/TwoFAService';
+import UserService from '../services/UserService';
 
 // Utils
-import stripPhoneNumber from '../utils/stripPhoneNumber';
-import generateAuthCode from '../utils/generateAuthCode';
 import generatePassword from '../utils/generatePassword';
 
 class SendCodeError extends ExtendableError {}
@@ -20,50 +18,34 @@ class SendCodeError extends ExtendableError {}
  * @param {*} request
  */
 const sendCode = async request => {
-  let phoneNumber = request.params.phoneNumber;
+  const { params, installationId } = request;
+  let { phoneNumber } = params;
 
   // Phone number is required in request body
   if (!phoneNumber) {
     throw new SendCodeError('[Zc1UZev9] No phone number provided in request');
   }
-
-  // Strip phone number
-  phoneNumber = stripPhoneNumber(phoneNumber);
-
-  // Build query
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
-
-  // Generate auth code
-  const authCode = generateAuthCode();
-
-  // Query for user
   let user = await userQuery.first({ useMasterKey: true });
-
-  // If user exists, update their password
-  if (!!user) {
-    user.setPassword(generatePassword(authCode));
-    user = await user.save(null, { useMasterKey: true }).then(user => {
-      if (!Boolean(user instanceof Parse.User)) {
-        throw new SendCodeError('[z0KveYVV] expected instanceof Parse.User');
-      }
-      return user;
-    });
-
-    // If no user exists, create one
-  } else {
-    user = await createUserService(phoneNumber, authCode).then(user => {
-      if (!Boolean(user instanceof Parse.User)) {
-        throw new SendCodeError('[8SzSfMKC] expected instanceof Parse.User');
-      }
-      return user;
-    });
+  if (user && user.get('verificationStatus') === 'approved') {
+    throw new SendCodeError('[Zc1UZev9] Your account is already verified');
   }
-
-  // Send the code to the phone number
-  initiate2FAService(authCode, user);
-
-  // Do not return auth code in the response!!
+  try {
+    const { status, valid } = await TwoFAService.sendCode(phoneNumber);
+    if (user) {
+      user.setPassword(generatePassword(installationId));
+      user = await user.save(null, { useMasterKey: true });
+    } else {
+      user = await UserService.createUser(phoneNumber, installationId);
+    }
+    user.set('verificationStatus', status);
+    user.set('verificationValid', valid);
+    await user.save(null, { useMasterKey: true });
+    return { status: 'code sent' };
+  } catch (error) {
+    throw new SendCodeError(`[Gr6JOan5] Cannot send code to ${phoneNumber}`);
+  }
 };
 
 export default sendCode;
