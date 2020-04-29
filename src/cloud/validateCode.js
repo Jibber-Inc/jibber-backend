@@ -1,13 +1,14 @@
 import Parse from '../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
-import stripPhoneNumber from '../utils/stripPhoneNumber';
 import generatePassword from '../utils/generatePassword';
+import TwoFAService from '../services/TwoFAService';
+import UserService from '../services/UserService';
 
 class ValidateCodeError extends ExtendableError {}
 
 const validateCode = async request => {
-  let { phoneNumber } = request.params;
-  const { installationId, authCode } = request.params;
+  let { params, installationId } = request;
+  const { phoneNumber, authCode } = params;
 
   // Phone number is required in request body
   if (!phoneNumber) {
@@ -19,7 +20,7 @@ const validateCode = async request => {
   // Installation Id is required in request body
   if (!installationId) {
     throw new ValidateCodeError(
-      '[STK8SYR9] No installationId provided in request',
+      '[STK8SYR9] No installationId provided in request header',
     );
   }
 
@@ -28,34 +29,50 @@ const validateCode = async request => {
     throw new ValidateCodeError('[xDETWSYH] No auth code provided in request');
   }
 
-  // Strip phone number
-  phoneNumber = stripPhoneNumber(phoneNumber);
-
   // Build query
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
+  const user = await userQuery.first({ useMasterKey: true });
 
-  // Query for user
-  return userQuery
-    .first({ useMasterKey: true })
-    .then(user => {
-      if (!Boolean(user instanceof Parse.User)) {
-        throw new ValidateCodeError('[zIslmc6c] User not found');
+  if (!Boolean(user instanceof Parse.User)) {
+    throw new ValidateCodeError('[zIslmc6c] User not found');
+  }
+
+  try {
+    if (user.get('verificationStatus') !== 'approved') {
+      const { status, valid } = await TwoFAService.verifyCode(
+        user.get('phoneNumber'),
+        authCode,
+      );
+      if (!valid) {
+        throw new ValidateCodeError('[KTN1RYO9] Auth code validation failed');
       }
 
-      // Login user
-      return Parse.User.logIn(user.getUsername(), generatePassword(authCode), {
-        installationId,
-      });
-    })
-    .then(user => {
-      // User not found
-      if (!user) {
-        throw new ValidateCodeError('[bJHe2Jgj] User not found');
-      }
+      user.set('verificationStatus', status);
+      user.set('verificationValid', valid);
+      await user.save(null, { useMasterKey: true });
+    }
 
-      return user.getSessionToken();
-    });
+    const sessionToken = await UserService.getLastSessionToken(
+      user,
+      installationId,
+    );
+    // If no session token present login the user.
+    if (!sessionToken) {
+      const logged = await Parse.User.logIn(
+        user.getUsername(),
+        generatePassword(installationId),
+        {
+          installationId,
+        },
+      );
+      return logged.getSessionToken();
+    }
+
+    return sessionToken;
+  } catch (error) {
+    throw new ValidateCodeError(`Validation error. Detail: ${error.message}`);
+  }
 };
 
 export default validateCode;
