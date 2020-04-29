@@ -28,9 +28,7 @@ const sendCode = async request => {
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
   let user = await userQuery.first({ useMasterKey: true });
-  if (user && user.get('verificationStatus') === 'approved') {
-    throw new SendCodeError('[Zc1UZev9] Your account is already verified');
-  }
+
   try {
     const { status, valid } = await TwoFAService.sendCode(phoneNumber);
     if (user) {

@@ -5,7 +5,6 @@ import uuidv4 from 'uuid/v4';
 import ExtendableError from 'extendable-error-class';
 // Utils
 import generatePassword from '../utils/generatePassword';
-import generateAuthCode from '../utils/generateAuthCode';
 
 class UserServiceError extends ExtendableError {}
 
@@ -23,7 +22,7 @@ const createUser = async (phoneNumber, installationId) => {
 
   const newUser = new Parse.User();
   newUser.setUsername(uuidv4());
-  newUser.setPassword(generatePassword(generateAuthCode()));
+  newUser.setPassword(generatePassword(installationId));
   return Parse.User.signUp(
     newUser.get('username'),
     newUser.get('password'),
