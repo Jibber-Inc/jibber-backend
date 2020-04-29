@@ -61,7 +61,7 @@ const validateCode = async request => {
     if (!sessionToken) {
       const logged = await Parse.User.logIn(
         user.getUsername(),
-        generatePassword(installationId),
+        generatePassword(user.get('hashcode')),
         {
           installationId,
         },

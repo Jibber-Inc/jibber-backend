@@ -1,6 +1,7 @@
 // Providers
 import Parse from '../providers/ParseProvider';
 // Vendor
+import hat from 'hat';
 import uuidv4 from 'uuid/v4';
 import ExtendableError from 'extendable-error-class';
 // Utils
@@ -22,14 +23,21 @@ const createUser = async (phoneNumber, installationId) => {
 
   const newUser = new Parse.User();
   newUser.setUsername(uuidv4());
-  newUser.setPassword(generatePassword(installationId));
+  const hashcode = hat();
+  newUser.setPassword(generatePassword(hashcode));
+
+  const userAttributes = {
+    phoneNumber,
+    language: 'en',
+    hashcode,
+  };
+  if (!installationId) {
+    return await newUser.save(null, userAttributes, { useMasterKey: true });
+  }
   return Parse.User.signUp(
     newUser.get('username'),
     newUser.get('password'),
-    {
-      phoneNumber,
-      language: 'en',
-    },
+    userAttributes,
     {
       installationId,
       useMasterKey: true,

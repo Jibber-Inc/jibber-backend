@@ -8,9 +8,6 @@ import Parse from '../providers/ParseProvider';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
 
-// Utils
-import generatePassword from '../utils/generatePassword';
-
 class SendCodeError extends ExtendableError {}
 
 /**
@@ -31,10 +28,7 @@ const sendCode = async request => {
 
   try {
     const { status, valid } = await TwoFAService.sendCode(phoneNumber);
-    if (user) {
-      user.setPassword(generatePassword(installationId));
-      user = await user.save(null, { useMasterKey: true });
-    } else {
+    if (!user) {
       user = await UserService.createUser(phoneNumber, installationId);
     }
     user.set('verificationStatus', status);
@@ -42,7 +36,9 @@ const sendCode = async request => {
     await user.save(null, { useMasterKey: true });
     return { status: 'code sent' };
   } catch (error) {
-    throw new SendCodeError(`[Gr6JOan5] Cannot send code to ${phoneNumber}`);
+    throw new SendCodeError(
+      `[Gr6JOan5] Error occurred trying to send code to ${phoneNumber}. Detail: ${error.message}`,
+    );
   }
 };
 
