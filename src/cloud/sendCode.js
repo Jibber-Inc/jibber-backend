@@ -8,9 +8,6 @@ import Parse from '../providers/ParseProvider';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
 
-// Utils
-import generatePassword from '../utils/generatePassword';
-
 class SendCodeError extends ExtendableError {}
 
 /**
