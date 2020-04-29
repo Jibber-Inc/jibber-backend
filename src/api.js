@@ -40,7 +40,7 @@ const api = new ParseServer({
     classNames: ['Posts', 'Comments'],
   },
   protectedFields: {
-    User: {
+    _User: {
       '*': ['hashcode'],
     },
   },
