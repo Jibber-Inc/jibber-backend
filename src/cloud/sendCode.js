@@ -42,7 +42,9 @@ const sendCode = async request => {
     await user.save(null, { useMasterKey: true });
     return { status: 'code sent' };
   } catch (error) {
-    throw new SendCodeError(`[Gr6JOan5] Cannot send code to ${phoneNumber}`);
+    throw new SendCodeError(
+      `[Gr6JOan5] Error occurred trying to send code to ${phoneNumber}. Detail: ${error.message}`,
+    );
   }
 };
 
