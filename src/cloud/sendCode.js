@@ -31,10 +31,7 @@ const sendCode = async request => {
 
   try {
     const { status, valid } = await TwoFAService.sendCode(phoneNumber);
-    if (user) {
-      user.setPassword(generatePassword(installationId));
-      user = await user.save(null, { useMasterKey: true });
-    } else {
+    if (!user) {
       user = await UserService.createUser(phoneNumber, installationId);
     }
     user.set('verificationStatus', status);
