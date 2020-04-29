@@ -4,12 +4,8 @@ import ExtendableError from 'extendable-error-class';
 // Providers
 import Parse from '../providers/ParseProvider';
 
-// Utils
-import stripPhoneNumber from '../utils/stripPhoneNumber';
-import { isMobilePhone } from 'validator';
-
 // Services
-import createUserService from '../services/createUserService';
+import UserService from '../services/UserService';
 import createConnectionService from '../services/createConnectionService';
 
 export class CreateConnectionError extends ExtendableError {}
@@ -35,14 +31,6 @@ const createConnection = async request => {
     );
   }
 
-  // Make sure phone number is valid
-  if (!isMobilePhone(phoneNumber, 'en-US')) {
-    throw new CreateConnectionError('[QEbUz6mr] Invalid phone number');
-  }
-
-  // Strip phone number
-  phoneNumber = stripPhoneNumber(phoneNumber);
-
   // Build query to find user with phoneNumber
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
@@ -52,7 +40,7 @@ const createConnection = async request => {
 
   // If no user exists, create a user with the given phoneNumber
   if (!Boolean(targetUser instanceof Parse.User)) {
-    targetUser = await createUserService(phoneNumber);
+    targetUser = await UserService.createUser(phoneNumber);
   }
 
   return createConnectionService(targetUser, fromUser);
