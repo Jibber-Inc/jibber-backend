@@ -17,12 +17,15 @@ const sendCode = async phoneNumber => {
       '[qV6Heiv8] Cannot initiate 2FA, no phoneNumber provided',
     );
   }
+  try {
+    const verification = await new Twilio().client.verify
+      .services(TWILIO_VERIFY_SERVICE_SID)
+      .verifications.create({ to: phoneNumber, channel: 'sms' });
 
-  const verification = await new Twilio().client.verify
-    .services(TWILIO_VERIFY_SERVICE_SID)
-    .verifications.create({ to: phoneNumber, channel: 'sms' });
-
-  return verification;
+    return verification;
+  } catch (error) {
+    throw new TwoFAServiceError(`[K67TCo5] ${error.message}`);
+  }
 };
 
 const verifyCode = async (phonenumber, code) => {

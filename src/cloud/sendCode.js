@@ -1,6 +1,6 @@
 // Vendor modules
 import ExtendableError from 'extendable-error-class';
-
+import { TwoFAServiceError } from '../services/TwoFAService';
 // Providers
 import Parse from '../providers/ParseProvider';
 
@@ -36,9 +36,15 @@ const sendCode = async request => {
     await user.save(null, { useMasterKey: true });
     return { status: 'code sent' };
   } catch (error) {
-    throw new SendCodeError(
-      `[Gr6JOan5] Error occurred trying to send code to ${phoneNumber}. Detail: ${error.message}`,
-    );
+    if (error instanceof TwoFAServiceError) {
+      throw new SendCodeError(
+        `[Gr6JOan5] Cannot send code to ${phoneNumber}. Detail: ${error.message}`,
+      );
+    } else {
+      throw new SendCodeError(
+        `[Fe1K7tw2] An error ocurred on send code to ${phoneNumber}. Detail: ${error.message}`,
+      );
+    }
   }
 };
 
