@@ -26,8 +26,23 @@ const sendCode = async request => {
   userQuery.equalTo('phoneNumber', phoneNumber);
   let user = await userQuery.first({ useMasterKey: true });
 
+  let locale;
+  if (installationId) {
+    // Query for Installation instance
+    const installation = await new Parse.Query(Parse.Installation)
+      .equalTo('installationId', installationId)
+      .first({ useMasterKey: true });
+
+    if (installation) {
+      const localeIdentifier = installation.get('localeIdentifier');
+      if (localeIdentifier) {
+        locale = localeIdentifier.substring(0, 2); // i.e: extract "en" from en-US
+      }
+    }
+  }
+
   try {
-    const { status, valid } = await TwoFAService.sendCode(phoneNumber);
+    const { status, valid } = await TwoFAService.sendCode(phoneNumber, locale);
     if (!user) {
       user = await UserService.createUser(phoneNumber, installationId);
     }

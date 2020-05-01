@@ -11,7 +11,7 @@ export class TwoFAServiceError extends ExtendableError {}
  * @param {Parse.User} user
  * @return {Promise}
  */
-const sendCode = async phoneNumber => {
+const sendCode = async (phoneNumber, locale = undefined) => {
   if (!phoneNumber) {
     throw new TwoFAServiceError(
       '[qV6Heiv8] Cannot initiate 2FA, no phoneNumber provided',
@@ -20,7 +20,7 @@ const sendCode = async phoneNumber => {
   try {
     const verification = await new Twilio().client.verify
       .services(TWILIO_VERIFY_SERVICE_SID)
-      .verifications.create({ to: phoneNumber, channel: 'sms' });
+      .verifications.create({ to: phoneNumber, channel: 'sms', locale });
 
     return verification;
   } catch (error) {
