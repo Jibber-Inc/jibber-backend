@@ -20,8 +20,6 @@ const sendToUsers = async (data, users = []) => {
   return Parse.Push.send(
     {
       where: pushQuery,
-      priority: 10,
-      push_type: 'background',
       data,
     },
     {
@@ -37,8 +35,13 @@ const prepareNotificationData = (type, data = {}) => {
 
   return {
     'aps': {
-      'content-available': 1
+      'alert': {
+        'title': data.title,
+        'body': data.body
+      }
     },
+    priority: 10,
+    push_type: 'alert',
     data,
   };
 };
