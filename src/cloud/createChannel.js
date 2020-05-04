@@ -30,7 +30,7 @@ const createChannel = async request => {
     // send invites to members
     await ChatService.inviteMembers(channel.sid, members);
     return {
-      status: 'ok',
+      channel: channel.sid,
     };
   } catch (error) {
     throw new CreateChannelError(error.message);
