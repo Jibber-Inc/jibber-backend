@@ -54,6 +54,7 @@ const createChatToken = userId => {
  * @param {String} uniqueName
  * @param {String} friendlyName
  * @param {Boolean} isPrivate
+ * @param {Object} attributes
  * @returns {Promise}
  */
 const createChatChannel = async (
