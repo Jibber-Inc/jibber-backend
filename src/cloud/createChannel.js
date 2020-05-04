@@ -24,10 +24,13 @@ const createChannel = async request => {
       type,
       { context },
     );
+
+    // add request user to member list
+    await ChatService.addMembersToChannel(channel.sid, [user.id]);
     // send invites to members
-    await ChatService.inviteMembers(channel.uniqueName, members);
+    await ChatService.inviteMembers(channel.sid, members);
     return {
-      channel,
+      status: 'ok',
     };
   } catch (error) {
     throw new CreateChannelError(error.message);
