@@ -1,7 +1,7 @@
 import Parse from '../../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
 
-import createChatChannelService from '../../services/createChatChannelService';
+import ChatService from '../../services/ChatService';
 
 class UserAfterSaveError extends ExtendableError {}
 
@@ -9,7 +9,7 @@ class UserAfterSaveError extends ExtendableError {}
  * After save webhook for User objects.
  * @param {Object} request
  */
-const userAfterSave = request => {
+const userAfterSave = async request => {
   const user = request.object;
 
   if (!Boolean(user instanceof Parse.User)) {
@@ -28,11 +28,13 @@ const userAfterSave = request => {
 
   // Create new user chat channels
   if (!user.existed()) {
-    Promise.all([
-      createChatChannelService(user, `Welcome_${user.id}`, 'Welcome!'),
-      createChatChannelService(user, `Feedback_${user.id}`, 'Feedback'),
-      createChatChannelService(user, `Ideas_${user.id}`, 'Ideas'),
-    ]);
+    const channel = await ChatService.createChatChannel(
+      user,
+      `Welcome_${user.id}`,
+      'Wellcome!',
+      'private',
+    );
+    await ChatService.addMembersToChannel(channel.sid, [user.id]);
   }
 };
 

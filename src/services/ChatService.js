@@ -40,6 +40,7 @@ const createChatChannel = async (
         friendlyName,
         type,
         attributes,
+        createdBy: owner.id,
       });
     return channel;
   } catch (error) {
