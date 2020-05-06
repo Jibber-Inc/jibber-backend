@@ -86,8 +86,43 @@ const addMembersToChannel = async (channelSid, members = []) => {
   );
 };
 
+const deleteUser = async userId => {
+  try {
+    const userChannels = await getUserChannels(userId);
+    await Promise.all(userChannels.map(u => deleteChannel(u.channelSid)));
+    await new Twilio().client.chat.services(SERVICE_ID).users(userId).remove();
+    return userId;
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
+const getUserChannels = async userId => {
+  try {
+    const userChannels = await new Twilio().client.chat
+      .services(SERVICE_ID)
+      .users(userId)
+      .userChannels.list({ limit: 50 });
+    return userChannels;
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
+const deleteChannel = async channelSid => {
+  try {
+    return new Twilio().client.chat
+      .services(SERVICE_ID)
+      .channels(channelSid)
+      .remove();
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
 export default {
   createChatChannel,
   inviteMembers,
   addMembersToChannel,
+  deleteUser,
 };
