@@ -17,6 +17,7 @@ import createChannel from './createChannel';
 import connectionAfterSave from './webhooks/connectionAfterSave';
 import userBeforeSave from './webhooks/userBeforeSave';
 import userAfterSave from './webhooks/userAfterSave';
+import userAfterDelete from './webhooks/userAfterDelete';
 import reservationBeforeSave from './webhooks/reservationBeforeSave';
 
 // Load Environment variables
@@ -54,6 +55,7 @@ Parse.Cloud.afterSave('Connection', connectionAfterSave);
 // User webhooks
 Parse.Cloud.beforeSave(Parse.User, userBeforeSave);
 Parse.Cloud.afterSave(Parse.User, userAfterSave);
+Parse.Cloud.afterDelete(Parse.User, userAfterDelete);
 
 // Reservation webhooks
 Parse.Cloud.beforeSave('Reservation', reservationBeforeSave);
