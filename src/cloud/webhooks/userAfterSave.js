@@ -31,20 +31,20 @@ const userAfterSave = async request => {
     const [wellcomeChannel, feedbackChannel, ideasChannel] = await Promise.all([
       ChatService.createChatChannel(
         user,
-        `Welcome_${user.id}`,
-        'Wellcome!',
+        `welcome_${user.id}`,
+        'welcome',
         'private',
       ),
       ChatService.createChatChannel(
         user,
-        `Feedback_${user.id}`,
-        'Feedback!',
+        `feedback_${user.id}`,
+        'feedback',
         'private',
       ),
       ChatService.createChatChannel(
         user,
-        `Ideas_${user.id}`,
-        'Ideas!',
+        `ideas_${user.id}`,
+        'ideas',
         'private',
       ),
     ]);
