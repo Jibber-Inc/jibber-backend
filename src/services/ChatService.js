@@ -33,13 +33,14 @@ const createChatChannel = async (
     throw new ChatServiceError('[VNFMyXuf] friendlyName is required');
   }
   try {
+    const stringAttributes = JSON.stringify(attributes);
     const channel = await new Twilio().client.chat
       .services(SERVICE_ID)
       .channels.create({
         uniqueName,
         friendlyName,
         type,
-        attributes,
+        attributes: stringAttributes,
         createdBy: owner.id,
       });
     return channel;
