@@ -28,13 +28,30 @@ const userAfterSave = async request => {
 
   // Create new user chat channels
   if (!user.existed()) {
-    const channel = await ChatService.createChatChannel(
-      user,
-      `Welcome_${user.id}`,
-      'Wellcome!',
-      'private',
-    );
-    await ChatService.addMembersToChannel(channel.sid, [user.id]);
+    const [wellcomeChannel, feedbackChannel, ideasChannel] = await Promise.all([
+      ChatService.createChatChannel(
+        user,
+        `Welcome_${user.id}`,
+        'Wellcome!',
+        'private',
+      ),
+      ChatService.createChatChannel(
+        user,
+        `Feedback_${user.id}`,
+        'Feedback!',
+        'private',
+      ),
+      ChatService.createChatChannel(
+        user,
+        `Ideas_${user.id}`,
+        'Ideas!',
+        'private',
+      ),
+    ]);
+
+    await ChatService.addMembersToChannel(wellcomeChannel.sid, [user.id]);
+    await ChatService.addMembersToChannel(feedbackChannel.sid, [user.id]);
+    await ChatService.addMembersToChannel(ideasChannel.sid, [user.id]);
   }
 };
 
