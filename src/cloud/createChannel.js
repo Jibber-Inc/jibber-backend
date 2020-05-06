@@ -13,7 +13,7 @@ export class CreateChannelError extends ExtendableError {}
  */
 const createChannel = async request => {
   const { user, params } = request;
-  const { uniqueName, friendlyName, context, type, members } = params;
+  const { uniqueName, friendlyName, type, members, attributes } = params;
   try {
     if (!user) throw new CreateChannelError('User need to be authenticated.');
     // create channel
@@ -22,7 +22,7 @@ const createChannel = async request => {
       uniqueName,
       friendlyName,
       type,
-      { context },
+      attributes,
     );
 
     // add request user to member list
