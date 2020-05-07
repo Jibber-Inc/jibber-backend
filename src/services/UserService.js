@@ -32,7 +32,7 @@ const createUser = async (phoneNumber, installationId) => {
     hashcode,
   };
   if (!installationId) {
-    return await newUser.save(null, userAttributes, { useMasterKey: true });
+    return await newUser.save(userAttributes, { useMasterKey: true });
   }
   return Parse.User.signUp(
     newUser.get('username'),
