@@ -66,15 +66,18 @@ const clearUserSessions = async user => {
 };
 
 const deleteUserInstallations = async user => {
-  const query = new Parse.Query(Parse.Installation);
-  query.equalTo('userId', user.id);
-  const installations = await query.find({ useMasterKey: true });
-  const cleared = await Promise.all(
-    installations.map(installation =>
-      installation.destroy({ useMasterKey: true }),
-    ),
-  );
-  return { installations: cleared.map(i => i.id) };
+  try {
+    const query = new Parse.Query(Parse.Installation);
+    query.equalTo('userId', user.id);
+    const installations = await query.find({ useMasterKey: true });
+    await Promise.all(
+      installations.map(installation =>
+        installation.destroy({ useMasterKey: true }),
+      ),
+    );
+  } catch (error) {
+    throw new UserServiceError(error.message);
+  }
 };
 
 const deleteRoutines = async user => {
@@ -88,10 +91,27 @@ const deleteRoutines = async user => {
   }
 };
 
+const deleteConnections = async user => {
+  try {
+    const fromQuery = new Parse.Query('Connection').equaTo('from', user);
+    const toQuery = new Parse.Query('Connection').equalTo('to', user);
+    const mainQuery = Parse.Query.or(fromQuery, toQuery);
+    const results = await mainQuery.find({ useMasterKey: true });
+    if (results) {
+      await Promise.all(
+        results.map(conn => conn.destroy({ useMasterKey: true })),
+      );
+    }
+  } catch (error) {
+    throw new UserServiceError(error.message);
+  }
+};
+
 export default {
   createUser,
   getLastSessionToken,
   clearUserSessions,
   deleteUserInstallations,
   deleteRoutines,
+  deleteConnections,
 };
