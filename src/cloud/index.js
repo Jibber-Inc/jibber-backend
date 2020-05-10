@@ -18,7 +18,6 @@ import connectionAfterSave from './webhooks/connectionAfterSave';
 import userBeforeSave from './webhooks/userBeforeSave';
 import userAfterSave from './webhooks/userAfterSave';
 import userAfterDelete from './webhooks/userAfterDelete';
-import reservationBeforeSave from './webhooks/reservationBeforeSave';
 
 // Load Environment variables
 const { BENJI_SECRET_PASSWORD_TOKEN } = process.env;
@@ -56,6 +55,3 @@ Parse.Cloud.afterSave('Connection', connectionAfterSave);
 Parse.Cloud.beforeSave(Parse.User, userBeforeSave);
 Parse.Cloud.afterSave(Parse.User, userAfterSave);
 Parse.Cloud.afterDelete(Parse.User, userAfterDelete);
-
-// Reservation webhooks
-Parse.Cloud.beforeSave('Reservation', reservationBeforeSave);
