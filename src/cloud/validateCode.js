@@ -51,6 +51,9 @@ const validateCode = async request => {
       user.set('verificationStatus', status);
       user.set('verificationValid', valid);
       await user.save(null, { useMasterKey: true });
+      // creates 3 reservations for the new user.
+      // TODO: set this number as an app configuration.
+      await UserService.createReservations(user, 3);
     }
 
     const sessionToken = await UserService.getLastSessionToken(

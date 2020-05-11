@@ -6,6 +6,9 @@ import uuidv4 from 'uuid/v4';
 import ExtendableError from 'extendable-error-class';
 // Utils
 import generatePassword from '../utils/generatePassword';
+import generateReservationLink from '../utils/generateReservationLink';
+
+import db from '../utils/db';
 
 class UserServiceError extends ExtendableError {}
 
@@ -45,6 +48,54 @@ const createUser = async (phoneNumber, installationId) => {
   );
 };
 
+/**
+ * Create a reservation
+ *
+ * @param {Parse.User} user
+ */
+const createReservation = async user => {
+  const reservation = new Parse.Object('Reservation');
+  const reservationCount = await db.getValueForNextSequence('reservation');
+  reservation.set('position', reservationCount);
+  reservation.set('isClaimed'.false);
+  reservation.set('createdBy', user);
+  reservation.setACL(new Parse.ACL(user));
+  await reservation.save(null, { useMasterKey: true });
+  reservation.set('reservationLink', generateReservationLink(reservation.id));
+  return reservation.save(null, { useMasterKey: true });
+};
+
+/**
+ * Creates a fixed number of reservations for a given user.
+ *
+ * @param {Parse.User} user
+ * @param {Number} number quantity of desired reservations
+ */
+const createReservations = async (user, number) => {
+  const config = await Parse.Config.get();
+  // get reservation length from Parse Configuration
+  const maxReservationsLength = config.get('maxReservations');
+  // Count actual reservation count.
+  const reservationsCount = await new Parse.Query('Reservation').count();
+  const availableReservations = maxReservationsLength - reservationsCount;
+
+  // number of required reservations are available
+  if (availableReservations >= number) {
+    return Promise.all([...Array(number)].map(() => createReservation(user)));
+  } else {
+    //  create available slots. If available = 0, map won't iterate array.
+    return Promise.all(
+      [...Array(availableReservations)].map(() => createReservation(user)),
+    );
+  }
+};
+
+/**
+ * Find last user session based on installation id.
+ *
+ * @param {Parse.User} user
+ * @param {string} installationId
+ */
 const getLastSessionToken = async (user, installationId) => {
   const query = new Parse.Query(Parse.Session);
   query.equalTo('user', user);
@@ -54,6 +105,11 @@ const getLastSessionToken = async (user, installationId) => {
   return session ? session.get('sessionToken') : undefined;
 };
 
+/**
+ * Clear all user sessions
+ *
+ * @param {Parse.User} user
+ */
 const clearUserSessions = async user => {
   const query = new Parse.Query(Parse.Session);
   query.equalTo('user', user);
@@ -65,6 +121,11 @@ const clearUserSessions = async user => {
   return { sessions: sessionsCleared.map(s => s.get('sessionToken')) };
 };
 
+/**
+ * Deletes all user installations instances
+ *
+ * @param {Parse.User} user
+ */
 const deleteUserInstallations = async user => {
   try {
     const query = new Parse.Query(Parse.Installation);
@@ -80,6 +141,11 @@ const deleteUserInstallations = async user => {
   }
 };
 
+/**
+ * Delete all user routines.
+ *
+ * @param {Parse.User} user
+ */
 const deleteRoutines = async user => {
   try {
     if (user.get('routine')) {
@@ -91,9 +157,14 @@ const deleteRoutines = async user => {
   }
 };
 
+/**
+ * Delete all user connections
+ *
+ * @param {Parse.User} user
+ */
 const deleteConnections = async user => {
   try {
-    const fromQuery = new Parse.Query('Connection').equaTo('from', user);
+    const fromQuery = new Parse.Query('Connection').equalTo('from', user);
     const toQuery = new Parse.Query('Connection').equalTo('to', user);
     const mainQuery = Parse.Query.or(fromQuery, toQuery);
     const results = await mainQuery.find({ useMasterKey: true });
@@ -114,4 +185,6 @@ export default {
   deleteUserInstallations,
   deleteRoutines,
   deleteConnections,
+  createReservations,
+  createReservation,
 };
