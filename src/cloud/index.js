@@ -4,7 +4,6 @@ import Parse from '../providers/ParseProvider';
 import sendCode from './sendCode';
 import sendPush from './sendPush';
 import validateCode from './validateCode';
-import createConnection from './createConnection';
 import verifyReservation from './verifyReservation';
 import createHandle from './createHandle';
 import getChatToken from './getChatToken';
@@ -38,7 +37,6 @@ Parse.Cloud.define('hello', () => {
 Parse.Cloud.define('sendCode', sendCode);
 Parse.Cloud.define('sendPush', sendPush);
 Parse.Cloud.define('validateCode', validateCode);
-Parse.Cloud.define('createConnection', createConnection);
 Parse.Cloud.define('verifyReservation', verifyReservation);
 Parse.Cloud.define('createHandle', createHandle);
 Parse.Cloud.define('getChatToken', getChatToken);
