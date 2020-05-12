@@ -6,9 +6,6 @@ import uuidv4 from 'uuid/v4';
 import ExtendableError from 'extendable-error-class';
 // Utils
 import generatePassword from '../utils/generatePassword';
-import generateReservationLink from '../utils/generateReservationLink';
-
-import db from '../utils/db';
 
 class UserServiceError extends ExtendableError {}
 
@@ -46,48 +43,6 @@ const createUser = async (phoneNumber, installationId) => {
       useMasterKey: true,
     },
   );
-};
-
-/**
- * Create a reservation
- *
- * @param {Parse.User} user
- */
-const createReservation = async user => {
-  const reservation = new Parse.Object('Reservation');
-  const reservationCount = await db.getValueForNextSequence('reservation');
-  reservation.set('position', reservationCount);
-  reservation.set('isClaimed'.false);
-  reservation.set('createdBy', user);
-  reservation.setACL(new Parse.ACL(user));
-  await reservation.save(null, { useMasterKey: true });
-  reservation.set('reservationLink', generateReservationLink(reservation.id));
-  return reservation.save(null, { useMasterKey: true });
-};
-
-/**
- * Creates a fixed number of reservations for a given user.
- *
- * @param {Parse.User} user
- * @param {Number} number quantity of desired reservations
- */
-const createReservations = async (user, number) => {
-  const config = await Parse.Config.get();
-  // get reservation length from Parse Configuration
-  const maxReservationsLength = config.get('maxReservations');
-  // Count actual reservation count.
-  const reservationsCount = await new Parse.Query('Reservation').count();
-  const availableReservations = maxReservationsLength - reservationsCount;
-
-  // number of required reservations are available
-  if (availableReservations >= number) {
-    return Promise.all([...Array(number)].map(() => createReservation(user)));
-  } else {
-    //  create available slots. If available = 0, map won't iterate array.
-    return Promise.all(
-      [...Array(availableReservations)].map(() => createReservation(user)),
-    );
-  }
 };
 
 /**
@@ -185,6 +140,4 @@ export default {
   deleteUserInstallations,
   deleteRoutines,
   deleteConnections,
-  createReservations,
-  createReservation,
 };
