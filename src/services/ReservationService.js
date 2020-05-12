@@ -3,7 +3,7 @@ import ExtendableError from 'extendable-error-class';
 import generateReservationLink from '../utils/generateReservationLink';
 import db from '../utils/db';
 
-class ReservationServiceError extends ExtendableError {}
+export class ReservationServiceError extends ExtendableError {}
 
 /**
  * Create a reservation
@@ -65,12 +65,14 @@ const checkReservation = async reservationId => {
       useMasterKey: true,
     });
     if (reservation.get('isClaimed')) {
-      throw new Error(`Reservation id ${reservationId} is already claimed`);
+      throw new Error(
+        `[EdNzXDAN] Reservation id ${reservationId} is already claimed`,
+      );
     }
     return reservation;
   } catch (error) {
     if (!reservation) {
-      error.message = `Cannot find reservation id: ${reservationId}`;
+      error.message = `[T2SuGHT7] Cannot find reservation id: ${reservationId}`;
     }
     throw new ReservationServiceError(error.message);
   }

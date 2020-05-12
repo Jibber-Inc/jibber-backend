@@ -7,7 +7,6 @@ import Parse from '../providers/ParseProvider';
 // Services
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
-import ReservationService from '../services/ReservationService';
 
 class SendCodeError extends ExtendableError {}
 
@@ -17,11 +16,7 @@ class SendCodeError extends ExtendableError {}
  */
 const sendCode = async request => {
   const { params, installationId } = request;
-  let { phoneNumber, reservationId } = params;
-  // user is claiming for a reservation
-  if (reservationId) {
-    await ReservationService.checkReservation(reservationId);
-  }
+  let { phoneNumber } = params;
 
   // Phone number is required in request body
   if (!phoneNumber) {

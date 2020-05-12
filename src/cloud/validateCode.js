@@ -3,6 +3,7 @@ import ExtendableError from 'extendable-error-class';
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
+import { ReservationServiceError } from '../services/ReservationService';
 import ReservationService from '../services/ReservationService';
 import ConnectionService from '../services/ConnectionService';
 
@@ -89,6 +90,11 @@ const validateCode = async request => {
 
     return sessionToken;
   } catch (error) {
+    if (error instanceof ReservationServiceError) {
+      user.set('verificationStatus', 'waitlist');
+      user.save(null, { useMasterKey: true });
+      throw error;
+    }
     throw new ValidateCodeError(`Validation error. Detail: ${error.message}`);
   }
 };
