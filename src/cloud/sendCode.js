@@ -8,7 +8,6 @@ import Parse from '../providers/ParseProvider';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
 import ReservationService from '../services/ReservationService';
-import ConnectionService from '../services/ConnectionService';
 
 class SendCodeError extends ExtendableError {}
 
@@ -19,10 +18,9 @@ class SendCodeError extends ExtendableError {}
 const sendCode = async request => {
   const { params, installationId } = request;
   let { phoneNumber, reservationId } = params;
-  let reservation;
   // user is claiming for a reservation
   if (reservationId) {
-    reservation = await ReservationService.checkReservation(reservationId);
+    await ReservationService.checkReservation(reservationId);
   }
 
   // Phone number is required in request body
@@ -56,15 +54,6 @@ const sendCode = async request => {
     user.set('verificationStatus', status);
     user.set('verificationValid', valid);
     await user.save(null, { useMasterKey: true });
-
-    // set reservation as claimed and create a connection between users
-    if (reservation) {
-      reservation.set('isClaimed', true);
-      reservation.set('user', user);
-      await reservation.save(null, { useMasterKey: true });
-      const fromUser = reservation.get('createdBy');
-      await ConnectionService.createConnection(fromUser, user);
-    }
 
     return { status: 'code sent' };
   } catch (error) {
