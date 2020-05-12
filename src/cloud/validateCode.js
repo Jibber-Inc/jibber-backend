@@ -3,6 +3,7 @@ import ExtendableError from 'extendable-error-class';
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
+import ReservationService from '../services/ReservationService';
 
 class ValidateCodeError extends ExtendableError {}
 
@@ -53,7 +54,7 @@ const validateCode = async request => {
       await user.save(null, { useMasterKey: true });
       // creates 3 reservations for the new user.
       // TODO: set this number as an app configuration.
-      await UserService.createReservations(user, 3);
+      await ReservationService.createReservations(user, 3);
     }
 
     const sessionToken = await UserService.getLastSessionToken(
