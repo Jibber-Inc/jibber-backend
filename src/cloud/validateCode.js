@@ -3,12 +3,15 @@ import ExtendableError from 'extendable-error-class';
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
+import { ReservationServiceError } from '../services/ReservationService';
+import ReservationService from '../services/ReservationService';
+import ConnectionService from '../services/ConnectionService';
 
 class ValidateCodeError extends ExtendableError {}
 
 const validateCode = async request => {
   let { params, installationId } = request;
-  const { phoneNumber, authCode } = params;
+  const { phoneNumber, authCode, reservationId } = params;
 
   // Phone number is required in request body
   if (!phoneNumber) {
@@ -51,9 +54,22 @@ const validateCode = async request => {
       user.set('verificationStatus', status);
       user.set('verificationValid', valid);
       await user.save(null, { useMasterKey: true });
+
+      if (reservationId) {
+        const reservation = await ReservationService.checkReservation(
+          reservationId,
+        );
+
+        // set reservation as claimed and create a connection between users
+        reservation.set('isClaimed', true);
+        reservation.set('user', user);
+        await reservation.save(null, { useMasterKey: true });
+        const fromUser = reservation.get('createdBy');
+        await ConnectionService.createConnection(fromUser, user);
+      }
       // creates 3 reservations for the new user.
       // TODO: set this number as an app configuration.
-      await UserService.createReservations(user, 3);
+      await ReservationService.createReservations(user, 3);
     }
 
     const sessionToken = await UserService.getLastSessionToken(
@@ -74,6 +90,11 @@ const validateCode = async request => {
 
     return sessionToken;
   } catch (error) {
+    if (error instanceof ReservationServiceError) {
+      user.set('verificationStatus', 'waitlist');
+      user.save(null, { useMasterKey: true });
+      throw error;
+    }
     throw new ValidateCodeError(`Validation error. Detail: ${error.message}`);
   }
 };

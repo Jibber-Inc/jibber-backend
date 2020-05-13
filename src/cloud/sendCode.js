@@ -49,6 +49,7 @@ const sendCode = async request => {
     user.set('verificationStatus', status);
     user.set('verificationValid', valid);
     await user.save(null, { useMasterKey: true });
+
     return { status: 'code sent' };
   } catch (error) {
     if (error instanceof TwoFAServiceError) {

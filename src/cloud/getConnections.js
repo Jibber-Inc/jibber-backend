@@ -1,8 +1,9 @@
 // Services
-import getConnectionsService from '../services/getConnectionsService';
+import ConnectionService from '../services/ConnectionService';
 
 const getConnections = async request => {
-  return getConnectionsService(request.user);
+  const { user } = request;
+  return ConnectionService.getConnections(user);
 };
 
 export default getConnections;
