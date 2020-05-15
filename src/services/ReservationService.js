@@ -78,8 +78,16 @@ const checkReservation = async reservationId => {
   }
 };
 
+const hasReservations = async user => {
+  const count = await new Parse.Query('Reservation')
+    .equalTo('createdBy', user)
+    .count({ useMasterKey: true });
+  return count > 0;
+};
+
 export default {
   createReservations,
   createReservation,
   checkReservation,
+  hasReservations,
 };
