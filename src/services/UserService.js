@@ -133,6 +133,25 @@ const deleteConnections = async user => {
   }
 };
 
+/**
+ * Delete all user reservations
+ *
+ * @param {Parse.User} user
+ */
+const deleteReservations = async user => {
+  try {
+    const query = new Parse.Query('Reservation').equalTo('createdBy', user);
+    const results = await query.find({ useMasterKey: true });
+    if (results) {
+      await Promise.all(
+        results.map(res => res.destroy({ useMasterKey: true })),
+      );
+    }
+  } catch (error) {
+    throw new UserServiceError(error.message);
+  }
+};
+
 export default {
   createUser,
   getLastSessionToken,
@@ -140,4 +159,5 @@ export default {
   deleteUserInstallations,
   deleteRoutines,
   deleteConnections,
+  deleteReservations,
 };
