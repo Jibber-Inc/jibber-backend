@@ -22,6 +22,7 @@ const userAfterDelete = async request => {
   await Promise.all([
     UserService.deleteRoutines(user),
     UserService.deleteConnections(user),
+    UserService.deleteReservations(user),
     UserService.deleteUserInstallations(user),
     UserService.clearUserSessions(user),
     ChatService.deleteUser(user.id),
