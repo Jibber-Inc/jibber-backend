@@ -67,9 +67,13 @@ const validateCode = async request => {
         const fromUser = reservation.get('createdBy');
         await ConnectionService.createConnection(fromUser, user);
       }
-      // creates 3 reservations for the new user.
-      // TODO: set this number as an app configuration.
-      await ReservationService.createReservations(user, 3);
+
+      const hasReservations = await ReservationService.hasReservations(user);
+      if (!hasReservations) {
+        // creates 3 reservations for the new user.
+        // TODO: set this number as an app configuration.
+        await ReservationService.createReservations(user, 3);
+      }
     }
 
     const sessionToken = await UserService.getLastSessionToken(
