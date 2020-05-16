@@ -71,7 +71,7 @@ const inviteMembers = async (channelSid, members = []) => {
 };
 
 /**
- * Invite Members to a given channel
+ * Add Members to a given channel
  *
  * @param {String} channelSid
  * @param {Array<String>} members
@@ -87,7 +87,12 @@ const addMembersToChannel = async (channelSid, members = []) => {
   );
 };
 
-const deleteUser = async userId => {
+/**
+ * Remove all channels from user
+ *
+ * @param {String} userId
+ */
+const deleteUserChannels = async userId => {
   try {
     const userChannels = await getUserChannels(userId);
     await Promise.all(userChannels.map(u => deleteChannel(u.channelSid)));
@@ -98,6 +103,11 @@ const deleteUser = async userId => {
   }
 };
 
+/**
+ * Get all user channels
+ *
+ * @param {String} userId
+ */
 const getUserChannels = async userId => {
   try {
     const userChannels = await new Twilio().client.chat
@@ -110,6 +120,11 @@ const getUserChannels = async userId => {
   }
 };
 
+/**
+ * Delte a given channel
+ *
+ * @param {String} channelSid
+ */
 const deleteChannel = async channelSid => {
   try {
     return new Twilio().client.chat
@@ -125,5 +140,5 @@ export default {
   createChatChannel,
   inviteMembers,
   addMembersToChannel,
-  deleteUser,
+  deleteUserChannels,
 };
