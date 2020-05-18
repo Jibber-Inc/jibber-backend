@@ -1,6 +1,3 @@
-import Parse from '../../providers/ParseProvider';
-import ChatService from '../../services/ChatService';
-
 /**
  * EventType - string - Always onChannelAdded
  * ChannelSid - string - The SID of the newly added Channel
@@ -12,19 +9,8 @@ import ChatService from '../../services/ChatService';
  * UniqueName - string, optional - The unique name of the channel, if set
  * ChannelType - string - The Channel type. Either private or public
  */
-const onChannelAdded = async (request, response) => {
-  try {
-    let { ChannelSid, CreatedBy } = request.body;
-
-    const users = await new Parse.Query(Parse.User)
-      .notEqualTo('objectId', CreatedBy)
-      .find({ useMasterKey: true });
-    const members = users.map(u => u.id);
-    await ChatService.addMembersToChannel(ChannelSid, members);
-    return response.status(200).json({ membersAdded: members });
-  } catch (error) {
-    return response.status(500).json({ error: error.message });
-  }
+const onChannelAdded = (request, response) => {
+  return response.status(200).json({});
 };
 
 export default onChannelAdded;
