@@ -25,10 +25,9 @@ const createChannel = async request => {
       attributes,
     );
 
-    // add request user to member list
-    await ChatService.addMembersToChannel(channel.sid, [user.id]);
-    // send invites to members
-    await ChatService.inviteMembers(channel.sid, members);
+    // add request user and members to member channel list
+    await ChatService.addMembersToChannel(channel.sid, [user.id, ...members]);
+
     return {
       channel: channel.sid,
     };
