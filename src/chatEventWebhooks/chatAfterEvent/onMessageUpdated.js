@@ -1,5 +1,5 @@
 import Parse from '../../providers/ParseProvider';
-import Twilio from '../../providers/TwilioProvider';
+import ChatService from '../../services/ChatService';
 import PushService from '../../services/PushService';
 import { NOTIFICATION_TYPES } from '../../constants';
 
@@ -35,10 +35,7 @@ const onMessageUpdated = async (request, response) => {
         }),
       ]);
 
-      const channel = await new Twilio().client.chat
-        .services(process.env.TWILIO_SERVICE_SID)
-        .channels(ChannelSid)
-        .fetch();
+      const channel = await ChatService.fetchChannel(ChannelSid);
       const username = `${reader.get('givenName')} ${reader.get('familyName')}`;
       const body = `${username} read your message in ${channel.friendlyName}`;
       const data = {
