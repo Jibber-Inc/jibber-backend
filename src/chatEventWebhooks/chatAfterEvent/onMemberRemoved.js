@@ -1,3 +1,5 @@
+import ChatService from '../../services/ChatService';
+
 /**
  * EventType - string - Always onMemberRemoved
  * ChannelSid - string - Channel String Identifier
@@ -9,8 +11,28 @@
  * DateCreated - date string - The date of Member addition
  * DateRemoved - date string - The date of Member remo
  */
-const onMemberRemoved = (request, response) => {
-  return response.status(200).json({});
+const onMemberRemoved = async (request, response) => {
+  try {
+    let { ChannelSid, Identity } = request.body;
+    const channel = await ChatService.fetchChannel(ChannelSid);
+    const { createdBy } = channel;
+    let messageSid;
+    if (createdBy !== Identity) {
+      // Create message structure
+      const message = {
+        body: `[name](${Identity}) left the conversation.`,
+        attributes: JSON.stringify({ context: 'status' }),
+        from: Identity,
+      };
+
+      // Send the message
+      const result = await ChatService.createMessage(message, ChannelSid);
+      messageSid = result.sid;
+    }
+    return response.status(200).json({ messageSid });
+  } catch (error) {
+    return response.status(500).json({ error: error.message });
+  }
 };
 
 export default onMemberRemoved;
