@@ -136,9 +136,44 @@ const deleteChannel = async channelSid => {
   }
 };
 
+/**
+ * Create a message on a given channel.
+ *
+ * @param { TwilioMessage } message
+ * @param { string } ChannelSid
+ */
+const createMessage = async (message, ChannelSid) => {
+  try {
+    return new Twilio().client.chat
+      .services(SERVICE_ID)
+      .channels(ChannelSid)
+      .messages.create(message);
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
+/**
+ * Fetch a channel by a channel id.
+ *
+ * @param {string} ChannelSid
+ */
+const fetchChannel = async ChannelSid => {
+  try {
+    return new Twilio().client.chat
+      .services(SERVICE_ID)
+      .channels(ChannelSid)
+      .fetch();
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
 export default {
   createChatChannel,
   inviteMembers,
   addMembersToChannel,
   deleteUserChannels,
+  createMessage,
+  fetchChannel,
 };
