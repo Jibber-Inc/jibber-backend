@@ -1,7 +1,10 @@
 import Parse from '../providers/ParseProvider';
+import ConnectionService from './ConnectionService';
+import ChatService from './ChatService';
 import ExtendableError from 'extendable-error-class';
 import generateReservationLink from '../utils/generateReservationLink';
 import db from '../utils/db';
+import hat from 'hat';
 
 export class ReservationServiceError extends ExtendableError {}
 
@@ -85,9 +88,38 @@ const hasReservations = async user => {
   return count > 0;
 };
 
+const claimReservation = async (reservationId, user) => {
+  if (!reservationId) {
+    throw new ReservationServiceError(
+      'Reservation cannot be claim without reservationId',
+    );
+  }
+  try {
+    const reservation = await checkReservation(reservationId);
+
+    // set reservation as claimed and create a connection between users
+    reservation.set('isClaimed', true);
+    reservation.set('user', user);
+    await reservation.save(null, { useMasterKey: true });
+    const fromUser = reservation.get('createdBy');
+    await ConnectionService.createConnection(fromUser, user);
+    const uniqueId = hat();
+    // create a channel between 2 users.
+    const channel = await ChatService.createChatChannel(
+      fromUser,
+      uniqueId,
+      user.get('givenName'),
+    );
+    await ChatService.addMembersToChannel(channel.sid, [fromUser]);
+  } catch (error) {
+    throw new ReservationServiceError(`Reservation cannot be claimed. Detail: ${error.message}`);
+  }
+};
+
 export default {
   createReservations,
   createReservation,
   checkReservation,
   hasReservations,
+  claimReservation,
 };

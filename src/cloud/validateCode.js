@@ -5,7 +5,6 @@ import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
 import { ReservationServiceError } from '../services/ReservationService';
 import ReservationService from '../services/ReservationService';
-import ConnectionService from '../services/ConnectionService';
 
 class ValidateCodeError extends ExtendableError {}
 
@@ -56,16 +55,7 @@ const validateCode = async request => {
       await user.save(null, { useMasterKey: true });
 
       if (reservationId) {
-        const reservation = await ReservationService.checkReservation(
-          reservationId,
-        );
-
-        // set reservation as claimed and create a connection between users
-        reservation.set('isClaimed', true);
-        reservation.set('user', user);
-        await reservation.save(null, { useMasterKey: true });
-        const fromUser = reservation.get('createdBy');
-        await ConnectionService.createConnection(fromUser, user);
+        await ReservationService.claimReservation(reservationId, user);
       }
 
       const hasReservations = await ReservationService.hasReservations(user);
