@@ -102,15 +102,20 @@ const claimReservation = async (reservationId, user) => {
     reservation.set('user', user);
     await reservation.save(null, { useMasterKey: true });
     const fromUser = reservation.get('createdBy');
-    await ConnectionService.createConnection(fromUser, user);
     const uniqueId = hat();
-    // create a channel between 2 users.
-    const channel = await ChatService.createChatChannel(
-      fromUser,
-      uniqueId,
-      user.get('givenName'),
-    );
-    await ChatService.addMembersToChannel(channel.sid, [fromUser]);
+    const connection = await ConnectionService.createConnection(fromUser, user, uniqueId);
+
+    if (!connection.get('channelSid')) {
+      // create a channel between 2 users.
+      const channel = await ChatService.createChatChannel(
+        fromUser,
+        uniqueId,
+        user.get('givenName'),
+      );
+      await ChatService.addMembersToChannel(channel.sid, [fromUser]);
+      connection.set('channelSid', channel.sid);
+      await connection.save(null, { useMasterKey: true });
+    }
   } catch (error) {
     throw new ReservationServiceError(`Reservation cannot be claimed. Detail: ${error.message}`);
   }
