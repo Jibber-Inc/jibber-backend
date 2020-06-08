@@ -29,9 +29,6 @@ const createChatChannel = async (
     throw new ChatServiceError('[ITLA8RgD] uniqueName is required');
   }
 
-  if (!friendlyName || typeof friendlyName !== 'string') {
-    throw new ChatServiceError('[VNFMyXuf] friendlyName is required');
-  }
   try {
     const stringAttributes = JSON.stringify(attributes);
     const channel = await new Twilio().client.chat
