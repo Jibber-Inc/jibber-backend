@@ -112,7 +112,7 @@ const claimReservation = async (reservationId, user) => {
     if (!connection.get('channelSid')) {
       // create a channel between 2 users.
       const channel = await ChatService.createChatChannel(fromUser, uniqueId);
-      await ChatService.addMembersToChannel(channel.sid, [user.id]);
+      await ChatService.addMembersToChannel(channel.sid, [fromUser.id, user.id]);
       connection.set('channelSid', channel.sid);
       await connection.save(null, { useMasterKey: true });
     }
