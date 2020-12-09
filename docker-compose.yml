@@ -1,0 +1,58 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: .
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    volumes:
+      - .:/code/:cached
+      - /code/node_modules
+    ports:
+      - ${PUBLIC_PORT}:${PORT}
+    environment:
+      APP_ID: ${APP_ID}
+      APP_NAME: ${APP_NAME}
+      BENJI_SECRET_PASSWORD_TOKEN: ${BENJI_SECRET_PASSWORD_TOKEN}
+      #CLOUD_CODE_MAIN: ${CLOUD_CODE_MAIN}
+      DATABASE_URI: ${DATABASE_URI}
+      MASTER_KEY: ${MASTER_KEY}
+      PARSE_MOUNT: ${PARSE_MOUNT}
+      PORT: ${PORT}
+      SERVER_URL: ${SERVER_URL}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_API_KEY: ${TWILIO_API_KEY}
+      TWILIO_API_SECRET: ${TWILIO_API_SECRET}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_SERVICE_SID: ${TWILIO_SERVICE_SID}
+      TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID}
+      IOS_PFX_CERTIFICATE: ${IOS_PFX_CERTIFICATE}
+      IOS_PASSPHRASE: ${IOS_PASSPHRASE}
+  dashboard:
+    image: parseplatform/parse-dashboard
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    ports:
+      - ${DASHBOARD_PUBLIC_PORT}:4040
+    environment: 
+      HOST: "0.0.0.0"
+      PORT: 4040
+      MOUNT_PATH: "/"
+      # PARSE_DASHBOARD_TRUST_PROXY: undefined // Or "1" to trust connection info from a proxy's X-Forwarded-* headers
+      PARSE_DASHBOARD_SERVER_URL: ${SERVER_URL}
+      PARSE_DASHBOARD_MASTER_KEY: ${MASTER_KEY}
+      PARSE_DASHBOARD_APP_ID: ${APP_ID}
+      PARSE_DASHBOARD_APP_NAME: ${APP_NAME}
+      PARSE_DASHBOARD_USER_ID: "admin"
+      PARSE_DASHBOARD_USER_PASSWORD: "admin"
+      PARSE_DASHBOARD_ALLOW_INSECURE_HTTP: 1
+      # PARSE_DASHBOARD_SSL_KEY: "sslKey"
+      # PARSE_DASHBOARD_SSL_CERT: "sslCert"
+      # PARSE_DASHBOARD_COOKIE_SESSION_SECRET: 

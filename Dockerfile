@@ -1,13 +1,16 @@
-FROM mhart/alpine-node:12.14
+FROM node:lts
 
-ADD src ./code
 WORKDIR /code
 
 COPY package.json .
 COPY package-lock.json .
-COPY babel.config.js .
+RUN npm ci 
 
-RUN npm i
+COPY src ./src
+COPY babel.config.js .
+RUN npm run build
 
 EXPOSE 1337
 CMD [ "npm", "start" ]
+# uncomment this line to run in dev mode.
+# CMD ["sh", "-c", "npm run dev:watch"]
