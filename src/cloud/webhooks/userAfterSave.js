@@ -28,16 +28,21 @@ const userAfterSave = async request => {
     );
   }
 
-  // Get parse role
-  const onboarding_role = await new Parse.Query(Parse.Role).equalTo('name', 'ONBOARDING_ADMIN').first();
-  // Get twilio users
-  const users = await new Twilio().client.chat.services(process.env.TWILIO_SERVICE_SID).users.list();
-  // Filter users by the desired role
-  const onboardingAdmins = users.filter(user => user.roleSid === onboarding_role.get('twilioRoleSID'));
   const members = [user.id];
-  // If we have users with the desired role, add them to the members
-  if (onboardingAdmins.length) {
-    members.push(onboardingAdmins[0].identity);
+
+  // Get parse role  
+  const onboarding_role = await new Parse.Query(Parse.Role).equalTo('name', 'ONBOARDING_ADMIN').first();
+  if (onboarding_role) {
+    // Get twilio users
+    const users = await new Twilio().client.chat.services(process.env.TWILIO_SERVICE_SID).users.list();
+    
+    // Filter users by the desired role
+    const onboardingAdmins = users.filter(user => user.roleSid === onboarding_role.get('twilioRoleSID'));
+
+    // If we have users with the desired role, add them to the members
+    if (onboardingAdmins.length) {
+      members.push(onboardingAdmins[0].identity);
+    }
   }
 
   // Create channels for the new user
