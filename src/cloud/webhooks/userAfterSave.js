@@ -2,10 +2,7 @@ import Parse from '../../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
 import ChatService from '../../services/ChatService';
 
-import Twilio from '../../providers/TwilioProvider';
-
-
-class UserAfterSaveError extends ExtendableError { }
+class UserAfterSaveError extends ExtendableError {}
 
 /**
  * After save webhook for User objects.
@@ -28,24 +25,24 @@ const userAfterSave = async request => {
     );
   }
 
+  // Add to channel members the user
   const members = [user.id];
 
-  // Get parse role  
-  const onboarding_role = await new Parse.Query(Parse.Role).equalTo('name', 'ONBOARDING_ADMIN').first();
+  // If the desired role exists, add to channel members the admin with that role
+  // Get parse role
+  const onboarding_role = await new Parse.Query(Parse.Role)
+    .equalTo('name', 'ONBOARDING_ADMIN')
+    .first();
   if (onboarding_role) {
-    // Get twilio users
-    const users = await new Twilio().client.chat.services(process.env.TWILIO_SERVICE_SID).users.list();
-    
-    // Filter users by the desired role
-    const onboardingAdmins = users.filter(user => user.roleSid === onboarding_role.get('twilioRoleSID'));
-
+    // If the role is defined, get the first user with it
+    const user = await onboarding_role.get('users').query().first();
     // If we have users with the desired role, add them to the members
     if (onboardingAdmins.length) {
-      members.push(onboardingAdmins[0].identity);
+      members.push(user.id);
     }
   }
 
-  // Create channels for the new user
+  // Create the channels for the new user
   if (!user.existed()) {
     const welcomeChannel = await ChatService.createChatChannel(
       user,
@@ -63,7 +60,6 @@ const userAfterSave = async request => {
     );
     await ChatService.addMembersToChannel(feedbackChannel.sid, members);
   }
-
 };
 
 export default userAfterSave;
