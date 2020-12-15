@@ -35,10 +35,10 @@ const userAfterSave = async request => {
     .first();
   if (onboarding_role) {
     // If the role is defined, get the first user with it
-    const user = await onboarding_role.get('users').query().first();
+    const admin = await onboarding_role.get('users').query().first();
     // If we have users with the desired role, add them to the members
-    if (onboardingAdmins.length) {
-      members.push(user.id);
+    if (admin) {
+      members.push(admin.id);
     }
   }
 
