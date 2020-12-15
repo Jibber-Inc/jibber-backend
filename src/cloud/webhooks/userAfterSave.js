@@ -1,6 +1,5 @@
 import Parse from '../../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
-
 import ChatService from '../../services/ChatService';
 
 class UserAfterSaveError extends ExtendableError {}
@@ -26,16 +25,40 @@ const userAfterSave = async request => {
     );
   }
 
-  // Create new user chat channels
+  // Add to channel members the user
+  const members = [user.id];
+
+  // If the desired role exists, add to channel members the admin with that role
+  // Get parse role
+  const onboarding_role = await new Parse.Query(Parse.Role)
+    .equalTo('name', 'ONBOARDING_ADMIN')
+    .first();
+  if (onboarding_role) {
+    // If the role is defined, get the first user with it
+    const admin = await onboarding_role.get('users').query().first();
+    // If we have users with the desired role, add them to the members
+    if (admin) {
+      members.push(admin.id);
+    }
+  }
+
+  // Create the channels for the new user
   if (!user.existed()) {
-    const wellcomeChannel = await ChatService.createChatChannel(
+    const welcomeChannel = await ChatService.createChatChannel(
       user,
       `welcome_${user.id}`,
       'welcome',
       'private',
     );
+    await ChatService.addMembersToChannel(welcomeChannel.sid, members);
 
-    await ChatService.addMembersToChannel(wellcomeChannel.sid, [user.id]);
+    const feedbackChannel = await ChatService.createChatChannel(
+      user,
+      `feedback_${user.id}`,
+      'feedback',
+      'private',
+    );
+    await ChatService.addMembersToChannel(feedbackChannel.sid, members);
   }
 };
 
