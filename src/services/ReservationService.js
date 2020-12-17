@@ -2,7 +2,6 @@ import Parse from '../providers/ParseProvider';
 import ConnectionService from './ConnectionService';
 import ChatService from './ChatService';
 import ExtendableError from 'extendable-error-class';
-import generateReservationLink from '../utils/generateReservationLink';
 import db from '../utils/db';
 import hat from 'hat';
 
@@ -17,12 +16,9 @@ const createReservation = async user => {
   try {
     const reservation = new Parse.Object('Reservation');
     const reservationCount = await db.getValueForNextSequence('reservation');
-    reservation.set('position', reservationCount);
     reservation.set('isClaimed'.false);
     reservation.set('createdBy', user);
     reservation.setACL(new Parse.ACL(user));
-    await reservation.save(null, { useMasterKey: true });
-    reservation.set('reservationLink', generateReservationLink(reservation.id));
     return reservation.save(null, { useMasterKey: true });
   } catch (error) {
     throw new ReservationServiceError(error.message);
@@ -112,7 +108,10 @@ const claimReservation = async (reservationId, user) => {
     if (!connection.get('channelSid')) {
       // create a channel between 2 users.
       const channel = await ChatService.createChatChannel(fromUser, uniqueId);
-      await ChatService.addMembersToChannel(channel.sid, [fromUser.id, user.id]);
+      await ChatService.addMembersToChannel(channel.sid, [
+        fromUser.id,
+        user.id,
+      ]);
       connection.set('channelSid', channel.sid);
       await connection.save(null, { useMasterKey: true });
     }
