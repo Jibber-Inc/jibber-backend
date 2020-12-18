@@ -39,6 +39,7 @@ const createChatChannel = async (
         type,
         attributes: stringAttributes,
         createdBy: owner.id,
+        xTwilioWebhookEnabled: true,
       });
     return channel;
   } catch (error) {
@@ -80,7 +81,7 @@ const addMembersToChannel = async (channelSid, members = []) => {
     new Twilio().client.chat
       .services(SERVICE_ID)
       .channels(channelSid)
-      .members.create({ identity: mId }),
+      .members.create({ identity: mId, xTwilioWebhookEnabled: true }),
   );
 };
 
@@ -142,9 +143,9 @@ const deleteChannel = async channelSid => {
 const createMessage = async (message, ChannelSid) => {
   try {
     return new Twilio().client.chat
-      .services(SERVICE_ID)
-      .channels(ChannelSid)
-      .messages.create(message);
+      .services(SERVICE_ID) 
+      .channels(ChannelSid)      
+      .messages.create({ ...message, xTwilioWebhookEnabled: true });
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
