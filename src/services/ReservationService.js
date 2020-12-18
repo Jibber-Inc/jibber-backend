@@ -37,22 +37,7 @@ const createReservation = async user => {
  */
 const createReservations = async (user, number) => {
   try {
-    const config = await Parse.Config.get();
-    // get reservation length from Parse Configuration
-    const maxReservationsLength = config.get('maxReservations');
-    // Count actual reservation count.
-    const reservationsCount = await new Parse.Query('Reservation').count();
-    const availableReservations = maxReservationsLength - reservationsCount;
-
-    // number of required reservations are available
-    if (availableReservations >= number) {
-      return Promise.all([...Array(number)].map(() => createReservation(user)));
-    } else {
-      //  create available slots. If available = 0, map won't iterate array.
-      return Promise.all(
-        [...Array(availableReservations)].map(() => createReservation(user)),
-      );
-    }
+    return Promise.all([...Array(number)].map(() => createReservation(user)));
   } catch (error) {
     throw new ReservationServiceError(error.message);
   }
@@ -112,7 +97,10 @@ const claimReservation = async (reservationId, user) => {
     if (!connection.get('channelSid')) {
       // create a channel between 2 users.
       const channel = await ChatService.createChatChannel(fromUser, uniqueId);
-      await ChatService.addMembersToChannel(channel.sid, [fromUser.id, user.id]);
+      await ChatService.addMembersToChannel(channel.sid, [
+        fromUser.id,
+        user.id,
+      ]);
       connection.set('channelSid', channel.sid);
       await connection.save(null, { useMasterKey: true });
     }
