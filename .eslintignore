@@ -1,0 +1,6 @@
+# Ignore test just from now
+src/tests 
+dist
+logs
+node_modules
+scripts

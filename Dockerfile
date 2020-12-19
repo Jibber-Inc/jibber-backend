@@ -4,7 +4,7 @@ WORKDIR /code
 
 COPY package.json .
 COPY package-lock.json .
-RUN npm ci 
+RUN npm ci
 
 COPY src ./src
 COPY babel.config.js .
