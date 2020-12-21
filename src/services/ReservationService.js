@@ -15,7 +15,6 @@ export class ReservationServiceError extends ExtendableError {}
 const createReservation = async user => {
   try {
     const reservation = new Parse.Object('Reservation');
-    // const reservationCount = await db.getValueForNextSequence('reservation');
     reservation.set('isClaimed'.false);
     reservation.set('createdBy', user);
     reservation.setACL(new Parse.ACL(user));
