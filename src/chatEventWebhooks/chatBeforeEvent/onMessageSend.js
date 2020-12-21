@@ -8,8 +8,6 @@
  * From - string - The author of the message
  *
  */
-const onMessageSend = (request, response) => {
-  return response.status(200).json({});
-};
+const onMessageSend = (request, response) => response.status(200).json({});
 
 export default onMessageSend;

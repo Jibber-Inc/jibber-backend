@@ -7,8 +7,6 @@
  * Reason - string
  *        - The reason of the removal of the member. Could be: REMOVED or LEFT
  */
-const onMemberRemove = (request, response) => {
-  return response.status(200).json({});
-};
+const onMemberRemove = (request, response) => response.status(200).json({});
 
 export default onMemberRemove;

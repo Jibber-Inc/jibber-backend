@@ -1,5 +1,5 @@
-import Parse from '../../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
+import Parse from '../../providers/ParseProvider';
 import ChatService from '../../services/ChatService';
 
 class UserAfterSaveError extends ExtendableError {}
@@ -11,15 +11,15 @@ class UserAfterSaveError extends ExtendableError {}
 const userAfterSave = async request => {
   const user = request.object;
 
-  if (!Boolean(user instanceof Parse.User)) {
+  if (!(user instanceof Parse.User)) {
     throw new UserAfterSaveError('[c4V3VYAu] Expected user in request.object');
   }
-  if (!Boolean(user.createdAt instanceof Date)) {
+  if (!(user.createdAt instanceof Date)) {
     throw new UserAfterSaveError(
       '[hplRppBn] Expected user.createdAt to be instanceof Date',
     );
   }
-  if (!Boolean(user.updatedAt instanceof Date)) {
+  if (!(user.updatedAt instanceof Date)) {
     throw new UserAfterSaveError(
       '[3Npvri9X] Expected user.updatedAt to be instanceof Date',
     );
@@ -30,12 +30,12 @@ const userAfterSave = async request => {
 
   // If the desired role exists, add to channel members the admin with that role
   // Get parse role
-  const onboarding_role = await new Parse.Query(Parse.Role)
+  const onboardingRole = await new Parse.Query(Parse.Role)
     .equalTo('name', 'ONBOARDING_ADMIN')
     .first();
-  if (onboarding_role) {
+  if (onboardingRole) {
     // If the role is defined, get the first user with it
-    const admin = await onboarding_role.get('users').query().first();
+    const admin = await onboardingRole.get('users').query().first();
     // If we have users with the desired role, add them to the members
     if (admin) {
       members.push(admin.id);

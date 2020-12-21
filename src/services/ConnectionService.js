@@ -1,8 +1,9 @@
 // Providers
-import Parse from '../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
+import Parse from '../providers/ParseProvider';
 
 import { STATUS_ACCEPTED } from '../constants';
+
 class ConnectionServiceError extends ExtendableError {}
 
 /**
@@ -45,8 +46,8 @@ const createConnection = async (fromUser, targetUser) => {
  * @param {Parse.User} user
  * @returns {Object}
  */
-const getConnections = async user => {
-  if (!Boolean(user instanceof Parse.User)) {
+const getConnections = async (user) => {
+  if (!(user instanceof Parse.User)) {
     throw new ConnectionServiceError('[29heIw2r] Expected Parse.User');
   }
 

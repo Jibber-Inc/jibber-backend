@@ -1,7 +1,7 @@
 // Load .env variables
-require('dotenv').config();
-
 import { ParseServer } from 'parse-server';
+
+require('dotenv').config();
 
 const {
   APP_ID,

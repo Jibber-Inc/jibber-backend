@@ -9,8 +9,6 @@
  * FriendlyName - string, optional - The friendly name of the channel, if set
  * UniqueName - string, optional - The unique name of the channel, if set
  */
-const onChannelUpdate = (request, response) => {
-  return response.status(200).json({});
-};
+const onChannelUpdate = (request, response) => response.status(200).json({});
 
 export default onChannelUpdate;

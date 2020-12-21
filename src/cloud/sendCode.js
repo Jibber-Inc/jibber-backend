@@ -1,11 +1,10 @@
 // Vendor modules
 import ExtendableError from 'extendable-error-class';
-import { TwoFAServiceError } from '../services/TwoFAService';
 // Providers
 import Parse from '../providers/ParseProvider';
 
 // Services
-import TwoFAService from '../services/TwoFAService';
+import TwoFAService, { TwoFAServiceError } from '../services/TwoFAService';
 import UserService from '../services/UserService';
 
 class SendCodeError extends ExtendableError {}
@@ -16,7 +15,7 @@ class SendCodeError extends ExtendableError {}
  */
 const sendCode = async request => {
   const { params, installationId } = request;
-  let { phoneNumber } = params;
+  const { phoneNumber } = params;
 
   // Phone number is required in request body
   if (!phoneNumber) {

@@ -27,9 +27,7 @@ if (!BENJI_SECRET_PASSWORD_TOKEN) {
 /**
  * Test function
  */
-Parse.Cloud.define('hello', () => {
-  return 'Hi';
-});
+Parse.Cloud.define('hello', () => 'Hi');
 
 // Cloud code functions
 Parse.Cloud.define('sendCode', sendCode);

@@ -7,7 +7,7 @@ export class GenerateHandleError extends ExtendableError {}
  * @param {String} str
  * @returns {String}
  */
-const stripWhitespace = str => str.replace(/\s+/g, '');
+const stripWhitespace = (str) => str.replace(/\s+/g, '');
 
 /**
  * HANDLE is the user friendly address for users in a conversation

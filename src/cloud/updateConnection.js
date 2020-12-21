@@ -1,5 +1,5 @@
-import Parse from '../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
+import Parse from '../providers/ParseProvider';
 
 // Constants
 import {
@@ -18,12 +18,12 @@ const STATUS_LIST = [
 
 class UpdateConnectionError extends ExtendableError {}
 
-const updateConnection = async request => {
-  const user = request.user;
-  const connectionId = request.params.connectionId;
-  const status = request.params.status;
+const updateConnection = async (request) => {
+  const { user } = request;
+  const { connectionId } = request.params;
+  const { status } = request.params;
 
-  if (!Boolean(user instanceof Parse.User)) {
+  if (!(user instanceof Parse.User)) {
     throw new UpdateConnectionError('[uDA1jPox] Expected request.user');
   }
 
@@ -46,7 +46,7 @@ const updateConnection = async request => {
 
   // Query for existing connection
   const query = new Parse.Query(Connection);
-  let connection = await query.get(connectionId);
+  const connection = await query.get(connectionId);
 
   if (connection.get('to').id !== user.id) {
     throw new UpdateConnectionError(
@@ -58,9 +58,8 @@ const updateConnection = async request => {
   if (connection instanceof Connection) {
     connection.set('status', status);
     return connection.save();
-  } else {
-    throw new UpdateConnectionError('[TeeBMaPz] Connection not found');
   }
+  throw new UpdateConnectionError('[TeeBMaPz] Connection not found');
 };
 
 export default updateConnection;

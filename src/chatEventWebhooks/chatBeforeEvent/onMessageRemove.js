@@ -11,8 +11,6 @@
  * DateCreated - date string - The timestamp from message creation
  * RemovedBy - string - The remover of the message
  */
-const onMessageRemove = (request, response) => {
-  return response.status(200).json({});
-};
+const onMessageRemove = (request, response) => response.status(200).json({});
 
 export default onMessageRemove;

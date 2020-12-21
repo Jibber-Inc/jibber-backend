@@ -1,7 +1,7 @@
-import Parse from '../providers/ParseProvider';
-import Twilio from '../providers/TwilioProvider';
 import ExtendableError from 'extendable-error-class';
 import { isMobilePhone } from 'validator';
+import Parse from '../providers/ParseProvider';
+import Twilio from '../providers/TwilioProvider';
 
 export class Inititate2FAServiceError extends ExtendableError {}
 
@@ -11,12 +11,12 @@ export class Inititate2FAServiceError extends ExtendableError {}
  * @param {Parse.User} user
  * @return {Promise}
  */
-export const initiate2FAService = (auth_code, user) => {
-  if (!auth_code || typeof auth_code !== 'string') {
-    throw new Inititate2FAServiceError('[HspaCMAg] Invalid auth_code argument');
+export const initiate2FAService = (authCode, user) => {
+  if (!authCode || typeof authCode !== 'string') {
+    throw new Inititate2FAServiceError('[HspaCMAg] Invalid authCode argument');
   }
 
-  if (!Boolean(user instanceof Parse.User)) {
+  if (!(user instanceof Parse.User)) {
     throw new Inititate2FAServiceError('[w395DBDy] Invalid user argument');
   }
 
@@ -31,7 +31,7 @@ export const initiate2FAService = (auth_code, user) => {
   }
 
   return new Twilio().client.messages.create({
-    body: `Your code for Benji is: ${auth_code}`,
+    body: `Your code for Benji is: ${authCode}`,
     from: process.env.TWILIO_PHONE_NUMBER || '+12012560616',
     to: user.get('phoneNumber'),
   });

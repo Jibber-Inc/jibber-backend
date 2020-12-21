@@ -1,9 +1,10 @@
-import server from './server';
 import { ParseServer } from 'parse-server';
+import server from './server';
 
 const PORT = process.env.PORT || 1337;
-const APP_NAME = process.env.APP_NAME;
+const { APP_NAME } = process.env;
 
+// eslint-disable-next-line no-console
 server.listen(PORT, () => console.log(`${APP_NAME} running on port ${PORT}.`));
 
 // This will enable the Live Query real-time server

@@ -6,6 +6,7 @@ export const headers = {
   'Content-Type': 'application/json',
 };
 
+// eslint-disable-next-line camelcase
 export const rest_headers = {
   'X-Parse-Application-Id': APP_ID,
   'X-Parse-REST-API-Key': REST_API_KEY,
