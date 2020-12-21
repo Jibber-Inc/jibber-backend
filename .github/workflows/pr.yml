@@ -26,5 +26,5 @@ jobs:
       - name: Install modules
         run: npm ci
         
-      - name: Run a one-line script
+      - name: Run lint check
         run: npm run lint
