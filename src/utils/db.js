@@ -28,7 +28,6 @@ const getValueForNextSequence = async (sequenceOfName) => {
     );
     return !value ? value + 1 : value.sequence_value + 1;
   } catch (error) {
-    // console.log('db error');
     throw new DbUtilError(error.message);
   }
 };
