@@ -27,15 +27,9 @@ app.use('/public', express.static(path.join(__dirname, '/public')));
 // Serve the Parse API on the /parse URL prefix
 app.use(PARSE_MOUNT || '/parse', api);
 
-// Parse Server plays nicely with the rest of your web routes
+// health endpoint
 app.get('/', async (request, response) =>
-  response.status(200).send('I dream of being a website.'),
-);
-
-// There will be a test page available on the /test path of your server url
-// Remove this before launching your app
-app.get('/hello', async (request, response) =>
-  response.sendFile(path.join(__dirname, '/hello.html')),
+  response.status(200).send({ health: 'ok', date: new Date() }),
 );
 
 // Twilio Pre/Post Even Webhooks

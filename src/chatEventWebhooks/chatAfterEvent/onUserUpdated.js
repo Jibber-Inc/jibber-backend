@@ -22,8 +22,6 @@
  *                enabled for the Service instance. The User must also have at
  *                least one Push Notification registration for Chat.
  */
-const onuserUpdated = (request, response) => {
-  return response.status(200).json({});
-};
+const onuserUpdated = (request, response) => response.status(200).json({});
 
 export default onuserUpdated;

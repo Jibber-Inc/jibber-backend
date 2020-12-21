@@ -18,8 +18,6 @@
  * MediaSid - string - Media SID identifier
  * MediaSize - int - Media size in bytes
  */
-const onMediaMessageSent = (request, response) => {
-  return response.status(200).json({});
-};
+const onMediaMessageSent = (request, response) => response.status(200).json({});
 
 export default onMediaMessageSent;

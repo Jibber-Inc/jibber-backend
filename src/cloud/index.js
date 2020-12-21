@@ -24,13 +24,6 @@ if (!BENJI_SECRET_PASSWORD_TOKEN) {
   throw new Error('BENJI_SECRET_PASSWORD_TOKEN must be set');
 }
 
-/**
- * Test function
- */
-Parse.Cloud.define('hello', () => {
-  return 'Hi';
-});
-
 // Cloud code functions
 Parse.Cloud.define('sendCode', sendCode);
 Parse.Cloud.define('sendPush', sendPush);

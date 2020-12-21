@@ -6,7 +6,7 @@ export class StripPhoneNumberError extends ExtendableError {}
  * Return only numbers
  * @param {String} phoneNumber
  */
-const stripPhoneNumber = phoneNumber => {
+const stripPhoneNumber = (phoneNumber) => {
   // Enforce argument type
   if (typeof phoneNumber !== 'string') {
     throw new StripPhoneNumberError(

@@ -13,7 +13,7 @@ import ChatService from '../../services/ChatService';
  */
 const onMemberAdded = async (request, response) => {
   try {
-    let { ChannelSid, Identity } = request.body;
+    const { ChannelSid, Identity } = request.body;
     const channel = await ChatService.fetchChannel(ChannelSid);
     const { createdBy } = channel;
     let messageSid;

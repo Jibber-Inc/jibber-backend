@@ -8,8 +8,6 @@
  *        - The reason for the addition of the member.
  *          Could be: ADDED or JOINED
  */
-const onMemberAdd = (request, response) => {
-  return response.status(200).json({});
-};
+const onMemberAdd = (request, response) => response.status(200).json({});
 
 export default onMemberAdd;

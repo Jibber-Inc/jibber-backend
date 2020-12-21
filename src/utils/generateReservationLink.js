@@ -7,7 +7,7 @@ class GenerateReservationLinkError extends ExtendableError {}
  * @param {String} code
  * @returns {String}
  */
-const generateReservationLink = code => {
+const generateReservationLink = (code) => {
   if (!code || typeof code !== 'string') {
     throw new GenerateReservationLinkError('[zs+jwaFE] expected code arg');
   }

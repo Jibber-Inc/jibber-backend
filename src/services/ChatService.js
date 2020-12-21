@@ -76,30 +76,13 @@ const inviteMembers = async (channelSid, members = []) => {
  *
  * @returns {Promise}
  */
-const addMembersToChannel = async (channelSid, members = []) => {
-  return members.map(mId =>
+const addMembersToChannel = async (channelSid, members = []) =>
+  members.map(mId =>
     new Twilio().client.chat
       .services(SERVICE_ID)
       .channels(channelSid)
       .members.create({ identity: mId, xTwilioWebhookEnabled: true }),
   );
-};
-
-/**
- * Remove all channels from user
- *
- * @param {String} userId
- */
-const deleteUserChannels = async userId => {
-  try {
-    const userChannels = await getUserChannels(userId);
-    await Promise.all(userChannels.map(u => deleteChannel(u.channelSid)));
-    await new Twilio().client.chat.services(SERVICE_ID).users(userId).remove();
-    return userId;
-  } catch (error) {
-    throw new ChatServiceError(error.message);
-  }
-};
 
 /**
  * Get all user channels
@@ -135,6 +118,22 @@ const deleteChannel = async channelSid => {
 };
 
 /**
+ * Remove all channels from user
+ *
+ * @param {String} userId
+ */
+const deleteUserChannels = async userId => {
+  try {
+    const userChannels = await getUserChannels(userId);
+    await Promise.all(userChannels.map(u => deleteChannel(u.channelSid)));
+    await new Twilio().client.chat.services(SERVICE_ID).users(userId).remove();
+    return userId;
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
+/**
  * Create a message on a given channel.
  *
  * @param { TwilioMessage } message
@@ -143,8 +142,8 @@ const deleteChannel = async channelSid => {
 const createMessage = async (message, ChannelSid) => {
   try {
     return new Twilio().client.chat
-      .services(SERVICE_ID) 
-      .channels(ChannelSid)      
+      .services(SERVICE_ID)
+      .channels(ChannelSid)
       .messages.create({ ...message, xTwilioWebhookEnabled: true });
   } catch (error) {
     throw new ChatServiceError(error.message);

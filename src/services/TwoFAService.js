@@ -1,5 +1,5 @@
-import Twilio from '../providers/TwilioProvider';
 import ExtendableError from 'extendable-error-class';
+import Twilio from '../providers/TwilioProvider';
 
 const { TWILIO_VERIFY_SERVICE_SID } = process.env;
 

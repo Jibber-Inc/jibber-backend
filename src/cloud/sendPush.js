@@ -18,7 +18,7 @@ const sendPush = async request => {
       },
     },
     { useMasterKey: true },
-  ).then(() => console.log('Push ok'));
+  );
 };
 
 export default sendPush;

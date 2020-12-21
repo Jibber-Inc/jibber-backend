@@ -2,6 +2,6 @@
  * Before save webhook for users.
  * @param {Object} request
  */
-const userBeforeSave = request => {};
+const userBeforeSave = () => {};
 
 export default userBeforeSave;

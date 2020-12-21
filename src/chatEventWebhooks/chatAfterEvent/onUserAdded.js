@@ -11,8 +11,6 @@
  *            - The optional Attributes of the updated user (if set). JSON
  *              structure in string format.
  */
-const onUserAdded = (request, response) => {
-  return response.status(200).json({});
-};
+const onUserAdded = (request, response) => response.status(200).json({});
 
 export default onUserAdded;

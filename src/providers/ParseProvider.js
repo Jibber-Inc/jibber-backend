@@ -1,3 +1,3 @@
-const Parse = global.Parse;
+const { Parse } = global;
 
 export default Parse;

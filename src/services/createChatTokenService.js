@@ -1,6 +1,8 @@
 import ExtendableError from 'extendable-error-class';
-const AccessToken = require('twilio').jwt.AccessToken;
-const ChatGrant = AccessToken.ChatGrant;
+
+const { AccessToken } = require('twilio').jwt;
+
+const { ChatGrant } = AccessToken;
 
 export class CreateChatTokenError extends ExtendableError {}
 
@@ -9,7 +11,7 @@ export class CreateChatTokenError extends ExtendableError {}
  * @param {String} userId
  * @return {String} Jason Web Token
  */
-const createChatToken = userId => {
+const createChatToken = (userId) => {
   const {
     TWILIO_ACCOUNT_SID,
     TWILIO_API_KEY,

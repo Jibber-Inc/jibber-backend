@@ -9,10 +9,10 @@ class CreateHandleCloudError extends ExtendableError {}
  * the "userBeforeSave" webhook fails to set the handle.
  * @returns {String}
  */
-const createHandle = request => {
-  let givenName = request.params.givenName;
-  let familyName = request.params.familyName;
-  let position = request.params.position;
+const createHandle = (request) => {
+  const { givenName } = request.params;
+  const { familyName } = request.params;
+  const { position } = request.params;
 
   if (!givenName || typeof givenName !== 'string') {
     throw new CreateHandleCloudError(

@@ -33,25 +33,24 @@ const prepareNotificationData = (type, data = {}) => {
     throw new Error(`Unsoported push notification type ${type}`);
   }
 
-  const { title, body } = data;
+  const { title, body, ...rest } = data;
   let alert = {};
 
   if (title) {
-    alert = { ...alert, title };
+    alert = { title };
   }
 
   if (body) {
     alert = { ...alert, body };
   }
-  delete data.title;
-  delete data.body;
+
   return {
     aps: {
       alert,
     },
     priority: 10,
     push_type: 'alert',
-    data,
+    data: rest,
   };
 };
 

@@ -25,7 +25,7 @@ import onUserUpdated from './onUserUpdated';
  * onMemberAdded - Fires when a User has joined a Channel as a Member.
  * onMemberUpdated - Fires when Member's attributes are updated.
  * onMemberRemoved - Fires when a User is removed from the set of Channel Members.
- * onUserAdded - Fires when a new User has been created. (cannot be intercepted with a Pre-Event hook)
+ * onUserAdded - Fires when a new User has been created. Cannot be intercepted with a Pre-Event hook
  * onUserUpdated - Fires when any configurable attribute of a User is changed.
  *
  * @param {Request} request

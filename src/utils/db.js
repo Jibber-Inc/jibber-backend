@@ -1,5 +1,5 @@
-import Parse from '../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
+import Parse from '../providers/ParseProvider';
 
 const Config = require('parse-server/lib/Config');
 
@@ -16,18 +16,18 @@ function getDatabaseInstance() {
  *
  * @param {String} sequenceOfName
  */
-const getValueForNextSequence = async sequenceOfName => {
+const getValueForNextSequence = async (sequenceOfName) => {
   try {
     const db = getDatabaseInstance();
-    const _sequences = db.collection('_sequences'); // returns new instance of _sequences if collections doesn't exists.
-    const { value } = await _sequences.findOneAndUpdate(
+
+    const sequences = db.collection('_sequences'); // returns new instance of _sequences if collections doesn't exists.
+    const { value } = await sequences.findOneAndUpdate(
       { _id: sequenceOfName },
       { $inc: { sequence_value: 1 } },
       { upsert: true },
     );
     return !value ? value + 1 : value.sequence_value + 1;
   } catch (error) {
-    console.log('db error');
     throw new DbUtilError(error.message);
   }
 };

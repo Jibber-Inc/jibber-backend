@@ -1,15 +1,14 @@
-import Parse from '../providers/ParseProvider';
 import ExtendableError from 'extendable-error-class';
+import Parse from '../providers/ParseProvider';
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
-import { ReservationServiceError } from '../services/ReservationService';
-import ReservationService from '../services/ReservationService';
+import ReservationService, { ReservationServiceError } from '../services/ReservationService';
 
 class ValidateCodeError extends ExtendableError {}
 
-const validateCode = async request => {
-  let { params, installationId } = request;
+const validateCode = async (request) => {
+  const { params, installationId } = request;
   const { phoneNumber, authCode, reservationId } = params;
 
   // Phone number is required in request body
@@ -36,7 +35,7 @@ const validateCode = async request => {
   userQuery.equalTo('phoneNumber', phoneNumber);
   const user = await userQuery.first({ useMasterKey: true });
 
-  if (!Boolean(user instanceof Parse.User)) {
+  if (!(user instanceof Parse.User)) {
     throw new ValidateCodeError('[zIslmc6c] User not found');
   }
 

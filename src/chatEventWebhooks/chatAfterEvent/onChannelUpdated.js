@@ -10,8 +10,6 @@
  * UniqueName - string, optional - The unique name of the channel, if set
  * ChannelType - string - The Channel type. Either private or public
  */
-const onChannelUpdated = (request, response) => {
-  return response.status(200).json({});
-};
+const onChannelUpdated = (request, response) => response.status(200).json({});
 
 export default onChannelUpdated;

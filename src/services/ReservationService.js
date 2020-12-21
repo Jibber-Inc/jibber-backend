@@ -1,9 +1,9 @@
+import ExtendableError from 'extendable-error-class';
+import hat from 'hat';
 import Parse from '../providers/ParseProvider';
 import ConnectionService from './ConnectionService';
 import ChatService from './ChatService';
-import ExtendableError from 'extendable-error-class';
-import db from '../utils/db';
-import hat from 'hat';
+// import db from '../utils/db';
 
 export class ReservationServiceError extends ExtendableError {}
 
@@ -15,7 +15,6 @@ export class ReservationServiceError extends ExtendableError {}
 const createReservation = async user => {
   try {
     const reservation = new Parse.Object('Reservation');
-    const reservationCount = await db.getValueForNextSequence('reservation');
     reservation.set('isClaimed'.false);
     reservation.set('createdBy', user);
     reservation.setACL(new Parse.ACL(user));

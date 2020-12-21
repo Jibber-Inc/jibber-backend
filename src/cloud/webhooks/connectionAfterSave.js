@@ -7,7 +7,7 @@ class ConnectionBeforeSaveError extends ExtendableError {}
  * After save webhook for Connection objects.
  * @param {Object} request
  */
-const connectionAfterSave = async request => {
+const connectionAfterSave = async (request) => {
   const connection = request.object;
 
   if (connection.className !== 'Connection') {

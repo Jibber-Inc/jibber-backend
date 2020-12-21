@@ -1,6 +1,6 @@
-import twilio from 'twilio';
+import Twilio from 'twilio';
 
-class Twilio {
+class TwilioProvider {
   constructor() {
     // Load environment variables
     const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = process.env;
@@ -13,8 +13,8 @@ class Twilio {
     }
 
     // set this.client to twilio client with given info
-    this.client = new twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+    this.client = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
   }
 }
 
-export default Twilio;
+export default TwilioProvider;
