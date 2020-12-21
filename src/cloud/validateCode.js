@@ -5,9 +5,11 @@ import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
 import ReservationService, { ReservationServiceError } from '../services/ReservationService';
 
+import db from "../utils/db";
+
 class ValidateCodeError extends ExtendableError {}
 
-const validateCode = async (request) => {
+const validateCode = async request => {
   const { params, installationId } = request;
   const { phoneNumber, authCode, reservationId } = params;
 
@@ -40,22 +42,47 @@ const validateCode = async (request) => {
   }
 
   try {
-    if (user.get('verificationStatus') !== 'approved') {
-      const { status, valid } = await TwoFAService.verifyCode(
+    if (user.get('smsVerificationStatus') !== 'approved') {
+      const { status } = await TwoFAService.verifyCode(
         user.get('phoneNumber'),
         authCode,
       );
-      if (!valid) {
+
+      // If the code is wrong, status wont be approved
+      if (status !== 'approved') {
         throw new ValidateCodeError('[KTN1RYO9] Auth code validation failed');
       }
 
-      user.set('verificationStatus', status);
-      user.set('verificationValid', valid);
-      await user.save(null, { useMasterKey: true });
+      const config = await Parse.Config.get();
+      // get maxQuePosition from parse. This variable is manually set depending on the needs
+      const maxQuePosition = config.get('maxQuePosition');
+      // get the last position of the queue + 1. For more information, check db import.
+      const quePosition = await db.getValueForNextSequence('unclaimedPosition');
 
+      // Users that come with a reservation has full access
+      // Users without a reservation are placed in a queue.
+      // Their position in the queue is set when they send the validation code
+      // If the position is higher than the allowed position (maxQuePosition), they get the waitlist status
+      // The user status can be one of: active, inactive, waitlist
+      // Active: users that have full access to the application
+      // Inactive: users that have full access to the application, but they didnt end the onboarding yet
+      // Waitlist: users in the Waitlist have to wait until the maxQuePosition is increased, letting more users get full access.
       if (reservationId) {
         await ReservationService.claimReservation(reservationId, user);
+        if (user.status !== 'active') {
+          user.set('status', 'inactive');
+        }
+      } else {
+        user.set('quePosition', quePosition);
+        if (maxQuePosition >= quePosition) {
+          user.set('status', 'inactive');
+        } else {
+          user.set('status', 'waitlist');
+        }
       }
+
+      user.set('smsVerificationStatus', status);
+      await user.save(null, { useMasterKey: true });
 
       const hasReservations = await ReservationService.hasReservations(user);
       if (!hasReservations) {
@@ -84,7 +111,7 @@ const validateCode = async (request) => {
     return sessionToken;
   } catch (error) {
     if (error instanceof ReservationServiceError) {
-      user.set('verificationStatus', 'waitlist');
+      // user.set('smsVerificationStatus', 'waitlist'); //TODO: Check this waitlist here
       user.save(null, { useMasterKey: true });
       throw error;
     }
