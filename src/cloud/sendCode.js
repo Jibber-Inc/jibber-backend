@@ -44,6 +44,7 @@ const sendCode = async request => {
     const { status, valid } = await TwoFAService.sendCode(phoneNumber, locale);
     if (!user) {
       user = await UserService.createUser(phoneNumber, installationId);
+      user.set('status', 'needsVerification');
     }
     user.set('verificationStatus', status);
     user.set('verificationValid', valid);

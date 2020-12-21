@@ -26,8 +26,8 @@
     "mongoose": "^5.9.6",
     "parse-server": "^4.5.0",
     "tcp-port-used": "^1.0.1",
-    "twilio": "^3.41.1",
-    "twilio-chat": "^3.3.4",
+    "twilio": "^3.54.1",
+    "twilio-chat": "^4.1.0",
     "uuid": "^3.4.0",
     "validator": "^12.2.0"
   },
