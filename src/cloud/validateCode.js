@@ -3,9 +3,11 @@ import Parse from '../providers/ParseProvider';
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
-import ReservationService, { ReservationServiceError } from '../services/ReservationService';
+import ReservationService, {
+  ReservationServiceError,
+} from '../services/ReservationService';
 
-import db from "../utils/db";
+import db from '../utils/db';
 
 class ValidateCodeError extends ExtendableError {}
 
@@ -53,9 +55,10 @@ const validateCode = async request => {
         throw new ValidateCodeError('[KTN1RYO9] Auth code validation failed');
       }
 
-      const config = await Parse.Config.get();
+      const config = await Parse.Config.get({ useMasterKey: true });
       // get maxQuePosition from parse. This variable is manually set depending on the needs
       const maxQuePosition = config.get('maxQuePosition');
+
       // get the last position of the queue + 1. For more information, check db import.
       const quePosition = await db.getValueForNextSequence('unclaimedPosition');
 
