@@ -11,6 +11,45 @@ import db from '../utils/db';
 
 class ValidateCodeError extends ExtendableError {}
 
+const setReservations = async user => {
+  const hasReservations = await ReservationService.hasReservations(user);
+  if (!hasReservations) {
+    // creates 3 reservations for the new user.
+    // TODO: set this number as an app configuration.
+    await ReservationService.createReservations(user, 3);
+  }
+};
+
+// Users that come with a reservation has full access
+// Users without a reservation are placed in a queue.
+// Their position in the queue is set when they send the validation code
+// The user status can be one of: active, inactive, waitlist
+// If the position is higher than the max allowed position (maxQuePosition), they get the waitlist status
+// Active: users that have full access to the application
+// Inactive: users that have full access to the application, but they didnt end the onboarding yet
+// Waitlist: users in the Waitlist have to wait until the maxQuePosition is increased, letting more users get full access.
+const setUserStatus = async (user, reservation = null) => {
+  // Get the needed que values to calculate the user status
+  const config = await Parse.Config.get({ useMasterKey: true });
+  // get maxQuePosition from parse. This variable is manually set depending on the needs
+  const maxQuePosition = config.get('maxQuePosition');
+  // get the last position of the queue + 1. For more information, check db import.
+  const quePosition = await db.getValueForNextSequence('unclaimedPosition');
+
+  if (reservation) {
+    if (user.status !== 'active') {
+      user.set('status', 'inactive');
+    }
+  } else {
+    user.set('quePosition', quePosition);
+    if (maxQuePosition >= quePosition) {
+      user.set('status', 'inactive');
+    } else {
+      user.set('status', 'waitlist');
+    }
+  }
+};
+
 const validateCode = async request => {
   const { params, installationId } = request;
   const { phoneNumber, authCode, reservationId } = params;
@@ -34,7 +73,7 @@ const validateCode = async request => {
     throw new ValidateCodeError('[xDETWSYH] No auth code provided in request');
   }
 
-  // Build query
+  // Retrieve the user with the phoneNumber
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
   const user = await userQuery.first({ useMasterKey: true });
@@ -55,44 +94,16 @@ const validateCode = async request => {
         throw new ValidateCodeError('[KTN1RYO9] Auth code validation failed');
       }
 
-      const config = await Parse.Config.get({ useMasterKey: true });
-      // get maxQuePosition from parse. This variable is manually set depending on the needs
-      const maxQuePosition = config.get('maxQuePosition');
-
-      // get the last position of the queue + 1. For more information, check db import.
-      const quePosition = await db.getValueForNextSequence('unclaimedPosition');
-
-      // Users that come with a reservation has full access
-      // Users without a reservation are placed in a queue.
-      // Their position in the queue is set when they send the validation code
-      // If the position is higher than the allowed position (maxQuePosition), they get the waitlist status
-      // The user status can be one of: active, inactive, waitlist
-      // Active: users that have full access to the application
-      // Inactive: users that have full access to the application, but they didnt end the onboarding yet
-      // Waitlist: users in the Waitlist have to wait until the maxQuePosition is increased, letting more users get full access.
       if (reservationId) {
         await ReservationService.claimReservation(reservationId, user);
-        if (user.status !== 'active') {
-          user.set('status', 'inactive');
-        }
-      } else {
-        user.set('quePosition', quePosition);
-        if (maxQuePosition >= quePosition) {
-          user.set('status', 'inactive');
-        } else {
-          user.set('status', 'waitlist');
-        }
       }
+
+      setUserStatus(user, reservationId);
 
       user.set('smsVerificationStatus', status);
       await user.save(null, { useMasterKey: true });
 
-      const hasReservations = await ReservationService.hasReservations(user);
-      if (!hasReservations) {
-        // creates 3 reservations for the new user.
-        // TODO: set this number as an app configuration.
-        await ReservationService.createReservations(user, 3);
-      }
+      setReservations(user);
     }
 
     const sessionToken = await UserService.getLastSessionToken(
@@ -114,7 +125,7 @@ const validateCode = async request => {
     return sessionToken;
   } catch (error) {
     if (error instanceof ReservationServiceError) {
-      // user.set('smsVerificationStatus', 'waitlist'); //TODO: Check this waitlist here
+      setUserStatus(user);
       user.save(null, { useMasterKey: true });
       throw error;
     }
