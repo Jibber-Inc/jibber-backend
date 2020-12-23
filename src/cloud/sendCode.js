@@ -41,13 +41,12 @@ const sendCode = async request => {
   }
 
   try {
-    const { status, valid } = await TwoFAService.sendCode(phoneNumber, locale);
+    const { status } = await TwoFAService.sendCode(phoneNumber, locale);
     if (!user) {
       user = await UserService.createUser(phoneNumber, installationId);
       user.set('status', 'needsVerification');
     }
-    user.set('verificationStatus', status);
-    user.set('verificationValid', valid);
+    user.set('smsVerificationStatus', status);
     await user.save(null, { useMasterKey: true });
 
     return { status: 'code sent' };
