@@ -8,7 +8,7 @@ class SetActiveStatusError extends ExtendableError {}
  *
  * @param {*} user
  */
-const getUserHandler = async user => {
+const getUserHandle = async user => {
   const config = await Parse.Config.get({ useMasterKey: true });
   const maxQuePosition = config.get('maxQuePosition');
   // If the user has a quePosition already, use it. Else, get a new quePosition
@@ -18,14 +18,14 @@ const getUserHandler = async user => {
   } else {
     quePosition = await db.getValueForNextSequence('unclaimedPosition');
   }
-  const handlerPositioN = quePosition / maxQuePosition;
+  const handlePositioN = quePosition / maxQuePosition;
   // Generate the user handler
   const name = `${user.get('givenName')}${user
     .get('familyName')
     .substring(0, 1)}`;
-  const userHandler = `@${name.toLowerCase()}_${handlerPositioN}`;
+  const userHandle = `@${name.toLowerCase()}_${handlePositioN}`;
 
-  return userHandler.replace('.', '');
+  return userHandle.replace('.', '');
 };
 
 /**
@@ -39,9 +39,10 @@ const setActiveStatus = async request => {
     throw new SetActiveStatusError('[zIslmc6c] User not found');
   }
   if (user.get('status') === 'inactive') {
-    const handler = await getUserHandler(user);
+    const handle = await getUserHandle(user);
+    user.set('handle', handle);
     user.set('status', 'active');
-    user.set('handler', handler);
+    await db.getValueForNextSequence('claimedPosition');
     await user.save(null, { useMasterKey: true });
   }
 
