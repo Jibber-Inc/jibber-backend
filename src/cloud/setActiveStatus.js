@@ -8,17 +8,11 @@ class SetActiveStatusError extends ExtendableError {}
  *
  * @param {*} user
  */
-const getUserHandle = async user => {
+const getUserHandle = async (user, claimedPosition) => {
   const config = await Parse.Config.get({ useMasterKey: true });
   const maxQuePosition = config.get('maxQuePosition');
   // If the user has a quePosition already, use it. Else, get a new quePosition
-  let quePosition;
-  if (user.get('quePosition')) {
-    quePosition = user.get('quePosition');
-  } else {
-    quePosition = await db.getValueForNextSequence('unclaimedPosition');
-  }
-  const handlePositioN = quePosition / maxQuePosition;
+  const handlePositioN = claimedPosition / maxQuePosition;
   // Generate the user handler
   const name = `${user.get('givenName')}${user
     .get('familyName')
@@ -39,10 +33,10 @@ const setActiveStatus = async request => {
     throw new SetActiveStatusError('[zIslmc6c] User not found');
   }
   if (user.get('status') === 'inactive') {
-    const handle = await getUserHandle(user);
+    const claimedPosition = await db.getValueForNextSequence('claimedPosition');
+    const handle = await getUserHandle(user, claimedPosition);
     user.set('handle', handle);
     user.set('status', 'active');
-    await db.getValueForNextSequence('claimedPosition');
     await user.save(null, { useMasterKey: true });
   }
 
