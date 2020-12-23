@@ -9,6 +9,7 @@ import getChatToken from './getChatToken';
 import getConnections from './getConnections';
 import updateConnection from './updateConnection';
 import createChannel from './createChannel';
+import setActiveStatus from './setActiveStatus';
 
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
@@ -34,6 +35,7 @@ Parse.Cloud.define('getChatToken', getChatToken);
 Parse.Cloud.define('getConnections', getConnections);
 Parse.Cloud.define('updateConnection', updateConnection);
 Parse.Cloud.define('createChannel', createChannel);
+Parse.Cloud.define('setActiveStatus', setActiveStatus);
 
 Parse.Cloud.define('sendMessage', sendMessage);
 

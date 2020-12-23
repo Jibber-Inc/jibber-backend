@@ -1,0 +1,46 @@
+import ExtendableError from 'extendable-error-class';
+import Parse from '../providers/ParseProvider';
+import db from '../utils/db';
+
+class SetActiveStatusError extends ExtendableError {}
+
+/**
+ *
+ * @param {*} user
+ */
+const getUserHandle = async (user, claimedPosition) => {
+  const config = await Parse.Config.get({ useMasterKey: true });
+  const maxQuePosition = config.get('maxQuePosition');
+  // If the user has a quePosition already, use it. Else, get a new quePosition
+  const handlePositioN = claimedPosition / maxQuePosition;
+  // Generate the user handler
+  const name = `${user.get('givenName')}${user
+    .get('familyName')
+    .substring(0, 1)}`;
+  const userHandle = `@${name.toLowerCase()}_${handlePositioN}`;
+
+  return userHandle.replace('.', '');
+};
+
+/**
+ *
+ * @param {*} request
+ */
+const setActiveStatus = async request => {
+  const { user } = request;
+
+  if (!(user instanceof Parse.User)) {
+    throw new SetActiveStatusError('[zIslmc6c] User not found');
+  }
+  if (user.get('status') === 'inactive') {
+    const claimedPosition = await db.getValueForNextSequence('claimedPosition');
+    const handle = await getUserHandle(user, claimedPosition);
+    user.set('handle', handle);
+    user.set('status', 'active');
+    await user.save(null, { useMasterKey: true });
+  }
+
+  return user;
+};
+
+export default setActiveStatus;
