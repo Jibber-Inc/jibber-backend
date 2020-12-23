@@ -24,7 +24,6 @@ const onMemberAdded = async (request, response) => {
         .equalTo('objectId', Identity)
         .first();
       let handle;
-      // If handle exists, use it. Else, use the twilio Identity
       if (user && user.get('handle')) {
         handle = user.get('handle');
       }
