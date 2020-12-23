@@ -15,6 +15,7 @@ import connectionAfterSave from './webhooks/connectionAfterSave';
 import userBeforeSave from './webhooks/userBeforeSave';
 import userAfterSave from './webhooks/userAfterSave';
 import userAfterDelete from './webhooks/userAfterDelete';
+import sendMessage from './sendMessage';
 
 // Load Environment variables
 const { BENJI_SECRET_PASSWORD_TOKEN } = process.env;
@@ -33,6 +34,8 @@ Parse.Cloud.define('getChatToken', getChatToken);
 Parse.Cloud.define('getConnections', getConnections);
 Parse.Cloud.define('updateConnection', updateConnection);
 Parse.Cloud.define('createChannel', createChannel);
+
+Parse.Cloud.define('sendMessage', sendMessage);
 
 // --- Cloud code webhooks ----------------------------------------------------
 // Connection webhooks
