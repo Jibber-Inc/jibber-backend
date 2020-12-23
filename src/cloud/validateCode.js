@@ -3,11 +3,54 @@ import Parse from '../providers/ParseProvider';
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
-import ReservationService, { ReservationServiceError } from '../services/ReservationService';
+import ReservationService, {
+  ReservationServiceError,
+} from '../services/ReservationService';
+
+import db from '../utils/db';
 
 class ValidateCodeError extends ExtendableError {}
 
-const validateCode = async (request) => {
+const setReservations = async user => {
+  const hasReservations = await ReservationService.hasReservations(user);
+  if (!hasReservations) {
+    // creates 3 reservations for the new user.
+    // TODO: set this number as an app configuration.
+    await ReservationService.createReservations(user, 3);
+  }
+};
+
+// Users that come with a reservation has full access
+// Users without a reservation are placed in a queue.
+// Their position in the queue is set when they send the validation code
+// The user status can be one of: active, inactive, waitlist
+// If the position is higher than the max allowed position (maxQuePosition), they get the waitlist status
+// Active: users that have full access to the application
+// Inactive: users that have full access to the application, but they didnt end the onboarding yet
+// Waitlist: users in the Waitlist have to wait until the maxQuePosition is increased, letting more users get full access.
+const setUserStatus = async (user, reservation = null) => {
+  // Get the needed que values to calculate the user status
+  const config = await Parse.Config.get({ useMasterKey: true });
+  // get maxQuePosition from parse. This variable is manually set depending on the needs
+  const maxQuePosition = config.get('maxQuePosition');
+  // get the last position of the queue + 1. For more information, check db import.
+  const quePosition = await db.getValueForNextSequence('unclaimedPosition');
+
+  if (reservation) {
+    if (user.status !== 'active') {
+      user.set('status', 'inactive');
+    }
+  } else {
+    user.set('quePosition', quePosition);
+    if (maxQuePosition >= quePosition) {
+      user.set('status', 'inactive');
+    } else {
+      user.set('status', 'waitlist');
+    }
+  }
+};
+
+const validateCode = async request => {
   const { params, installationId } = request;
   const { phoneNumber, authCode, reservationId } = params;
 
@@ -30,7 +73,7 @@ const validateCode = async (request) => {
     throw new ValidateCodeError('[xDETWSYH] No auth code provided in request');
   }
 
-  // Build query
+  // Retrieve the user with the phoneNumber
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
   const user = await userQuery.first({ useMasterKey: true });
@@ -40,29 +83,27 @@ const validateCode = async (request) => {
   }
 
   try {
-    if (user.get('verificationStatus') !== 'approved') {
-      const { status, valid } = await TwoFAService.verifyCode(
+    if (user.get('smsVerificationStatus') !== 'approved') {
+      const { status } = await TwoFAService.verifyCode(
         user.get('phoneNumber'),
         authCode,
       );
-      if (!valid) {
+
+      // If the code is wrong, status wont be approved
+      if (status !== 'approved') {
         throw new ValidateCodeError('[KTN1RYO9] Auth code validation failed');
       }
-
-      user.set('verificationStatus', status);
-      user.set('verificationValid', valid);
-      await user.save(null, { useMasterKey: true });
 
       if (reservationId) {
         await ReservationService.claimReservation(reservationId, user);
       }
 
-      const hasReservations = await ReservationService.hasReservations(user);
-      if (!hasReservations) {
-        // creates 3 reservations for the new user.
-        // TODO: set this number as an app configuration.
-        await ReservationService.createReservations(user, 3);
-      }
+      setUserStatus(user, reservationId);
+
+      user.set('smsVerificationStatus', status);
+      await user.save(null, { useMasterKey: true });
+
+      setReservations(user);
     }
 
     const sessionToken = await UserService.getLastSessionToken(
@@ -84,7 +125,7 @@ const validateCode = async (request) => {
     return sessionToken;
   } catch (error) {
     if (error instanceof ReservationServiceError) {
-      user.set('verificationStatus', 'waitlist');
+      setUserStatus(user);
       user.save(null, { useMasterKey: true });
       throw error;
     }
