@@ -1,4 +1,5 @@
 import ChatService from '../../services/ChatService';
+import Parse from '../../providers/ParseProvider';
 
 /**
  * EventType - string - Always onMemberAdded
@@ -18,9 +19,18 @@ const onMemberAdded = async (request, response) => {
     const { createdBy } = channel;
     let messageSid;
     if (createdBy !== Identity) {
+      // Retrieve the Parse user, to take the handle
+      const user = await new Parse.Query(Parse.User)
+        .equalTo('objectId', Identity)
+        .first();
+      let handle;
+      // If handle exists, use it. Else, use the twilio Identity
+      if (user && user.get('handle')) {
+        handle = user.get('handle');
+      }
       // Create message structure
       const message = {
-        body: `[name](${Identity}) joined the conversation.`,
+        body: `[${handle}](${Identity}) joined the conversation.`,
         attributes: JSON.stringify({ context: 'status' }),
         from: Identity,
       };
