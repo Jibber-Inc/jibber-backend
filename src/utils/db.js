@@ -16,7 +16,7 @@ function getDatabaseInstance() {
  *
  * @param {String} sequenceOfName
  */
-const getValueForNextSequence = async (sequenceOfName) => {
+const getValueForNextSequence = async sequenceOfName => {
   try {
     const db = getDatabaseInstance();
 
@@ -32,4 +32,25 @@ const getValueForNextSequence = async (sequenceOfName) => {
   }
 };
 
-export default { getDatabaseInstance, getValueForNextSequence };
+/**
+ * Read sequence current value.
+ *
+ * @param {String} sequenceOfName
+ */
+const getCurrentValueSequence = async sequenceOfName => {
+  try {
+    const db = getDatabaseInstance();
+
+    const sequences = db.collection('_sequences'); // returns new instance of _sequences if collections doesn't exists.
+    const { value } = await sequences.find({ _id: sequenceOfName });
+    return value;
+  } catch (error) {
+    throw new DbUtilError(error.message);
+  }
+};
+
+export default {
+  getDatabaseInstance,
+  getValueForNextSequence,
+  getCurrentValueSequence,
+};
