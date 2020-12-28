@@ -1,6 +1,8 @@
+import ExtendableError from 'extendable-error-class';
 import ChatService from '../../services/ChatService';
 import Parse from '../../providers/ParseProvider';
 
+class SetActiveStatusError extends ExtendableError {}
 /**
  * EventType - string - Always onMemberAdded
  * MemberSid - string - The Member SID of the newly added Member
@@ -23,11 +25,13 @@ const onMemberAdded = async (request, response) => {
       const user = await new Parse.Query(Parse.User)
         .equalTo('objectId', Identity)
         .first();
-      let handle;
-      if (user && user.get('handle')) {
-        handle = user.get('handle');
+
+      if (!(user instanceof Parse.User)) {
+        throw new SetActiveStatusError('[zIslmc6c] User not found');
       }
+
       // Create message structure
+      const handle = user.get('handle');
       const message = {
         body: `[${handle}](${Identity}) joined the conversation.`,
         attributes: JSON.stringify({ context: 'status' }),
