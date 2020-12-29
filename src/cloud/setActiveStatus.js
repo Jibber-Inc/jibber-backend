@@ -1,8 +1,49 @@
 import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 import db from '../utils/db';
+import ChatService from '../services/ChatService';
 
 class SetActiveStatusError extends ExtendableError {}
+
+/**
+ *
+ * @param {*} user
+ */
+const createUserChannels = async user => {
+  // Add to channel members the user
+  const members = [user.id];
+
+  // If the desired role exists, add to channel members the admin with that role
+  // Get parse role
+  const onboardingRole = await new Parse.Query(Parse.Role)
+    .equalTo('name', 'ONBOARDING_ADMIN')
+    .first();
+  if (onboardingRole) {
+    // If the role is defined, get the first user with it
+    const admin = await onboardingRole.get('users').query().first();
+    // If we have users with the desired role, add them to the members
+    if (admin) {
+      members.push(admin.id);
+    }
+  }
+
+  // Create the channels
+  const welcomeChannel = await ChatService.createChatChannel(
+    user,
+    `welcome_${user.id}`,
+    'welcome',
+    'private',
+  );
+  await ChatService.addMembersToChannel(welcomeChannel.sid, members);
+
+  const feedbackChannel = await ChatService.createChatChannel(
+    user,
+    `feedback_${user.id}`,
+    'feedback',
+    'private',
+  );
+  await ChatService.addMembersToChannel(feedbackChannel.sid, members);
+};
 
 /**
  *
@@ -32,6 +73,7 @@ const setActiveStatus = async request => {
   if (!(user instanceof Parse.User)) {
     throw new SetActiveStatusError('[zIslmc6c] User not found');
   }
+
   if (user.get('status') === 'inactive') {
     const claimedPosition = await db.getValueForNextSequence('claimedPosition');
     const handle = await getUserHandle(user, claimedPosition);
@@ -39,6 +81,8 @@ const setActiveStatus = async request => {
     user.set('status', 'active');
     await user.save(null, { useMasterKey: true });
   }
+
+  createUserChannels(user);
 
   return user;
 };
