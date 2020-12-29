@@ -42,8 +42,8 @@ const getCurrentValueSequence = async sequenceOfName => {
     const db = getDatabaseInstance();
 
     const sequences = db.collection('_sequences'); // returns new instance of _sequences if collections doesn't exists.
-    const { value } = await sequences.findOne({ _id: sequenceOfName });
-    return value;
+    const result = await sequences.findOne({ _id: sequenceOfName });
+    return result ? result.sequence_value : result;
   } catch (error) {
     throw new DbUtilError(error.message);
   }
