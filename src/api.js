@@ -15,7 +15,7 @@ const {
   IOS_PFX_CERTIFICATE,
   IOS_PASSPHRASE,
   IOS_PUSH_PRODUCTION = false,
-  WS_REDIS_URL,
+  REDIS_URL,
 } = process.env;
 
 // Build parse server instance
@@ -38,8 +38,8 @@ const api = new ParseServer({
   },
   liveQuery: {
     // List of classes to support for query subscriptions
-    classNames: ['realTimeData'],
-    redisUrl: WS_REDIS_URL,
+    classNames: ['QuePositions'],
+    redisUrl: REDIS_URL,
   },
   protectedFields: {
     _User: {
