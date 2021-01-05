@@ -45,7 +45,17 @@ const setUserStatus = async (user, reservation = null) => {
       user.set('status', 'inactive');
     }
   } else {
+    console.log('ENTRO POR EL ELSE!!!!!!!!!');
+    console.log('ENTRO POR EL ELSE!!!!!!!!!');
+    console.log('ENTRO POR EL ELSE!!!!!!!!!');
+    console.log(currentQuePosition);
+    console.log('ENTRO POR EL ELSE!!!!!!!!!');
+    console.log('ENTRO POR EL ELSE!!!!!!!!!');
     user.set('quePosition', currentQuePosition);
+    console.log(user.get('quePosition'));
+    console.log('ENTRO POR EL ELSE!!!!!!!!!');
+    console.log('ENTRO POR EL ELSE!!!!!!!!!');
+    console.log('ENTRO POR EL ELSE!!!!!!!!!');
     if (maxQuePosition >= currentQuePosition) {
       user.set('status', 'inactive');
     } else {
@@ -102,8 +112,13 @@ const validateCode = async request => {
         await ReservationService.claimReservation(reservationId, user);
       }
 
-      setUserStatus(user, reservationId);
-
+      await setUserStatus(user, reservationId);
+      console.log('YA SALIO DEL SET STATUS');
+      console.log('YA SALIO DEL SET STATUS');
+      console.log('YA SALIO DEL SET STATUS');
+      console.log('YA SALIO DEL SET STATUS');
+      console.log('YA SALIO DEL SET STATUS');
+      console.log(user.get('quePosition'));
       user.set('smsVerificationStatus', status);
       await user.save(null, { useMasterKey: true });
 
