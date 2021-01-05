@@ -9,6 +9,5 @@ server.listen(PORT, () => console.log(`${APP_NAME} running on port ${PORT}.`));
 
 // This will enable the Live Query real-time server
 ParseServer.createLiveQueryServer(server, {
-  // classNames: ['QuePositions'],
   redisUrl: REDIS_URL,
 });
