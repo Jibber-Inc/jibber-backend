@@ -79,7 +79,7 @@ const getMaxQuePosition = async () => {
  */
 const setActiveStatus = async request => {
   const { user } = request;
-  const maxQuePosition = getMaxQuePosition();
+  const maxQuePosition = await getMaxQuePosition();
   if (!(user instanceof Parse.User)) {
     throw new SetActiveStatusError('[zIslmc6c] User not found');
   }
