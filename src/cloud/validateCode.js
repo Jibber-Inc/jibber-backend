@@ -6,7 +6,7 @@ import UserService from '../services/UserService';
 import ReservationService, {
   ReservationServiceError,
 } from '../services/ReservationService';
-
+import QuePositionsService from '../services/QuePositionsService';
 import db from '../utils/db';
 
 class ValidateCodeError extends ExtendableError {}
@@ -34,15 +34,19 @@ const setUserStatus = async (user, reservation = null) => {
   // get maxQuePosition from parse. This variable is manually set depending on the needs
   const maxQuePosition = config.get('maxQuePosition');
   // get the last position of the queue + 1. For more information, check db import.
-  const quePosition = await db.getValueForNextSequence('unclaimedPosition');
+  const currentQuePosition = await db.getValueForNextSequence(
+    'unclaimedPosition',
+  );
+
+  await QuePositionsService.update('unclaimedPosition', currentQuePosition);
 
   if (reservation) {
     if (user.status !== 'active') {
       user.set('status', 'inactive');
     }
   } else {
-    user.set('quePosition', quePosition);
-    if (maxQuePosition >= quePosition) {
+    user.set('quePosition', currentQuePosition);
+    if (maxQuePosition >= currentQuePosition) {
       user.set('status', 'inactive');
     } else {
       user.set('status', 'waitlist');
@@ -98,7 +102,7 @@ const validateCode = async request => {
         await ReservationService.claimReservation(reservationId, user);
       }
 
-      setUserStatus(user, reservationId);
+      await setUserStatus(user, reservationId);
 
       user.set('smsVerificationStatus', status);
       await user.save(null, { useMasterKey: true });

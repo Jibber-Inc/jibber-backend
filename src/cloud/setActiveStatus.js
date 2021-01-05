@@ -2,11 +2,12 @@ import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 import db from '../utils/db';
 import ChatService from '../services/ChatService';
+import QuePositionsService from '../services/QuePositionsService';
 
 class SetActiveStatusError extends ExtendableError {}
 
 /**
- *
+ * Creates the initial channels for the new user
  * @param {*} user
  */
 const createUserChannels = async user => {
@@ -46,12 +47,11 @@ const createUserChannels = async user => {
 };
 
 /**
- *
+ * Creates the handle for the user
  * @param {*} user
+ * @param {*} claimedPosition
  */
-const getUserHandle = async (user, claimedPosition) => {
-  const config = await Parse.Config.get({ useMasterKey: true });
-  const maxQuePosition = config.get('maxQuePosition');
+const getUserHandle = async (user, claimedPosition, maxQuePosition) => {
   // If the user has a quePosition already, use it. Else, get a new quePosition
   const handlePositioN = claimedPosition / maxQuePosition;
   // Generate the user handler
@@ -64,22 +64,33 @@ const getUserHandle = async (user, claimedPosition) => {
 };
 
 /**
- *
+ * Returns the maxQuePosition value
+ */
+const getMaxQuePosition = async () => {
+  const config = await Parse.Config.get({ useMasterKey: true });
+  const maxQuePosition = config.get('maxQuePosition');
+
+  return maxQuePosition;
+};
+
+/**
+ * Sets the user's status from inactive to active
  * @param {*} request
  */
 const setActiveStatus = async request => {
   const { user } = request;
-
+  const maxQuePosition = await getMaxQuePosition();
   if (!(user instanceof Parse.User)) {
     throw new SetActiveStatusError('[zIslmc6c] User not found');
   }
 
   if (user.get('status') === 'inactive') {
     const claimedPosition = await db.getValueForNextSequence('claimedPosition');
-    const handle = await getUserHandle(user, claimedPosition);
+    const handle = await getUserHandle(user, claimedPosition, maxQuePosition);
     user.set('handle', handle);
     user.set('status', 'active');
     await user.save(null, { useMasterKey: true });
+    await QuePositionsService.update('claimedPosition', claimedPosition);
   }
 
   createUserChannels(user);
