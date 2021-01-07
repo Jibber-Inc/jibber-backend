@@ -93,7 +93,11 @@ const setActiveStatus = async request => {
     await QuePositionsService.update('claimedPosition', claimedPosition);
   }
 
-  createUserChannels(user);
+  const userChannels = await ChatService.getUserChannels(user.id);
+
+  if (!userChannels.length) {
+    await createUserChannels(user);
+  }
 
   return user;
 };
