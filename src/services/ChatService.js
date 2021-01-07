@@ -173,4 +173,5 @@ export default {
   deleteUserChannels,
   createMessage,
   fetchChannel,
+  getUserChannels,
 };
