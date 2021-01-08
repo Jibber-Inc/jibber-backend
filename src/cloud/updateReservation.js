@@ -1,7 +1,4 @@
-import ExtendableError from 'extendable-error-class';
 import ReservationService from '../services/ReservationService';
-
-export class ReservationServiceError extends ExtendableError {}
 
 /**
  * Updates a reservation
