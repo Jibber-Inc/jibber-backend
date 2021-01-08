@@ -19,6 +19,4 @@ const updateReservation = async request => {
   }
 };
 
-export default {
-  updateReservation,
-};
+export default updateReservation;
