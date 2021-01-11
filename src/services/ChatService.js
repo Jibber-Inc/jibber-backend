@@ -118,6 +118,28 @@ const deleteChannel = async channelSid => {
 };
 
 /**
+ * Remove the user from Twilio service
+ *
+ * @param {*} userId
+ */
+const deleteTwilioUser = async userId => {
+  try {
+    const twilioUser = await new Twilio().client.chat
+      .services(SERVICE_ID)
+      .users(userId)
+      .fetch();
+    if (twilioUser) {
+      await new Twilio().client.chat
+        .services(SERVICE_ID)
+        .users(userId)
+        .remove();
+    }
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
+/**
  * Remove all channels from user
  *
  * @param {String} userId
@@ -126,7 +148,6 @@ const deleteUserChannels = async userId => {
   try {
     const userChannels = await getUserChannels(userId);
     await Promise.all(userChannels.map(u => deleteChannel(u.channelSid)));
-    await new Twilio().client.chat.services(SERVICE_ID).users(userId).remove();
     return userId;
   } catch (error) {
     throw new ChatServiceError(error.message);
@@ -170,6 +191,7 @@ export default {
   createChatChannel,
   inviteMembers,
   addMembersToChannel,
+  deleteTwilioUser,
   deleteUserChannels,
   createMessage,
   fetchChannel,

@@ -26,6 +26,7 @@ const userAfterDelete = async request => {
     UserService.deleteUserInstallations(user),
     UserService.clearUserSessions(user),
     ChatService.deleteUserChannels(user.id),
+    ChatService.deleteTwilioUser(user.id),
   ]);
 };
 
