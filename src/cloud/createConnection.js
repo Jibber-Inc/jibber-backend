@@ -25,25 +25,25 @@ const createConnection = async request => {
   const { to, status } = request.params;
 
   if (!to) {
-    throw new UpdateConnectionError('[t3K7GMD6] Expected to"');
+    throw new CreateConnectionError('[t3K7GMD6] Expected to"');
   }
 
   const toUser = await new Parse.Query('User').equalTo('objectId', to).first();
 
   if (!(toUser instanceof Parse.User)) {
-    throw new UpdateConnectionError('[uDA2jPox] To user not found.');
+    throw new CreateConnectionError('[uDA2jPox] To user not found.');
   }
 
   if (!(user instanceof Parse.User)) {
-    throw new UpdateConnectionError('[uDA1jPox] Expected request.user');
+    throw new CreateConnectionError('[uDA1jPox] Expected request.user');
   }
 
   if (!status) {
-    throw new UpdateConnectionError('[t3K7GMD6] Expected "status"');
+    throw new CreateConnectionError('[t3K7GMD6] Expected "status"');
   }
 
   if (!STATUS_LIST.includes(status)) {
-    throw new UpdateConnectionError(
+    throw new CreateConnectionError(
       `[68wCOpBi] status must be one of ${STATUS_LIST}`,
     );
   }
