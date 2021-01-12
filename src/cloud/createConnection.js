@@ -9,7 +9,6 @@ import {
   STATUS_DECLINED,
   STATUS_PENDING,
 } from '../constants';
-import { connection } from 'mongoose';
 
 const STATUS_LIST = [
   STATUS_INVITED,
