@@ -35,6 +35,12 @@ const createUserChannels = async user => {
     'welcome',
     'private',
   );
+  const welcomeMessage = {
+    body: `[SYSTEM] Hi ${user.givenName}! This is a welcome message`,
+    attributes: JSON.stringify({ context: 'status' }),
+  };
+  // Send the welcome message
+  await ChatService.createMessage(welcomeMessage, welcomeChannel.sid);
   await ChatService.addMembersToChannel(welcomeChannel.sid, members);
 
   const feedbackChannel = await ChatService.createChatChannel(
@@ -43,6 +49,12 @@ const createUserChannels = async user => {
     'feedback',
     'private',
   );
+  const feedbackMessage = {
+    body: `[SYSTEM] Ours is a community of people driven to create a better place to communicate online. That includes you and your feedback! Have a suggestion 🧐? Found a bug 🤭? Let us know here!`,
+    attributes: JSON.stringify({ context: 'status' }),
+  };
+  // Send the feedback message
+  await ChatService.createMessage(feedbackMessage, feedbackChannel.sid);
   await ChatService.addMembersToChannel(feedbackChannel.sid, members);
 };
 
