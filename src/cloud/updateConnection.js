@@ -1,7 +1,7 @@
 import ExtendableError from 'extendable-error-class';
+import hat from 'hat';
 import Parse from '../providers/ParseProvider';
 import ChatService from '../services/ChatService';
-import hat from 'hat';
 
 // Constants
 import {
