@@ -30,17 +30,21 @@ const onMemberAdded = async (request, response) => {
         throw new SetActiveStatusError('[zIslmc6c] User not found');
       }
 
-      // Create message structure
-      const handle = user.get('handle');
-      const message = {
-        body: `[${handle}](${Identity}) joined the conversation.`,
-        attributes: JSON.stringify({ context: 'status' }),
-        from: Identity,
-      };
-
-      // Send the message
-      const result = await ChatService.createMessage(message, ChannelSid);
-      messageSid = result.sid;
+      const userRole = await new Parse.Query(Parse.Role)
+        .equalTo('users', user)
+        .first();
+      if (userRole.get('name') !== 'ONBOARDING_ADMIN') {
+        // Create message structure
+        const handle = user.get('handle');
+        const message = {
+          body: `[${handle}](${Identity}) joined the conversation.`,
+          attributes: JSON.stringify({ context: 'status' }),
+          from: Identity,
+        };
+        // Send the message
+        const result = await ChatService.createMessage(message, ChannelSid);
+        messageSid = result.sid;
+      }
     }
     return response.status(200).json({ messageSid });
   } catch (error) {
