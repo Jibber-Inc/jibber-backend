@@ -1,5 +1,7 @@
 import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
+import ChatService from '../services/ChatService';
+import hat from 'hat';
 
 // Constants
 import {
@@ -18,10 +20,10 @@ const STATUS_LIST = [
 
 class UpdateConnectionError extends ExtendableError {}
 
-const updateConnection = async (request) => {
+const updateConnection = async request => {
   const { user } = request;
-  const { connectionId } = request.params;
-  const { status } = request.params;
+  const { connectionId, status } = request.params;
+  const uniqueId = hat();
 
   if (!(user instanceof Parse.User)) {
     throw new UpdateConnectionError('[uDA1jPox] Expected request.user');
@@ -50,14 +52,24 @@ const updateConnection = async (request) => {
 
   if (connection.get('to').id !== user.id) {
     throw new UpdateConnectionError(
-      '[z5oe1hzG] Connections can only be updated by receiving user.',
+      '[z5oe1hzG] Connections can only be updated by receiving an user.',
     );
   }
 
   // If there is an existing connection, update and return it
   if (connection instanceof Connection) {
+    if (status === STATUS_ACCEPTED) {
+      const fromUser = connection.get('from');
+      const toUser = connection.get('to');
+      const channel = await ChatService.createChatChannel(fromUser, uniqueId);
+      await ChatService.addMembersToChannel(channel.sid, [
+        fromUser.id,
+        toUser.id,
+      ]);
+      connection.set('channelSid', channel.sid);
+    }
     connection.set('status', status);
-    return connection.save();
+    await connection.save(null, { useMasterKey: true });
   }
   throw new UpdateConnectionError('[TeeBMaPz] Connection not found');
 };
