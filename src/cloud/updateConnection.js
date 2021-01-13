@@ -59,7 +59,10 @@ const updateConnection = async request => {
   try {
     // If there is an existing connection, update and return it
     if (connection instanceof Connection) {
-      if (status === STATUS_ACCEPTED) {
+      if (
+        connection.get('status') !== STATUS_ACCEPTED &&
+        status === STATUS_ACCEPTED
+      ) {
         const fromUser = connection.get('from');
         const toUser = connection.get('to');
         const channel = await ChatService.createChatChannel(fromUser, uniqueId);
