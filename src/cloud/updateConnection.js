@@ -48,7 +48,7 @@ const updateConnection = async request => {
 
   // Query for existing connection
   const query = new Parse.Query(Connection);
-  const connection = await query.get(connectionId);
+  const connection = await query.get(connectionId, { useMasterKey: true });
 
   if (connection.get('to').id !== user.id) {
     throw new UpdateConnectionError(
@@ -56,22 +56,26 @@ const updateConnection = async request => {
     );
   }
 
-  // If there is an existing connection, update and return it
-  if (connection instanceof Connection) {
-    if (status === STATUS_ACCEPTED) {
-      const fromUser = connection.get('from');
-      const toUser = connection.get('to');
-      const channel = await ChatService.createChatChannel(fromUser, uniqueId);
-      await ChatService.addMembersToChannel(channel.sid, [
-        fromUser.id,
-        toUser.id,
-      ]);
-      connection.set('channelSid', channel.sid);
+  try {
+    // If there is an existing connection, update and return it
+    if (connection instanceof Connection) {
+      if (status === STATUS_ACCEPTED) {
+        const fromUser = connection.get('from');
+        const toUser = connection.get('to');
+        const channel = await ChatService.createChatChannel(fromUser, uniqueId);
+        await ChatService.addMembersToChannel(channel.sid, [
+          fromUser.id,
+          toUser.id,
+        ]);
+        connection.set('channelSid', channel.sid);
+      }
+      connection.set('status', status);
+      await connection.save(null, { useMasterKey: true });
     }
-    connection.set('status', status);
-    await connection.save(null, { useMasterKey: true });
+    return connection;
+  } catch (error) {
+    throw new UpdateConnectionError('[TeeBMaPz] Connection not found');
   }
-  throw new UpdateConnectionError('[TeeBMaPz] Connection not found');
 };
 
 export default updateConnection;
