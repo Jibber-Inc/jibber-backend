@@ -50,7 +50,7 @@ const sendCode = async request => {
         .first();
       if (role) {
         role.getUsers().add(user);
-        role.save({ useMasterKey: true });
+        role.save(null, { useMasterKey: true });
       }
     }
     user.set('smsVerificationStatus', status);
