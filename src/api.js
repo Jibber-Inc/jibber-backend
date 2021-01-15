@@ -15,6 +15,7 @@ const {
   IOS_PFX_CERTIFICATE,
   IOS_PASSPHRASE,
   IOS_PUSH_PRODUCTION = false,
+  IOS_TOPIC,
   REDIS_URL,
 } = process.env;
 
@@ -32,7 +33,7 @@ const api = new ParseServer({
     ios: {
       pfx: IOS_PFX_CERTIFICATE,
       passphrase: IOS_PASSPHRASE,
-      topic: 'com.Benji.Benji',
+      topic: IOS_TOPIC,
       production: IOS_PUSH_PRODUCTION,
     },
   },
