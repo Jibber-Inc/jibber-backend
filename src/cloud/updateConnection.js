@@ -1,5 +1,7 @@
 import ExtendableError from 'extendable-error-class';
+import hat from 'hat';
 import Parse from '../providers/ParseProvider';
+import ChatService from '../services/ChatService';
 
 // Constants
 import {
@@ -18,10 +20,10 @@ const STATUS_LIST = [
 
 class UpdateConnectionError extends ExtendableError {}
 
-const updateConnection = async (request) => {
+const updateConnection = async request => {
   const { user } = request;
-  const { connectionId } = request.params;
-  const { status } = request.params;
+  const { connectionId, status } = request.params;
+  const uniqueId = hat();
 
   if (!(user instanceof Parse.User)) {
     throw new UpdateConnectionError('[uDA1jPox] Expected request.user');
@@ -46,20 +48,37 @@ const updateConnection = async (request) => {
 
   // Query for existing connection
   const query = new Parse.Query(Connection);
-  const connection = await query.get(connectionId);
+  const connection = await query.get(connectionId, { useMasterKey: true });
 
   if (connection.get('to').id !== user.id) {
     throw new UpdateConnectionError(
-      '[z5oe1hzG] Connections can only be updated by receiving user.',
+      '[z5oe1hzG] Connections can only be updated by receiving an user.',
     );
   }
 
-  // If there is an existing connection, update and return it
-  if (connection instanceof Connection) {
-    connection.set('status', status);
-    return connection.save();
+  try {
+    // If there is an existing connection, update and return it
+    if (connection instanceof Connection) {
+      if (
+        connection.get('status') !== STATUS_ACCEPTED &&
+        status === STATUS_ACCEPTED
+      ) {
+        const fromUser = connection.get('from');
+        const toUser = connection.get('to');
+        const channel = await ChatService.createChatChannel(fromUser, uniqueId);
+        await ChatService.addMembersToChannel(channel.sid, [
+          fromUser.id,
+          toUser.id,
+        ]);
+        connection.set('channelSid', channel.sid);
+      }
+      connection.set('status', status);
+      await connection.save(null, { useMasterKey: true });
+    }
+    return connection;
+  } catch (error) {
+    throw new UpdateConnectionError('[TeeBMaPz] Connection not found');
   }
-  throw new UpdateConnectionError('[TeeBMaPz] Connection not found');
 };
 
 export default updateConnection;

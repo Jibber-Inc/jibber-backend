@@ -10,6 +10,8 @@ import getConnections from './getConnections';
 import updateConnection from './updateConnection';
 import createChannel from './createChannel';
 import setActiveStatus from './setActiveStatus';
+import updateReservation from './updateReservation';
+import createConnection from './createConnection';
 
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
@@ -36,8 +38,9 @@ Parse.Cloud.define('getConnections', getConnections);
 Parse.Cloud.define('updateConnection', updateConnection);
 Parse.Cloud.define('createChannel', createChannel);
 Parse.Cloud.define('setActiveStatus', setActiveStatus);
-
+Parse.Cloud.define('updateReservation', updateReservation);
 Parse.Cloud.define('sendMessage', sendMessage);
+Parse.Cloud.define('createConnection', createConnection);
 
 // --- Cloud code webhooks ----------------------------------------------------
 // Connection webhooks

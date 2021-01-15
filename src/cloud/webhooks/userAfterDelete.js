@@ -10,7 +10,7 @@ class UserAfterDeleteError extends ExtendableError {}
  * After delete webhook for User objects.
  * @param {Object} request
  */
-const userAfterDelete = async (request) => {
+const userAfterDelete = async request => {
   const { object: user } = request;
 
   if (!(user instanceof Parse.User)) {
@@ -19,14 +19,19 @@ const userAfterDelete = async (request) => {
     );
   }
 
-  await Promise.all([
-    UserService.deleteRoutines(user),
-    UserService.deleteConnections(user),
-    UserService.deleteReservations(user),
-    UserService.deleteUserInstallations(user),
-    UserService.clearUserSessions(user),
-    ChatService.deleteUserChannels(user.id),
-  ]);
+  try {
+    await Promise.all([
+      UserService.deleteRituals(user),
+      UserService.deleteConnections(user),
+      UserService.deleteReservations(user),
+      UserService.deleteUserInstallations(user),
+      UserService.clearUserSessions(user),
+      ChatService.deleteUserChannels(user.id),
+      ChatService.deleteTwilioUser(user.id),
+    ]);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export default userAfterDelete;

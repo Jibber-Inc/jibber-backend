@@ -45,6 +45,13 @@ const sendCode = async request => {
     if (!user) {
       user = await UserService.createUser(phoneNumber, installationId);
       user.set('status', 'needsVerification');
+      const role = await new Parse.Query(Parse.Role)
+        .equalTo('name', 'USER')
+        .first();
+      if (role) {
+        role.getUsers().add(user);
+        role.save(null, { useMasterKey: true });
+      }
     }
     user.set('smsVerificationStatus', status);
     await user.save(null, { useMasterKey: true });

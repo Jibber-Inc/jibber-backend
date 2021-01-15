@@ -1,8 +1,8 @@
-// Load .env variables
 import { ParseServer } from 'parse-server';
 
 require('dotenv').config();
 
+// Load Environment Variables
 const {
   APP_ID,
   APP_NAME,
@@ -16,6 +16,7 @@ const {
   IOS_PASSPHRASE,
   IOS_PUSH_PRODUCTION = false,
   IOS_TOPIC,
+  REDIS_URL,
 } = process.env;
 
 // Build parse server instance
@@ -38,7 +39,8 @@ const api = new ParseServer({
   },
   liveQuery: {
     // List of classes to support for query subscriptions
-    classNames: ['Posts', 'Comments'],
+    classNames: ['QuePositions'],
+    redisUrl: REDIS_URL,
   },
   protectedFields: {
     _User: {

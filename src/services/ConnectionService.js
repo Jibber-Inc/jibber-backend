@@ -14,7 +14,11 @@ class ConnectionServiceError extends ExtendableError {}
  * @param {Parse.User} targetUser
  * @return {Promise->Connection}
  */
-const createConnection = async (fromUser, targetUser) => {
+const createConnection = async (
+  fromUser,
+  targetUser,
+  status = STATUS_ACCEPTED,
+) => {
   // Get "Connection" schema
   const Connection = Parse.Object.extend('Connection');
 
@@ -34,7 +38,7 @@ const createConnection = async (fromUser, targetUser) => {
     connection = new Connection();
     connection.set('to', targetUser);
     connection.set('from', fromUser);
-    connection.set('status', STATUS_ACCEPTED);
+    connection.set('status', status);
     return connection.save();
   } catch (error) {
     throw new ConnectionServiceError(error.message);
@@ -46,7 +50,7 @@ const createConnection = async (fromUser, targetUser) => {
  * @param {Parse.User} user
  * @returns {Object}
  */
-const getConnections = async (user) => {
+const getConnections = async user => {
   if (!(user instanceof Parse.User)) {
     throw new ConnectionServiceError('[29heIw2r] Expected Parse.User');
   }
