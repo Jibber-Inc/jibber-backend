@@ -7,9 +7,9 @@
 const getMessage = (message, values) => {
   if (values) {
     let newMessage;
-    for (const [key, value] of Object.entries(values)) {
+    Object.entries(values).forEach(([key, value]) => {
       newMessage = message.replace(`%${key}%`, value);
-    }
+    });
     return newMessage;
   }
   return message;

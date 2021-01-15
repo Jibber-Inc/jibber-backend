@@ -9,7 +9,8 @@ import messages from './messages.json';
 class SetActiveStatusError extends ExtendableError {}
 
 const createMessagesForChannel = async (channel, data) => {
-  for (let message of messages[channel.friendlyName]) {
+  // eslint-disable-next-line no-restricted-syntax
+  for await (const message of messages[channel.friendlyName]) {
     const formattedMessage = MessagesUtil.getMessage(message, data);
     const newMessage = {
       body: formattedMessage,
