@@ -1,5 +1,6 @@
 // Vendor modules
 import ExtendableError from 'extendable-error-class';
+import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber';
 // Providers
 import Parse from '../providers/ParseProvider';
 
@@ -21,8 +22,21 @@ const sendCode = async request => {
   if (!phoneNumber) {
     throw new SendCodeError('[Zc1UZev9] No phone number provided in request');
   }
+
+  const phoneUtil = PhoneNumberUtil.getInstance();
+  const parsedPhoneNumber = phoneUtil.parse(phoneNumber);
+
+  if (!phoneUtil.isValidNumber(parsedPhoneNumber)) {
+    throw new SendCodeError(`Phone number is not valid number`);
+  }
+
+  const e164Number = phoneUtil.format(
+    parsedPhoneNumber,
+    PhoneNumberFormat.E164,
+  );
+
   const userQuery = new Parse.Query(Parse.User);
-  userQuery.equalTo('phoneNumber', phoneNumber);
+  userQuery.equalTo('phoneNumber', e164Number);
   let user = await userQuery.first({ useMasterKey: true });
 
   let locale;
@@ -41,9 +55,9 @@ const sendCode = async request => {
   }
 
   try {
-    const { status } = await TwoFAService.sendCode(phoneNumber, locale);
+    const { status } = await TwoFAService.sendCode(e164Number, locale);
     if (!user) {
-      user = await UserService.createUser(phoneNumber, installationId);
+      user = await UserService.createUser(e164Number, installationId);
       user.set('status', 'needsVerification');
       const role = await new Parse.Query(Parse.Role)
         .equalTo('name', 'USER')
