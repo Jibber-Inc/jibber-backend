@@ -7,6 +7,8 @@ import ReservationService, {
   ReservationServiceError,
 } from '../services/ReservationService';
 import QuePositionsService from '../services/QuePositionsService';
+// Utils
+import testUser from '../utils/testUser';
 import db from '../utils/db';
 
 class ValidateCodeError extends ExtendableError {}
@@ -88,10 +90,16 @@ const validateCode = async request => {
 
   try {
     if (user.get('smsVerificationStatus') !== 'approved') {
-      const { status } = await TwoFAService.verifyCode(
-        user.get('phoneNumber'),
-        authCode,
-      );
+      let status;
+      if (testUser.isTestUser(phoneNumber)) {
+        status = testUser.validate(authCode);
+      } else {
+        const result = await TwoFAService.verifyCode(
+          user.get('phoneNumber'),
+          authCode,
+        );
+        status = result.status;
+      }
 
       // If the code is wrong, status wont be approved
       if (status !== 'approved') {

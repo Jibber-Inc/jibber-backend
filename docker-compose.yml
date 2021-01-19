@@ -35,6 +35,8 @@ services:
       IOS_PASSPHRASE: ${IOS_PASSPHRASE}
       IOS_TOPIC: ${IOS_TOPIC}
       REDIS_URL: ${REDIS_URL}
+      TEST_USER_PHONE_NUMBER: ${TEST_USER_PHONE_NUMBER}
+      TEST_USER_VERIFICATION_CODE: ${TEST_USER_VERIFICATION_CODE}
   dashboard:
     image: parseplatform/parse-dashboard
     logging:
