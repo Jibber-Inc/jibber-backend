@@ -15,7 +15,7 @@ const {
   IOS_PFX_CERTIFICATE,
   IOS_PASSPHRASE,
   IOS_PUSH_PRODUCTION = false,
-  IOS_TOPIC,
+  IOS_TOPIC = 'com.Benji.Ours',
   REDIS_URL,
 } = process.env;
 

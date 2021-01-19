@@ -33,6 +33,7 @@ services:
       TWILIO_MESSAGING_SERVICE_SID: ${TWILIO_MESSAGING_SERVICE_SID}
       IOS_PFX_CERTIFICATE: ${IOS_PFX_CERTIFICATE}
       IOS_PASSPHRASE: ${IOS_PASSPHRASE}
+      IOS_TOPIC: ${IOS_TOPIC}
       REDIS_URL: ${REDIS_URL}
   dashboard:
     image: parseplatform/parse-dashboard
