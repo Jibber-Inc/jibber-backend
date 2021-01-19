@@ -1,5 +1,4 @@
 import Parse from '../../providers/ParseProvider';
-import ChatService from '../../services/ChatService';
 import PushService from '../../services/PushService';
 import { NOTIFICATION_TYPES } from '../../constants';
 
@@ -41,9 +40,7 @@ const onMessageUpdated = async (request, response) => {
         }),
       ]);
 
-      const channel = await ChatService.fetchChannel(ChannelSid);
-      const username = `${reader.get('givenName')} ${reader.get('familyName')}`;
-      const body = `${username} read your message in ${channel.friendlyName}`;
+      const body = `${reader.get('handle')} read your message`;
       const data = {
         messageId: MessageSid,
         channelId: ChannelSid,

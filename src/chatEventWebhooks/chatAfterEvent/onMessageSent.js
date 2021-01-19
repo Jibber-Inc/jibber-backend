@@ -18,9 +18,7 @@ import { NOTIFICATION_TYPES } from '../../constants';
  * DateCreated - date string - The timestamp of message creation
  */
 const onMessageSent = async (request, response) => {
-  const {
-    ChannelSid, MessageSid, Body, From, Attributes,
-  } = request.body;
+  const { ChannelSid, MessageSid, Body, From, Attributes } = request.body;
   let pushStatus = {};
   try {
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
@@ -33,16 +31,20 @@ const onMessageSent = async (request, response) => {
         .members.list();
 
       const usersIdentities = membersList
-        .map((m) => m.identity)
-        .filter((u) => u !== From);
-      const users = usersIdentities.map((uid) => Parse.User.createWithoutData(uid));
+        .map(m => m.identity)
+        .filter(u => u !== From);
+      const users = usersIdentities.map(uid =>
+        Parse.User.createWithoutData(uid),
+      );
+
+      const fromUser = await new Parse.Query(Parse.User).get(From);
 
       if (users.length) {
         const data = {
           messageId: MessageSid,
           channelId: ChannelSid,
           identifier: MessageSid + context,
-          title: 'Emergency 🚨',
+          title: `Urgent message from: (${fromUser.get('handle')})`,
           body: Body,
           target: 'channel',
         };
