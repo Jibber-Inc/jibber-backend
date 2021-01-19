@@ -7,7 +7,6 @@ const { TEST_USER_PHONE_NUMBER, TEST_USER_VERIFICATION_CODE } = process.env;
  * @param {*} phoneNumber
  */
 const isTestUser = phoneNumber => {
-  console.log('ENTRÓ POR USUARIO DE PRUEBA');
   if (phoneNumber && phoneNumber === TEST_USER_PHONE_NUMBER) {
     return true;
   }
