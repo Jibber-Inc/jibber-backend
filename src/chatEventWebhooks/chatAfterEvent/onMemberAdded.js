@@ -33,7 +33,7 @@ const onMemberAdded = async (request, response) => {
       const userRole = await new Parse.Query(Parse.Role)
         .equalTo('users', user)
         .first();
-      if (userRole.get('name') !== 'ONBOARDING_ADMIN') {
+      if (userRole && userRole.get('name') !== 'ONBOARDING_ADMIN') {
         // Create message structure
         const handle = user.get('handle');
         const message = {
