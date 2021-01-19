@@ -3,10 +3,11 @@ import ExtendableError from 'extendable-error-class';
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber';
 // Providers
 import Parse from '../providers/ParseProvider';
-
 // Services
 import TwoFAService, { TwoFAServiceError } from '../services/TwoFAService';
 import UserService from '../services/UserService';
+// Utils
+import testUser from '../utils/testUser';
 
 class SendCodeError extends ExtendableError {}
 
@@ -55,7 +56,13 @@ const sendCode = async request => {
   }
 
   try {
-    const { status } = await TwoFAService.sendCode(e164Number, locale);
+    let status;
+    if (testUser.isTestUser(phoneNumber)) {
+      status = 'pending';
+    } else {
+      const result = await TwoFAService.sendCode(e164Number, locale);
+      status = result.status;
+    }
     if (!user) {
       user = await UserService.createUser(e164Number, installationId);
       user.set('status', 'needsVerification');
