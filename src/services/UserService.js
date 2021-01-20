@@ -6,11 +6,14 @@ import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 // Utils
 import generatePassword from '../utils/generatePassword';
+// Services
+import FeedService from './FeedService';
 
 class UserServiceError extends ExtendableError {}
 
 /**
  * Create a new user.
+ *
  * @param {String} phoneNumber
  * @param {String} authCode optional
  * @returns {Promise->Parse.User}
@@ -31,9 +34,7 @@ const createUser = async (phoneNumber, installationId) => {
     language: 'en',
     hashcode,
   };
-  if (!installationId) {
-    return newUser.save(userAttributes, { useMasterKey: true });
-  }
+
   return Parse.User.signUp(
     newUser.get('username'),
     newUser.get('password'),
@@ -43,6 +44,48 @@ const createUser = async (phoneNumber, installationId) => {
       useMasterKey: true,
     },
   );
+};
+
+/**
+ * Asign the 'USER' role to the given user
+ *
+ * @param {*} user
+ */
+const asignDefaultRole = async user => {
+  try {
+    const userRole = await new Parse.Query(Parse.Role)
+      .equalTo('users', user)
+      .first();
+    if (!userRole) {
+      const defaultRole = await new Parse.Query(Parse.Role)
+        .equalTo('name', 'USER')
+        .first();
+      if (defaultRole) {
+        defaultRole.getUsers().add(user);
+        defaultRole.save(null, { useMasterKey: true });
+      }
+    }
+    return user;
+  } catch (error) {
+    throw new UserServiceError(error.message);
+  }
+};
+
+/**
+ * Creates the feed for the given user
+ *
+ * @param {*} user
+ */
+const createUserFeed = async user => {
+  try {
+    const feed = await new Parse.Query('Feed').equalTo('user', user).first();
+    if (!feed) {
+      await FeedService.createFeedForUser(user);
+    }
+    return feed;
+  } catch (error) {
+    throw new UserServiceError(error.message);
+  }
 };
 
 /**
@@ -154,6 +197,8 @@ const deleteReservations = async user => {
 
 export default {
   createUser,
+  asignDefaultRole,
+  createUserFeed,
   getLastSessionToken,
   clearUserSessions,
   deleteUserInstallations,

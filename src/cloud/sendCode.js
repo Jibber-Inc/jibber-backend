@@ -24,6 +24,11 @@ const sendCode = async request => {
     throw new SendCodeError('[Zc1UZev9] No phone number provided in request');
   }
 
+  // InstallationId argument is required
+  if (!installationId) {
+    throw new SendCodeError('[5qlkGfPY] InstallationId is required');
+  }
+
   const phoneUtil = PhoneNumberUtil.getInstance();
   const parsedPhoneNumber = phoneUtil.parse(phoneNumber);
 
@@ -66,16 +71,11 @@ const sendCode = async request => {
     if (!user) {
       user = await UserService.createUser(e164Number, installationId);
       user.set('status', 'needsVerification');
-      const role = await new Parse.Query(Parse.Role)
-        .equalTo('name', 'USER')
-        .first();
-      if (role) {
-        role.getUsers().add(user);
-        role.save(null, { useMasterKey: true });
-      }
     }
     user.set('smsVerificationStatus', status);
     await user.save(null, { useMasterKey: true });
+    await UserService.asignDefaultRole(user);
+    await UserService.createUserFeed(user);
 
     return { status: 'code sent' };
   } catch (error) {
