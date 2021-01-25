@@ -2,7 +2,7 @@ import ExtendableError from 'extendable-error-class';
 import ChatService from '../../services/ChatService';
 import Parse from '../../providers/ParseProvider';
 
-class SetActiveStatusError extends ExtendableError {}
+class OnMemberRemovedAdded extends ExtendableError {}
 /**
  * EventType - string - Always onMemberAdded
  * MemberSid - string - The Member SID of the newly added Member
@@ -22,12 +22,10 @@ const onMemberAdded = async (request, response) => {
     let messageSid;
     if (createdBy !== Identity) {
       // Retrieve the Parse user, to take the handle
-      const user = await new Parse.Query(Parse.User)
-        .equalTo('objectId', Identity)
-        .first();
+      const user = await new Parse.Query(Parse.User).get(Identity);
 
       if (!(user instanceof Parse.User)) {
-        throw new SetActiveStatusError('[zIslmc6c] User not found');
+        throw new OnMemberRemovedAdded('[zIslmc6c] User not found');
       }
 
       const userRole = await new Parse.Query(Parse.Role)
