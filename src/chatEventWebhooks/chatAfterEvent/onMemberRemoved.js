@@ -1,5 +1,8 @@
+import ExtendableError from 'extendable-error-class';
 import ChatService from '../../services/ChatService';
+import Parse from '../../providers/ParseProvider';
 
+class OnMemberRemovedError extends ExtendableError {}
 /**
  * EventType - string - Always onMemberRemoved
  * ChannelSid - string - Channel String Identifier
@@ -14,22 +17,21 @@ import ChatService from '../../services/ChatService';
 const onMemberRemoved = async (request, response) => {
   try {
     const { ChannelSid, Identity } = request.body;
-    const channel = await ChatService.fetchChannel(ChannelSid);
-    const { createdBy } = channel;
-    let messageSid;
-    if (createdBy !== Identity) {
-      // Create message structure
-      const message = {
-        body: `[name](${Identity}) left the conversation.`,
-        attributes: JSON.stringify({ context: 'status' }),
-        from: Identity,
-      };
+    const user = await new Parse.Query(Parse.User).get(Identity);
 
-      // Send the message
-      const result = await ChatService.createMessage(message, ChannelSid);
-      messageSid = result.sid;
+    if (!(user instanceof Parse.User)) {
+      throw new OnMemberRemovedError('[zIslmc6c] User not found');
     }
-    return response.status(200).json({ messageSid });
+
+    // Create message structure
+    const message = {
+      body: `[${user.get('handle')}](${Identity}) left the conversation.`,
+      attributes: JSON.stringify({ context: 'status' }),
+    };
+
+    // Send the message
+    const result = await ChatService.createMessage(message, ChannelSid);
+    return response.status(200).json({ messageSid: result.sid });
   } catch (error) {
     return response.status(500).json({ error: error.message });
   }
