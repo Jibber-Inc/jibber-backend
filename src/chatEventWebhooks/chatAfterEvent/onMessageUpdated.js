@@ -1,7 +1,7 @@
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import FeedService from '../../services/FeedService';
-import { NOTIFICATION_TYPES, DECREASE_UNREAD_MESSAGES } from '../../constants';
+import { NOTIFICATION_TYPES } from '../../constants';
 
 /**
  * EventType - string - Always onMessageUpdated

@@ -1,7 +1,7 @@
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import ChatService from '../../services/ChatService';
-import { NOTIFICATION_TYPES, INCREASE_UNREAD_MESSAGES } from '../../constants';
+import { NOTIFICATION_TYPES } from '../../constants';
 import FeedService from '../../services/FeedService';
 
 /**
