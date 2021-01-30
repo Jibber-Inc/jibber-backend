@@ -1,8 +1,31 @@
 import ExtendableError from 'extendable-error-class';
 import ChatService from '../../services/ChatService';
+import FeedService from '../../services/FeedService';
 import Parse from '../../providers/ParseProvider';
+import { ONBOARD_ADMIN } from '../../constants/index';
 
 class OnMemberRemovedAdded extends ExtendableError {}
+
+/**
+ * Creates a message to tell that the recently added member was added
+ *
+ * @param {*} user
+ * @param {*} channel
+ */
+const createUserJoinedMessage = async (user, channel) => {
+  // Create message structure
+  const Identity = user.id;
+  const handle = user.get('handle');
+  const message = {
+    body: `[${handle}](${Identity}) joined the conversation.`,
+    attributes: JSON.stringify({ context: 'status' }),
+    from: Identity,
+  };
+  // Send the message
+  const result = await ChatService.createMessage(message, channel.sid);
+  return result;
+};
+
 /**
  * EventType - string - Always onMemberAdded
  * MemberSid - string - The Member SID of the newly added Member
@@ -19,31 +42,31 @@ const onMemberAdded = async (request, response) => {
     const { ChannelSid, Identity } = request.body;
     const channel = await ChatService.fetchChannel(ChannelSid);
     const { createdBy } = channel;
+
+    // Retrieve the Parse user of the member just added to the channel
+    const user = await new Parse.Query(Parse.User).get(Identity);
+    if (!(user instanceof Parse.User)) {
+      throw new OnMemberRemovedAdded('[zIslmc6c] User not found');
+    }
+
+    // If the user isn't the ONBOARDING_ADMIN,
+    // send a message to tell that the user has joined the channel
     let messageSid;
     if (createdBy !== Identity) {
-      // Retrieve the Parse user, to take the handle
-      const user = await new Parse.Query(Parse.User).get(Identity);
-
-      if (!(user instanceof Parse.User)) {
-        throw new OnMemberRemovedAdded('[zIslmc6c] User not found');
-      }
-
+      // Retrieve the role for the user
       const userRole = await new Parse.Query(Parse.Role)
         .equalTo('users', user)
         .first();
-      if (userRole && userRole.get('name') !== 'ONBOARDING_ADMIN') {
-        // Create message structure
-        const handle = user.get('handle');
-        const message = {
-          body: `[${handle}](${Identity}) joined the conversation.`,
-          attributes: JSON.stringify({ context: 'status' }),
-          from: Identity,
-        };
-        // Send the message
-        const result = await ChatService.createMessage(message, ChannelSid);
-        messageSid = result.sid;
+      // Check the role
+      if (userRole && userRole.get('name') !== ONBOARD_ADMIN) {
+        const message = await createUserJoinedMessage();
+        messageSid = message.sid;
       }
     }
+
+    // Finally, create the post for the unread messages for the user
+    await FeedService.createUnreadMessagesPost(user, channel);
+
     return response.status(200).json({ messageSid });
   } catch (error) {
     return response.status(500).json({ error: error.message });

@@ -32,6 +32,18 @@ const getValueForNextSequence = async sequenceOfName => {
   }
 };
 
+// FIXME: Provide a better description
+// TODO: Implement logic
+/** *
+ * Decrement by 1 the value for the given sequence.
+ *
+ * @param {String} sequenceOfName
+ */
+const getPreviousValueForSequence = async sequenceOfName => {
+  const message = `Do something here with: ${sequenceOfName}`;
+  return message;
+};
+
 /**
  * Read sequence current value.
  *
@@ -53,4 +65,5 @@ export default {
   getDatabaseInstance,
   getValueForNextSequence,
   getCurrentValueSequence,
+  getPreviousValueForSequence,
 };

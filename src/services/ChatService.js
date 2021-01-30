@@ -85,6 +85,23 @@ const addMembersToChannel = async (channelSid, members = []) =>
   );
 
 /**
+ * Returns the members of the given channel
+ *
+ * @param {*} ChannelSid
+ */
+const getChannelMembers = async ChannelSid => {
+  try {
+    const membersList = await new Twilio().client.chat
+      .services(process.env.TWILIO_SERVICE_SID)
+      .channels(ChannelSid)
+      .members.list();
+    return membersList;
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
+/**
  * Get all user channels
  *
  * @param {String} userId
@@ -191,6 +208,7 @@ export default {
   createChatChannel,
   inviteMembers,
   addMembersToChannel,
+  getChannelMembers,
   deleteTwilioUser,
   deleteUserChannels,
   createMessage,
