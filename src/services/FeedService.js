@@ -6,8 +6,6 @@ import Parse from '../providers/ParseProvider';
 import {
   UNREADMESSAGES_POST_TYPE,
   GENERAL_UNREADMESSAGES_POST_TYPE,
-  INCREASE_UNREAD_MESSAGES,
-  DECREASE_UNREAD_MESSAGES,
 } from '../constants/index';
 // Utils
 import db from '../utils/db';
@@ -140,87 +138,121 @@ const createGeneralUnreadMessagesPost = async user => {
 
 /**
  * Retrieves all the post with type = UNREADMESSAGES_POST_TYPE
- * and updates the unreadMessages attribute (increase or decrease)
+ * and increases the unreadMessages attribute
  *
- * @param {*} type
  * @param {*} channelsid
  */
-const updatePostUnreadMessages = async (type, channelsid) => {
+const increasePostUnreadMessages = async channelsid => {
   // Get all unreadMessages posts for the channel
   const unreadMessagesPosts = await new Parse.Query('Post')
     .equalTo('type', UNREADMESSAGES_POST_TYPE)
     .equalTo('attributes.channelSid', channelsid)
-    .first();
-  // Update (increase/decrese) by 1 the unreadMessages counter
+    .get();
+  // Increase by 1 the unreadMessages counter
   if (unreadMessagesPosts.length) {
     unreadMessagesPosts.forEach(urmp => {
-      if (type === INCREASE_UNREAD_MESSAGES) {
-        db.getValueForNextSequence(`unreadMessages_${urmp.id}`)
-          .then(numberOfUnread => {
-            urmp.set('attributes.numberOfUnread', numberOfUnread);
-            urmp.save(null, { useMasterKey: true });
-          })
-          .catch(error => {
-            throw new FeedServiceError(error.message);
-          });
-      }
-      // TODO: Decrease (needs implementation)
-      if (type === DECREASE_UNREAD_MESSAGES) {
-        db.getPreviousValueForSequence(`unreadMessages_${urmp.id}`)
-          .then(numberOfUnread => {
-            if (numberOfUnread) {
-              urmp.set('attributes.numberOfUnread', numberOfUnread);
-              urmp.save(null, { useMasterKey: true });
-            }
-          })
-          .catch(error => {
-            throw new FeedServiceError(error.message);
-          });
-      }
+      db.getValueForNextSequence(`unreadMessages_${urmp.id}`)
+        .then(numberOfUnread => {
+          urmp.set('attributes.numberOfUnread', numberOfUnread);
+          urmp.save(null, { useMasterKey: true });
+        })
+        .catch(error => {
+          throw new FeedServiceError(error.message);
+        });
     });
   }
 };
 
 /**
  * Retrieves all the post with type = GENERAL_UNREADMESSAGES_POST_TYPE
- * and updates the unreadMessages attribute (increase or decrease)
+ * and increases the unreadMessages attribute
  *
- * @param {*} type
  * @param {*} channelsid
  */
-const updateGeneralPostUnreadMessage = async (type, channelsid) => {
+const increaseGeneralPostUnreadMessage = async channelsid => {
   // Get all the generalUnreadMessages post for the channel
   const generalUnreadMessagesPosts = await new Parse.Query('Post')
     .equalTo('type', GENERAL_UNREADMESSAGES_POST_TYPE)
     .equalTo('attributes.channelSid', channelsid)
-    .first();
-  // Decrement by 1 the unreadMessages counter
+    .get();
+  // Increase by 1 the unreadMessages counter
   if (generalUnreadMessagesPosts.length) {
     generalUnreadMessagesPosts.forEach(gurmp => {
-      if (type === INCREASE_UNREAD_MESSAGES) {
-        db.getValueForNextSequence(`unreadMessages_${gurmp.id}`)
-          .then(numberOfUnread => {
-            gurmp.set('attributes.numberOfUnread', numberOfUnread);
-            gurmp.save(null, { useMasterKey: true });
-          })
-          .catch(error => {
-            throw new FeedServiceError(error.message);
-          });
-      }
-      // TODO: Decrease (needs implementation)
-      if (type === DECREASE_UNREAD_MESSAGES) {
-        db.getPreviousValueForSequence(`unreadMessages_${gurmp.id}`)
-          .then(numberOfUnread => {
-            if (numberOfUnread) {
-              gurmp.set('attributes.numberOfUnread', numberOfUnread);
-              gurmp.save(null, { useMasterKey: true });
-            }
-          })
-          .catch(error => {
-            throw new FeedServiceError(error.message);
-          });
-      }
+      db.getValueForNextSequence(`unreadMessages_${gurmp.id}`)
+        .then(numberOfUnread => {
+          gurmp.set('attributes.numberOfUnread', numberOfUnread);
+          gurmp.save(null, { useMasterKey: true });
+        })
+        .catch(error => {
+          throw new FeedServiceError(error.message);
+        });
     });
+  }
+};
+
+/**
+ * Retrieves all the post with type = UNREADMESSAGES_POST_TYPE
+ * and updates the unreadMessages attribute (increase or decrease)
+ *
+ * @param {*} reader
+ * @param {*} channelsid
+ */
+const decreasePostUnreadMessages = async (reader, channelsid) => {
+  // Get all unreadMessages posts for the channel
+  const urmp = await new Parse.Query('Post')
+    .equalTo('type', UNREADMESSAGES_POST_TYPE)
+    .equalTo('attributes.channelSid', channelsid)
+    .equalTo('author', reader)
+    .first();
+  // Decrease by 1 the unreadMessages counter
+  if (urmp) {
+    // TODO: Implement the previous value for DB sequence
+    db.getPreviousValueForSequence(`unreadMessages_${urmp.id}`)
+      .then(numberOfUnread => {
+        if (numberOfUnread) {
+          urmp.set('attributes.numberOfUnread', numberOfUnread);
+          urmp.save(null, { useMasterKey: true });
+        }
+      })
+      .catch(error => {
+        throw new FeedServiceError(error.message);
+      });
+  } else {
+    throw new FeedServiceError(
+      `[CODE] Unread messages post not found for the channel ${channelsid}`,
+    );
+  }
+};
+
+/**
+ * Retrieves all the post with type = UNREADMESSAGES_POST_TYPE
+ * and updates the unreadMessages attribute (increase or decrease)
+ *
+ * @param {*} reader
+ * @param {*} channelsid
+ */
+const decreaseGeneralPostUnreadMessages = async (reader, channelsid) => {
+  // Get all unreadMessages posts for the channel
+  const gurmp = await new Parse.Query('Post')
+    .equalTo('type', GENERAL_UNREADMESSAGES_POST_TYPE)
+    .equalTo('attributes.channelSid', channelsid)
+    .equalTo('author', reader)
+    .first();
+  // Decrease by 1 the unreadMessages counter
+  if (gurmp) {
+    // TODO: Implement the previous value for DB sequence
+    db.getPreviousValueForSequence(`unreadMessages_${gurmp.id}`)
+      .then(numberOfUnread => {
+        if (numberOfUnread) {
+          gurmp.set('attributes.numberOfUnread', numberOfUnread);
+          gurmp.save(null, { useMasterKey: true });
+        }
+      })
+      .catch(error => {
+        throw new FeedServiceError(error.message);
+      });
+  } else {
+    throw new FeedServiceError('[CODE] General unread messages post not found');
   }
 };
 
@@ -229,6 +261,8 @@ export default {
   createFeedForUser,
   createUnreadMessagesPost,
   createGeneralUnreadMessagesPost,
-  updatePostUnreadMessages,
-  updateGeneralPostUnreadMessage,
+  increasePostUnreadMessages,
+  increaseGeneralPostUnreadMessage,
+  decreasePostUnreadMessages,
+  decreaseGeneralPostUnreadMessages,
 };

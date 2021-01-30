@@ -33,9 +33,6 @@ const onMessageSent = async (request, response) => {
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
 
     if (users.length) {
-      // Post for unread messages
-      // If already exists a post for the given channel, retrieve it.
-      // If not, create it.
       const fromUser = await new Parse.Query(Parse.User).get(From);
       if (context === 'emergency') {
         const data = {
@@ -54,14 +51,8 @@ const onMessageSent = async (request, response) => {
       }
 
       // Increase by 1 the unread messages in all the needed posts
-      await FeedService.updatePostUnreadMessages(
-        INCREASE_UNREAD_MESSAGES,
-        ChannelSid,
-      );
-      await FeedService.updateGeneralPostUnreadMessage(
-        INCREASE_UNREAD_MESSAGES,
-        ChannelSid,
-      );
+      await FeedService.increasePostUnreadMessages(ChannelSid);
+      await FeedService.increaseGeneralPostUnreadMessage(ChannelSid);
     }
 
     return response.status(200).json(pushStatus);

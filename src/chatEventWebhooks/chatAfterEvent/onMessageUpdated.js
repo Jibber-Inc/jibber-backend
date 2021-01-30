@@ -35,7 +35,7 @@ const onMessageUpdated = async (request, response) => {
     // FIXME: Consumers do not exist anymore?
     const { consumers = [], context = '' } = JSON.parse(Attributes);
 
-    // Get the Parse.User for author and reader
+    // Get the Parse.Users for author and reader
     const [author, reader] = await Promise.all([
       new Parse.Query(Parse.User).get(From, { useMasterKey: true }),
       new Parse.Query(Parse.User).get(ModifiedBy, {
@@ -44,7 +44,7 @@ const onMessageUpdated = async (request, response) => {
     ]);
 
     // If the messages has emergency context,
-    // send a push notification that is has been read
+    // send a push notification that it has been read
     if (consumers.includes(ModifiedBy) && context === 'emergency') {
       const body = `${reader.get('handle')} read your message`;
       const data = {
@@ -63,14 +63,8 @@ const onMessageUpdated = async (request, response) => {
     }
 
     // Decrease by 1 the unread messages in all the needed posts
-    await FeedService.updatePostUnreadMessages(
-      DECREASE_UNREAD_MESSAGES,
-      ChannelSid,
-    );
-    await FeedService.updateGeneralPostUnreadMessage(
-      DECREASE_UNREAD_MESSAGES,
-      ChannelSid,
-    );
+    await FeedService.decreasePostUnreadMessages(reader, ChannelSid);
+    await FeedService.decreaseGeneralPostUnreadMessage(reader, ChannelSid);
 
     return response.status(200).json(pushStatus);
   } catch (error) {
