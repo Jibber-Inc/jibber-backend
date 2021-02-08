@@ -26,7 +26,7 @@ const getValueForNextSequence = async sequenceOfName => {
       { $inc: { sequence_value: 1 } },
       { upsert: true },
     );
-    return !value ? value + 1 : value.sequence_value + 1;
+    return !value ? 1 : value.sequence_value + 1;
   } catch (error) {
     throw new DbUtilError(error.message);
   }
@@ -42,15 +42,12 @@ const getPreviousValueForSequence = async sequenceOfName => {
     const db = getDatabaseInstance();
 
     const sequences = db.collection('_sequences'); // returns new instance of _sequences if collections doesn't exists.
-    let { value } = await sequences.findOneAndUpdate(
+    const { value } = await sequences.findOneAndUpdate(
       { _id: sequenceOfName },
       { $inc: { sequence_value: -1 } },
       { upsert: true },
     );
-    if (!value || value) {
-      value = 0;
-    }
-    return value;
+    return !value ? -1 : value.sequence_value - 1;
   } catch (error) {
     throw new DbUtilError(error.message);
   }
