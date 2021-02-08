@@ -88,6 +88,8 @@ const addMembersToChannel = async (channelSid, members = []) =>
  * Returns the members of the given channel
  *
  * @param {*} ChannelSid
+ *
+ * @returns {Array<String>} membersList
  */
 const getChannelMembers = async ChannelSid => {
   try {

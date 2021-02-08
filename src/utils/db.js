@@ -32,16 +32,28 @@ const getValueForNextSequence = async sequenceOfName => {
   }
 };
 
-// FIXME: Provide a better description
-// TODO: Implement logic
 /** *
  * Decrement by 1 the value for the given sequence.
  *
  * @param {String} sequenceOfName
  */
 const getPreviousValueForSequence = async sequenceOfName => {
-  const message = `Do something here with: ${sequenceOfName}`;
-  return message;
+  try {
+    const db = getDatabaseInstance();
+
+    const sequences = db.collection('_sequences'); // returns new instance of _sequences if collections doesn't exists.
+    let { value } = await sequences.findOneAndUpdate(
+      { _id: sequenceOfName },
+      { $inc: { sequence_value: -1 } },
+      { upsert: true },
+    );
+    if (!value || value) {
+      value = 0;
+    }
+    return value;
+  } catch (error) {
+    throw new DbUtilError(error.message);
+  }
 };
 
 /**

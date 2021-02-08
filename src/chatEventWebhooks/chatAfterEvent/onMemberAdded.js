@@ -11,6 +11,8 @@ class OnMemberRemovedAdded extends ExtendableError {}
  *
  * @param {*} user
  * @param {*} channel
+ *
+ * @returns {object} twilio message
  */
 const createUserJoinedMessage = async (user, channel) => {
   // Create message structure
