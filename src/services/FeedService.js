@@ -6,7 +6,7 @@ import Parse from '../providers/ParseProvider';
 import {
   UNREADMESSAGES_POST_TYPE,
   GENERAL_UNREADMESSAGES_POST_TYPE,
-} from '../constants/index';
+} from '../constants';
 // Utils
 import db from '../utils/db';
 
@@ -25,6 +25,20 @@ const createFeedForUser = async user => {
       feed.save(null, { userMasterKey: true });
     }
     return feed;
+  } catch (error) {
+    throw new FeedServiceError(error.message);
+  }
+};
+
+/**
+ * Creates the feed object for the given user
+ */
+const deleteFeed = async user => {
+  try {
+    const query = new Parse.Query('Feed');
+    query.equalTo('user', user);
+    const feeds = await query.find({ useMasterKey: true });
+    await Promise.all(feeds.map(feed => feed.destroy({ useMasterKey: true })));
   } catch (error) {
     throw new FeedServiceError(error.message);
   }
@@ -85,7 +99,7 @@ const createUnreadMessagesPost = async (user, channel) => {
         body: `You have (0) unread message/s in the conversation: (${channel.friendlyName}).`,
         expirationDate: null,
         triggerDate: null,
-        subject: '',
+        subject: 'unreadMessages',
         author: user,
         attributes: {
           numberOfUnread: 0,
@@ -122,7 +136,7 @@ const createGeneralUnreadMessagesPost = async user => {
         body: `You have (0) unread message/s.`,
         expirationDate: null,
         triggerDate: null,
-        subject: '',
+        subject: 'generalUnreadMessages',
         author: user,
         attributes: {
           numberOfUnread: 0,
@@ -206,7 +220,6 @@ const decreasePostUnreadMessages = async (reader, channelsid) => {
     .first();
   // Decrease by 1 the unreadMessages counter
   if (urmp) {
-    // TODO: Implement the previous value for DB sequence
     db.getPreviousValueForSequence(`unreadMessages_${urmp.id}`)
       .then(numberOfUnread => {
         if (numberOfUnread) {
@@ -240,7 +253,6 @@ const decreaseGeneralPostUnreadMessages = async (reader, channelsid) => {
     .first();
   // Decrease by 1 the unreadMessages counter
   if (gurmp) {
-    // TODO: Implement the previous value for DB sequence
     db.getPreviousValueForSequence(`unreadMessages_${gurmp.id}`)
       .then(numberOfUnread => {
         if (numberOfUnread) {
@@ -258,6 +270,7 @@ const decreaseGeneralPostUnreadMessages = async (reader, channelsid) => {
 
 export default {
   createPost,
+  deleteFeed,
   createFeedForUser,
   createUnreadMessagesPost,
   createGeneralUnreadMessagesPost,
