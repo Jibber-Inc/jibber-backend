@@ -96,7 +96,7 @@ const createUnreadMessagesPost = async (user, channel) => {
       const postData = {
         type: 'unreadMessages',
         priority: 1,
-        body: `You have (0) unread message/s in the conversation: (${channel.friendlyName}).`,
+        body: `You have (0) unread message/s in the conversation: (${channel.FriendlyName}).`,
         expirationDate: null,
         triggerDate: null,
         subject: 'unreadMessages',
