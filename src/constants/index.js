@@ -1,3 +1,8 @@
+export const UNREADMESSAGES_POST_TYPE = 'unreadMessagesPost';
+export const GENERAL_UNREADMESSAGES_POST_TYPE = 'generalUnreadMessagesPost';
+
+export const ONBOARD_ADMIN = 'ONBOARD_ADMIN';
+
 export const STATUS_INVITED = 'invited';
 export const STATUS_ACCEPTED = 'accepted';
 export const STATUS_DECLINED = 'declined';

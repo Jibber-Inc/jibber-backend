@@ -1,5 +1,6 @@
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
+import FeedService from '../../services/FeedService';
 import { NOTIFICATION_TYPES } from '../../constants';
 
 /**
@@ -31,15 +32,20 @@ const onMessageUpdated = async (request, response) => {
 
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
 
+    // FIXME: Consumers do not exist anymore?
     const { consumers = [], context = '' } = JSON.parse(Attributes);
-    if (consumers.includes(ModifiedBy) && context === 'emergency') {
-      const [author, reader] = await Promise.all([
-        new Parse.Query(Parse.User).get(From, { useMasterKey: true }),
-        new Parse.Query(Parse.User).get(ModifiedBy, {
-          useMasterKey: true,
-        }),
-      ]);
 
+    // Get the Parse.Users for author and reader
+    const [author, reader] = await Promise.all([
+      new Parse.Query(Parse.User).get(From, { useMasterKey: true }),
+      new Parse.Query(Parse.User).get(ModifiedBy, {
+        useMasterKey: true,
+      }),
+    ]);
+
+    // If the messages has emergency context,
+    // send a push notification that it has been read
+    if (consumers.includes(ModifiedBy) && context === 'emergency') {
       const body = `${reader.get('handle')} read your message`;
       const data = {
         messageId: MessageSid,
@@ -55,6 +61,11 @@ const onMessageUpdated = async (request, response) => {
         [author],
       );
     }
+
+    // Decrease by 1 the unread messages in all the needed posts
+    await FeedService.decreasePostUnreadMessages(reader, ChannelSid);
+    await FeedService.decreaseGeneralPostUnreadMessage(reader, ChannelSid);
+
     return response.status(200).json(pushStatus);
   } catch (error) {
     return response.status(500).json({ error: error.message });

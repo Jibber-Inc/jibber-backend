@@ -1,7 +1,8 @@
 import Parse from '../../providers/ParseProvider';
-import Twilio from '../../providers/TwilioProvider';
 import PushService from '../../services/PushService';
+import ChatService from '../../services/ChatService';
 import { NOTIFICATION_TYPES } from '../../constants';
+import FeedService from '../../services/FeedService';
 
 /**
  * EventType - string - Always onMessageSent
@@ -24,22 +25,16 @@ const onMessageSent = async (request, response) => {
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
     const { context } = JSON.parse(Attributes);
 
-    if (context === 'emergency') {
-      const membersList = await new Twilio().client.chat
-        .services(process.env.TWILIO_SERVICE_SID)
-        .channels(ChannelSid)
-        .members.list();
+    const membersList = await ChatService.getChannelMembers(ChannelSid);
 
-      const usersIdentities = membersList
-        .map(m => m.identity)
-        .filter(u => u !== From);
-      const users = usersIdentities.map(uid =>
-        Parse.User.createWithoutData(uid),
-      );
+    const usersIdentities = membersList
+      .map(m => m.identity)
+      .filter(u => u !== From);
+    const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
 
+    if (users.length) {
       const fromUser = await new Parse.Query(Parse.User).get(From);
-
-      if (users.length) {
+      if (context === 'emergency') {
         const data = {
           messageId: MessageSid,
           channelId: ChannelSid,
@@ -54,6 +49,10 @@ const onMessageSent = async (request, response) => {
           users,
         );
       }
+
+      // Increase by 1 the unread messages in all the needed posts
+      await FeedService.increasePostUnreadMessages(ChannelSid);
+      await FeedService.increaseGeneralPostUnreadMessage(ChannelSid);
     }
 
     return response.status(200).json(pushStatus);

@@ -1,13 +1,11 @@
-// Providers
 // Vendor
 import hat from 'hat';
 import uuidv4 from 'uuid/v4';
 import ExtendableError from 'extendable-error-class';
+// Providers
 import Parse from '../providers/ParseProvider';
 // Utils
 import generatePassword from '../utils/generatePassword';
-// Services
-import FeedService from './FeedService';
 
 class UserServiceError extends ExtendableError {}
 
@@ -66,23 +64,6 @@ const asignDefaultRole = async user => {
       }
     }
     return user;
-  } catch (error) {
-    throw new UserServiceError(error.message);
-  }
-};
-
-/**
- * Creates the feed for the given user
- *
- * @param {*} user
- */
-const createUserFeed = async user => {
-  try {
-    const feed = await new Parse.Query('Feed').equalTo('user', user).first();
-    if (!feed) {
-      await FeedService.createFeedForUser(user);
-    }
-    return feed;
   } catch (error) {
     throw new UserServiceError(error.message);
   }
@@ -198,7 +179,6 @@ const deleteReservations = async user => {
 export default {
   createUser,
   asignDefaultRole,
-  createUserFeed,
   getLastSessionToken,
   clearUserSessions,
   deleteUserInstallations,
