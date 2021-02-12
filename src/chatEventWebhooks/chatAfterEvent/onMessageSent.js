@@ -52,7 +52,7 @@ const onMessageSent = async (request, response) => {
 
       // Increase by 1 the unread messages in all the needed posts
       await FeedService.increasePostUnreadMessages(ChannelSid);
-      await FeedService.increaseGeneralPostUnreadMessage(ChannelSid);
+      await FeedService.increaseGeneralPostUnreadMessages(ChannelSid);
     }
 
     return response.status(200).json(pushStatus);

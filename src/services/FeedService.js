@@ -30,6 +30,18 @@ const createFeedForUser = async user => {
   }
 };
 
+const getUserFeed = async user => {
+  try {
+    const feed = await new Parse.Query('Feed').equalTo('user', user).first();
+    if (!feed) {
+      throw new FeedServiceError('Feed not found');
+    }
+    return feed;
+  } catch (error) {
+    throw new FeedServiceError(error.message);
+  }
+};
+
 /**
  * Creates the feed object for the given user
  */
@@ -49,7 +61,7 @@ const deleteFeed = async user => {
  *
  * @param {*} data
  */
-const createPost = data => {
+const createPost = async data => {
   const {
     type,
     priority,
@@ -70,7 +82,13 @@ const createPost = data => {
     post.set('subject', subject);
     post.set('author', author);
     post.set('attributes', attributes);
-    post.save(null, { userMasterKey: true });
+    await post.save(null, { userMasterKey: true });
+
+    const feed = await getUserFeed(author);
+    const relation = feed.relation('posts');
+    relation.add(post);
+    await feed.save(null, { userMasterKey: true });
+
     return post;
   } catch (error) {
     throw new FeedServiceError(error.message);
@@ -96,7 +114,7 @@ const createUnreadMessagesPost = async (user, channel) => {
       const postData = {
         type: 'unreadMessages',
         priority: 1,
-        body: `You have (0) unread message/s in the conversation: (${channel.friendlyName}).`,
+        body: `You have (0) unread message/s in the conversation: (${channel.FriendlyName}).`,
         expirationDate: null,
         triggerDate: null,
         subject: 'unreadMessages',
@@ -161,7 +179,7 @@ const increasePostUnreadMessages = async channelsid => {
   const unreadMessagesPosts = await new Parse.Query('Post')
     .equalTo('type', UNREADMESSAGES_POST_TYPE)
     .equalTo('attributes.channelSid', channelsid)
-    .get();
+    .find();
   // Increase by 1 the unreadMessages counter
   if (unreadMessagesPosts.length) {
     unreadMessagesPosts.forEach(urmp => {
@@ -183,12 +201,12 @@ const increasePostUnreadMessages = async channelsid => {
  *
  * @param {*} channelsid
  */
-const increaseGeneralPostUnreadMessage = async channelsid => {
+const increaseGeneralPostUnreadMessages = async channelsid => {
   // Get all the generalUnreadMessages post for the channel
   const generalUnreadMessagesPosts = await new Parse.Query('Post')
     .equalTo('type', GENERAL_UNREADMESSAGES_POST_TYPE)
     .equalTo('attributes.channelSid', channelsid)
-    .get();
+    .find();
   // Increase by 1 the unreadMessages counter
   if (generalUnreadMessagesPosts.length) {
     generalUnreadMessagesPosts.forEach(gurmp => {
@@ -270,12 +288,13 @@ const decreaseGeneralPostUnreadMessages = async (reader, channelsid) => {
 
 export default {
   createPost,
+  getUserFeed,
   deleteFeed,
   createFeedForUser,
   createUnreadMessagesPost,
   createGeneralUnreadMessagesPost,
   increasePostUnreadMessages,
-  increaseGeneralPostUnreadMessage,
+  increaseGeneralPostUnreadMessages,
   decreasePostUnreadMessages,
   decreaseGeneralPostUnreadMessages,
 };
