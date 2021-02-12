@@ -64,7 +64,7 @@ const onMessageUpdated = async (request, response) => {
 
     // Decrease by 1 the unread messages in all the needed posts
     await FeedService.decreasePostUnreadMessages(reader, ChannelSid);
-    await FeedService.decreaseGeneralPostUnreadMessage(reader, ChannelSid);
+    await FeedService.decreaseGeneralPostUnreadMessages(reader, ChannelSid);
 
     return response.status(200).json(pushStatus);
   } catch (error) {
