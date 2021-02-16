@@ -22,7 +22,7 @@ const createFeedForUser = async user => {
       feed = new Parse.Object('Feed');
       feed.setACL(new Parse.ACL(user));
       feed.set('user', user);
-      feed.save(null, { userMasterKey: true });
+      await feed.save(null, { userMasterKey: true });
     }
     return feed;
   } catch (error) {
@@ -32,7 +32,9 @@ const createFeedForUser = async user => {
 
 const getUserFeed = async user => {
   try {
-    const feed = await new Parse.Query('Feed').equalTo('user', user).first();
+    const feed = await new Parse.Query('Feed')
+      .equalTo('user', user)
+      .first({ useMasterKey: true });
     if (!feed) {
       throw new FeedServiceError('Feed not found');
     }
@@ -82,13 +84,12 @@ const createPost = async data => {
     post.set('subject', subject);
     post.set('author', author);
     post.set('attributes', attributes);
-    await post.save(null, { userMasterKey: true });
+    await post.save(null, { useMasterKey: true });
 
     const feed = await getUserFeed(author);
     const relation = feed.relation('posts');
     relation.add(post);
-    await feed.save(null, { userMasterKey: true });
-
+    await feed.save(null, { useMasterKey: true });
     return post;
   } catch (error) {
     throw new FeedServiceError(error.message);
@@ -105,19 +106,19 @@ const createUnreadMessagesPost = async (user, channel) => {
   try {
     // Check if the post already exists
     let unreadMessagesPost = await new Parse.Query('Post')
-      .equalTo('type', 'unreadMessages')
+      .equalTo('type', UNREADMESSAGES_POST_TYPE)
       .equalTo('attributes.channelSid', channel.sid)
       .equalTo('author', user)
       .first();
     if (!unreadMessagesPost) {
       // Create the post structure
       const postData = {
-        type: 'unreadMessages',
+        type: UNREADMESSAGES_POST_TYPE,
         priority: 1,
         body: `You have (0) unread message/s in the conversation: (${channel.FriendlyName}).`,
         expirationDate: null,
         triggerDate: null,
-        subject: 'unreadMessages',
+        subject: UNREADMESSAGES_POST_TYPE,
         author: user,
         attributes: {
           numberOfUnread: 0,
@@ -149,12 +150,12 @@ const createGeneralUnreadMessagesPost = async user => {
     if (!generalUnreadMessagesPost) {
       // Create the post structure
       const postData = {
-        type: 'generalUnreadMessages',
+        type: GENERAL_UNREADMESSAGES_POST_TYPE,
         priority: 1,
         body: `You have (0) unread message/s.`,
         expirationDate: null,
         triggerDate: null,
-        subject: 'generalUnreadMessages',
+        subject: GENERAL_UNREADMESSAGES_POST_TYPE,
         author: user,
         attributes: {
           numberOfUnread: 0,

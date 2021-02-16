@@ -1,5 +1,5 @@
-export const UNREADMESSAGES_POST_TYPE = 'unreadMessagesPost';
-export const GENERAL_UNREADMESSAGES_POST_TYPE = 'generalUnreadMessagesPost';
+export const UNREADMESSAGES_POST_TYPE = 'unreadMessages';
+export const GENERAL_UNREADMESSAGES_POST_TYPE = 'generalUnreadMessages';
 
 export const ONBOARD_ADMIN = 'ONBOARD_ADMIN';
 
