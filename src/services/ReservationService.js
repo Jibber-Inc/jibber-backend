@@ -17,7 +17,8 @@ const createReservation = async user => {
     const reservation = new Parse.Object('Reservation');
     reservation.set('isClaimed'.false);
     reservation.set('createdBy', user);
-    reservation.setACL(new Parse.ACL(user));
+    // TODO: Check if its ok to give public read+write ACL
+    // reservation.setACL(new Parse.ACL(user));
     return reservation.save(null, { useMasterKey: true });
   } catch (error) {
     throw new ReservationServiceError(error.message);
