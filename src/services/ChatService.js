@@ -227,7 +227,7 @@ const createMessagesForChannel = async (channel, data) => {
  * Creates the initial channels for the new user
  * @param {*} user
  */
-const createUserChannels = async user => {
+const createInitialChannels = async user => {
   // Add to channel members the user
   const members = [user.id];
 
@@ -279,5 +279,5 @@ export default {
   createMessage,
   fetchChannel,
   getUserChannels,
-  createUserChannels,
+  createInitialChannels,
 };

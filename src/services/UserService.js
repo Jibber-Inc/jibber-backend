@@ -185,7 +185,7 @@ const deleteReservations = async user => {
  * @param {*} user
  * @param {*} claimedPosition
  */
-const getUserHandle = async (user, claimedPosition, maxQuePosition) => {
+const createUserHandle = async (user, claimedPosition, maxQuePosition) => {
   // If the user has a quePosition already, use it. Else, get a new quePosition
   const handlePositioN = claimedPosition / maxQuePosition;
   // Generate the user handler
@@ -213,7 +213,11 @@ const setActiveStatus = async user => {
   if (user.get('status') === 'inactive') {
     const maxQuePosition = await QuePositionsService.getMaxQuePosition();
     const claimedPosition = await QuePositionsService.getClaimedPosition();
-    const handle = await getUserHandle(user, claimedPosition, maxQuePosition);
+    const handle = await createUserHandle(
+      user,
+      claimedPosition,
+      maxQuePosition,
+    );
     user.set('handle', handle);
     user.set('status', 'active');
     await user.save(null, { useMasterKey: true });
@@ -226,7 +230,7 @@ const setActiveStatus = async user => {
     const userChannels = await ChatService.getUserChannels(user.id);
 
     if (!userChannels.length) {
-      await ChatService.createUserChannels(user);
+      await ChatService.createInitialChannels(user);
     }
   }
 
