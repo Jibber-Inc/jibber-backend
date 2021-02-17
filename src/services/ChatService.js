@@ -1,5 +1,9 @@
 import ExtendableError from 'extendable-error-class';
+// Providers
+import Parse from '../providers/ParseProvider';
 import Twilio from '../providers/TwilioProvider';
+// Utils
+import MessagesUtil from '../utils/messages';
 
 export class ChatServiceError extends ExtendableError {}
 
@@ -206,6 +210,65 @@ const fetchChannel = async ChannelSid => {
   }
 };
 
+const createMessagesForChannel = async (channel, data) => {
+  const { messages } = MessagesUtil;
+  // eslint-disable-next-line no-restricted-syntax
+  for await (const message of messages[channel.friendlyName]) {
+    const formattedMessage = MessagesUtil.getMessage(message, data);
+    const newMessage = {
+      body: formattedMessage,
+      attributes: JSON.stringify({ context: 'casual' }),
+    };
+    await createMessage(newMessage, channel.sid);
+  }
+};
+
+/**
+ * Creates the initial channels for the new user
+ * @param {*} user
+ */
+const createUserChannels = async user => {
+  // Add to channel members the user
+  const members = [user.id];
+
+  // If the desired role exists, add to channel members the admin with that role
+  // Get parse role
+  const onboardingRole = await new Parse.Query(Parse.Role)
+    .equalTo('name', 'ONBOARDING_ADMIN')
+    .first();
+  if (onboardingRole) {
+    // If the role is defined, get the first user with it
+    const admin = await onboardingRole.get('users').query().first();
+    // If we have users with the desired role, add them to the members
+    if (admin) {
+      members.push(admin.id);
+    }
+  }
+
+  // Create the channels
+  const welcomeChannel = await createChatChannel(
+    user,
+    `welcome_${user.id}`,
+    'welcome',
+    'private',
+  );
+  // Send the welcome messages
+  await createMessagesForChannel(welcomeChannel, {
+    givenName: user.get('givenName'),
+  });
+  await addMembersToChannel(welcomeChannel.sid, members);
+
+  const feedbackChannel = await createChatChannel(
+    user,
+    `feedback_${user.id}`,
+    'feedback',
+    'private',
+  );
+  // Send the feedback message
+  await createMessagesForChannel(feedbackChannel);
+  await addMembersToChannel(feedbackChannel.sid, members);
+};
+
 export default {
   createChatChannel,
   inviteMembers,
@@ -216,4 +279,5 @@ export default {
   createMessage,
   fetchChannel,
   getUserChannels,
+  createUserChannels,
 };

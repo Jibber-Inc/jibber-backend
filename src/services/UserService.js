@@ -6,6 +6,9 @@ import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 // Utils
 import generatePassword from '../utils/generatePassword';
+// Services
+import QuePositionsService from './QuePositionsService';
+import ChatService from './ChatService';
 
 class UserServiceError extends ExtendableError {}
 
@@ -176,6 +179,60 @@ const deleteReservations = async user => {
   }
 };
 
+/**
+ * Creates the handle for the user
+ *
+ * @param {*} user
+ * @param {*} claimedPosition
+ */
+const getUserHandle = async (user, claimedPosition, maxQuePosition) => {
+  // If the user has a quePosition already, use it. Else, get a new quePosition
+  const handlePositioN = claimedPosition / maxQuePosition;
+  // Generate the user handler
+  const name = `${user.get('givenName')}${user
+    .get('familyName')
+    .substring(0, 1)}`;
+  const userHandle = `@${name.toLowerCase()}_${handlePositioN}`;
+
+  return userHandle.replace('.', '');
+};
+
+/**
+ * If the actual state of the given user is 'inactive', changes it to 'active'
+ * and creates default chat channels and a handle
+ *
+ * @param {*} user
+ */
+const setActiveStatus = async user => {
+  if (!(user instanceof Parse.User)) {
+    throw new UserServiceError('[zIslmc6c] User not found');
+  }
+
+  // If the user has an 'inactive' state, make it 'active'
+  // This  updates the claimedPosition value and creates the handle for the user
+  if (user.get('status') === 'inactive') {
+    const maxQuePosition = await QuePositionsService.getMaxQuePosition();
+    const claimedPosition = await QuePositionsService.getClaimedPosition();
+    const handle = await getUserHandle(user, claimedPosition, maxQuePosition);
+    user.set('handle', handle);
+    user.set('status', 'active');
+    await user.save(null, { useMasterKey: true });
+    await QuePositionsService.update('claimedPosition', claimedPosition);
+  }
+
+  // At this point, if the user hasn't 'active' status, he/she is in the waitlist
+  // So default chat channels won't be created for the user yet.
+  if (user.get('status') === 'active') {
+    const userChannels = await ChatService.getUserChannels(user.id);
+
+    if (!userChannels.length) {
+      await ChatService.createUserChannels(user);
+    }
+  }
+
+  return user;
+};
+
 export default {
   createUser,
   asignDefaultRole,
@@ -185,4 +242,5 @@ export default {
   deleteRituals,
   deleteConnections,
   deleteReservations,
+  setActiveStatus,
 };
