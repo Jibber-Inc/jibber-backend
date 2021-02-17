@@ -17,7 +17,9 @@ class FeedServiceError extends ExtendableError {}
  */
 const createFeedForUser = async user => {
   try {
-    let feed = await new Parse.Query('Feed').equalTo('user', user).first();
+    let feed = await new Parse.Query('Feed')
+      .equalTo('user', user)
+      .first({ useMasterKey: true });
     if (!feed) {
       feed = new Parse.Object('Feed');
       feed.setACL(new Parse.ACL(user));
