@@ -251,6 +251,7 @@ const createInitialChannels = async user => {
     `welcome_${user.id}`,
     'welcome',
     'private',
+    { description: 'Start here to learn your way around.' },
   );
   // Send the welcome messages
   await createMessagesForChannel(welcomeChannel, {
@@ -263,6 +264,7 @@ const createInitialChannels = async user => {
     `feedback_${user.id}`,
     'feedback',
     'private',
+    { description: 'Got something to say? Say it here!' },
   );
   // Send the feedback message
   await createMessagesForChannel(feedbackChannel);
