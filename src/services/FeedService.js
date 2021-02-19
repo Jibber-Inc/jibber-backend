@@ -238,7 +238,7 @@ const decreasePostUnreadMessages = async (reader, channelsid) => {
     .equalTo('type', UNREADMESSAGES_POST_TYPE)
     .equalTo('attributes.channelSid', channelsid)
     .equalTo('author', reader)
-    .first();
+    .find();
   // Decrease by 1 the unreadMessages counter
   if (urmp) {
     db.getPreviousValueForSequence(`unreadMessages_${urmp.id}`)
@@ -271,7 +271,7 @@ const decreaseGeneralPostUnreadMessages = async (reader, channelsid) => {
     .equalTo('type', GENERAL_UNREADMESSAGES_POST_TYPE)
     .equalTo('attributes.channelSid', channelsid)
     .equalTo('author', reader)
-    .first();
+    .find();
   // Decrease by 1 the unreadMessages counter
   if (gurmp) {
     db.getPreviousValueForSequence(`unreadMessages_${gurmp.id}`)
