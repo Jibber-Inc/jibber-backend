@@ -227,9 +227,11 @@ const setActiveStatus = async user => {
   // At this point, if the user hasn't 'active' status, he/she is in the waitlist
   // So default chat channels won't be created for the user yet.
   if (user.get('status') === 'active') {
-    const userChannels = await ChatService.getUserChannels(user.id);
+    const userHasInitialChannels = await ChatService.userHasInitialChannels(
+      user.id,
+    );
 
-    if (!userChannels.length) {
+    if (!userHasInitialChannels) {
       await ChatService.createInitialChannels(user);
     }
   }
