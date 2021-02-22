@@ -223,6 +223,24 @@ const createMessagesForChannel = async (channel, data) => {
   }
 };
 
+const userHasInitialChannels = async userId => {
+  try {
+    const channels = await getUserChannels(userId);
+    const userChannelsSid = channels.map(channel => channel.channelSid);
+    const userChannels = await Promise.all(
+      userChannelsSid.map(channelSid => fetchChannel(channelSid)),
+    );
+    const hasInitialChannels = userChannels.filter(
+      channel =>
+        channel.friendlyName === 'feedback' ||
+        channel.friendlyName === 'welcome',
+    );
+    return hasInitialChannels.length > 0;
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
 /**
  * Creates the initial channels for the new user
  * @param {*} user
@@ -281,5 +299,6 @@ export default {
   createMessage,
   fetchChannel,
   getUserChannels,
+  userHasInitialChannels,
   createInitialChannels,
 };
