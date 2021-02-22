@@ -47,6 +47,7 @@ const prepareNotificationData = (type, data = {}) => {
   return {
     aps: {
       alert,
+      badge: 1,
     },
     priority: 10,
     push_type: 'alert',
