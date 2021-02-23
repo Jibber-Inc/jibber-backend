@@ -24,6 +24,9 @@ const createMessage = async (phoneNumber, message) => {
       from: '+12012560616',
       to: phoneNumber,
       body: message,
+      attributes: {
+        updateId: new Date().getTime(),
+      },
     });
     const { sid, status, errorCode, errorMessage } = messageResult;
     return { sid, status, errorCode, errorMessage };
