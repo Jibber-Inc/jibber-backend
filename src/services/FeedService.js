@@ -47,14 +47,16 @@ const getUserFeed = async user => {
 };
 
 /**
- * Creates the feed object for the given user
+ * Deletes the feed and posts for the given user
  */
-const deleteFeed = async user => {
+const deleteFeedAndPosts = async user => {
   try {
     const query = new Parse.Query('Feed');
     query.equalTo('user', user);
-    const feeds = await query.find({ useMasterKey: true });
-    await Promise.all(feeds.map(feed => feed.destroy({ useMasterKey: true })));
+    const feed = await query.first({ useMasterKey: true });
+    const posts = await feed.relation('posts').query().find();
+    await Parse.Object.destroyAll(posts);
+    await feed.destroy({ useMasterKey: true });
   } catch (error) {
     throw new FeedServiceError(error.message);
   }
@@ -292,7 +294,7 @@ const decreaseGeneralPostUnreadMessages = async (reader, channelsid) => {
 export default {
   createPost,
   getUserFeed,
-  deleteFeed,
+  deleteFeedAndPosts,
   createFeedForUser,
   createUnreadMessagesPost,
   createGeneralUnreadMessagesPost,
