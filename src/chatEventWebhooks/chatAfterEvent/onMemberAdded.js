@@ -20,7 +20,10 @@ const createUserJoinedMessage = async (user, channel) => {
   const handle = user.get('handle');
   const message = {
     body: `[${handle}](${Identity}) joined the conversation.`,
-    attributes: JSON.stringify({ context: 'status' }),
+    attributes: JSON.stringify({
+      context: 'status',
+      updateId: new Date().getTime(),
+    }),
     from: Identity,
   };
   // Send the message

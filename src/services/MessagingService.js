@@ -8,8 +8,7 @@ export class MessagingServiceError extends ExtendableError {}
 
  * @param {String} phoneNumber
  * @param {String} message
- * @returns {Promise}
- */
+ * @returns {Promise} */
 const createMessage = async (phoneNumber, message) => {
   if (!phoneNumber) {
     throw new MessagingServiceError('[SmQNWk96] phoneNumber is required');
@@ -24,9 +23,6 @@ const createMessage = async (phoneNumber, message) => {
       from: '+12012560616',
       to: phoneNumber,
       body: message,
-      attributes: {
-        updateId: new Date().getTime(),
-      },
     });
     const { sid, status, errorCode, errorMessage } = messageResult;
     return { sid, status, errorCode, errorMessage };

@@ -217,7 +217,10 @@ const createMessagesForChannel = async (channel, data) => {
     const formattedMessage = MessagesUtil.getMessage(message, data);
     const newMessage = {
       body: formattedMessage,
-      attributes: JSON.stringify({ context: 'casual' }),
+      attributes: JSON.stringify({
+        context: 'casual',
+        updateId: new Date().getTime(),
+      }),
     };
     await createMessage(newMessage, channel.sid);
   }
