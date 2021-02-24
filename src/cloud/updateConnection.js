@@ -65,7 +65,14 @@ const updateConnection = async request => {
       ) {
         const fromUser = connection.get('from');
         const toUser = connection.get('to');
-        const channel = await ChatService.createChatChannel(fromUser, uniqueId);
+        const fromHandle = fromUser.get('handle');
+        const toHandle = toUser.get('handle');
+        const friendlyName = `${fromHandle}&${toHandle}`;
+        const channel = await ChatService.createChatChannel(
+          fromUser,
+          uniqueId,
+          friendlyName,
+        );
         await ChatService.addMembersToChannel(channel.sid, [
           fromUser.id,
           toUser.id,
