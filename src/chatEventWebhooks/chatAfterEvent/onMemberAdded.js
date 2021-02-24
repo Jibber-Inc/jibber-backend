@@ -61,7 +61,7 @@ const onMemberAdded = async (request, response) => {
         .first();
       // Check the role
       if (userRole && userRole.get('name') !== ONBOARD_ADMIN) {
-        const message = await createUserJoinedMessage();
+        const message = await createUserJoinedMessage(user);
         messageSid = message.sid;
       }
     }
