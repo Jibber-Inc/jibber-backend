@@ -1,53 +1,12 @@
-Benji Parse Sever implementation
-https://github.com/parse-community/parse-server
+# Ours API Parse Sever implementation
 
+Ours project API.
 
-### Make a post
-```
-curl -X POST \
--H "X-Parse-Application-Id: BenjiApp" \
--H "Content-Type: application/json" \
--d '{"test": 1, "from":"Benny" }' \
-http://benji-backend.herokuapp.com/parse/classes/Posts
-```
+## Tech Stack
+Parse server version: 4.5.0  
+MongoDb
+## Team
+Ours is the result of the work of a all core contributors.
+## License
+[MIT](LICENSE)
 
-### Get the post
-```
-curl -X GET \
--H "X-Parse-Application-Id: BenjiApp" \
-http://benji-backend.herokuapp.com/parse/classes/Posts/${ POST_ID }
-```
-
-### Test cloud function
-```
-curl -X POST \
-  -H "X-Parse-Application-Id: BenjiApp" \
-  -H "Content-Type: application/json" \
-  http://benji-backend.herokuapp.com/parse/functions/hello
-```
-
-### Create Twilio Token
-```
-curl -X POST \
-  -H "X-Parse-Application-Id: BenjiApp" \
-  -H "Content-Type: application/json" \
-  http://benji-backend.herokuapp.com/parse/functions/createToken
-```
-
-### Send Code
-```
-curl -X POST \
-  -H "X-Parse-Application-Id: BenjiApp" \
-  -H "Content-Type: application/json" \
-  -d '{"phoneNumber": "555-555-5555" }' \
-  http://benji-backend.herokuapp.com/parse/functions/sendCode
-```
-
-### Validate Code
-```
-curl -X POST \
-  -H "X-Parse-Application-Id: BenjiApp" \
-  -H "Content-Type: application/json" \
-  -d '{"phoneNumber": "206-353-9874", "authCode": "2788" }' \
-  http://benji-backend.herokuapp.com/parse/functions/validateCode
-```
