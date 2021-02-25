@@ -14,7 +14,7 @@ class OnMemberRemovedAdded extends ExtendableError {}
  *
  * @returns {object} twilio message
  */
-const createUserJoinedMessage = async (user, channel) => {
+const createUserJoinedMessage = async (user, channelSid) => {
   // Create message structure
   const Identity = user.id;
   const handle = user.get('handle');
@@ -27,7 +27,7 @@ const createUserJoinedMessage = async (user, channel) => {
     from: Identity,
   };
   // Send the message
-  const result = await ChatService.createMessage(message, channel.sid);
+  const result = await ChatService.createMessage(message, channelSid);
   return result;
 };
 
@@ -64,7 +64,7 @@ const onMemberAdded = async (request, response) => {
         .first();
       // Check the role
       if (userRole && userRole.get('name') !== ONBOARD_ADMIN) {
-        const message = await createUserJoinedMessage(user);
+        const message = await createUserJoinedMessage(user, channel.sid);
         messageSid = message.sid;
       }
     }
