@@ -10,6 +10,7 @@ const {
   DATABASE_URI,
   MASTER_KEY,
   SERVER_URL,
+  PUBLIC_SERVER_URL,
   REST_API_KEY,
   PARSE_SERVER_LOG_LEVEL,
   IOS_PFX_CERTIFICATE,
@@ -28,6 +29,7 @@ const api = new ParseServer({
   masterKey: MASTER_KEY,
   restApiKey: REST_API_KEY,
   serverURL: SERVER_URL,
+  publicServerURL: PUBLIC_SERVER_URL,
   logLevel: PARSE_SERVER_LOG_LEVEL || 'info',
   push: {
     ios: {
