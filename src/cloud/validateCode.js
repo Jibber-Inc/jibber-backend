@@ -42,6 +42,7 @@ const setUserStatus = async (user, reservation = null) => {
 
   await QuePositionsService.update('unclaimedPosition', currentQuePosition);
 
+  // FIXME: Check if the user is active when no reservation is given
   if (reservation) {
     if (user.status !== 'active') {
       user.set('status', 'inactive');
