@@ -102,3 +102,6 @@ dist/
 
 # Vscode settings
 .vscode
+
+# dev ignores
+dev.p12

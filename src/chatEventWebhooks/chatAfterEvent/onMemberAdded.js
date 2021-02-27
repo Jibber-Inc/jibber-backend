@@ -2,7 +2,7 @@ import ExtendableError from 'extendable-error-class';
 import ChatService from '../../services/ChatService';
 import FeedService from '../../services/FeedService';
 import Parse from '../../providers/ParseProvider';
-import { ONBOARD_ADMIN } from '../../constants/index';
+import { ONBOARDING_ADMIN } from '../../constants/index';
 
 class OnMemberRemovedAdded extends ExtendableError {}
 
@@ -63,14 +63,13 @@ const onMemberAdded = async (request, response) => {
         .equalTo('users', user)
         .first();
       // Check the role
-      if (userRole && userRole.get('name') !== ONBOARD_ADMIN) {
+      if (userRole && userRole.get('name') !== ONBOARDING_ADMIN) {
         const message = await createUserJoinedMessage(user, channel.sid);
         messageSid = message.sid;
+        // Finally, create the post for the unread messages for the user
+        await FeedService.createUnreadMessagesPost(user, channel);
       }
     }
-
-    // Finally, create the post for the unread messages for the user
-    await FeedService.createUnreadMessagesPost(user, channel);
 
     return response.status(200).json({ messageSid });
   } catch (error) {
