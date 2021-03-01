@@ -2,6 +2,7 @@ import ExtendableError from 'extendable-error-class';
 import hat from 'hat';
 import Parse from '../providers/ParseProvider';
 import ChatService from '../services/ChatService';
+import PushService from '../services/PushService';
 
 // Constants
 import {
@@ -9,6 +10,7 @@ import {
   STATUS_ACCEPTED,
   STATUS_DECLINED,
   STATUS_PENDING,
+  NOTIFICATION_TYPES,
 } from '../constants';
 
 const STATUS_LIST = [
@@ -59,13 +61,16 @@ const updateConnection = async request => {
   try {
     // If there is an existing connection, update and return it
     if (connection instanceof Connection) {
+      let fromUser;
+      let toUser;
+      let channel;
       if (
         connection.get('status') !== STATUS_ACCEPTED &&
         status === STATUS_ACCEPTED
       ) {
-        const fromUser = connection.get('from');
-        const toUser = connection.get('to');
-        const channel = await ChatService.createChatChannel(fromUser, uniqueId);
+        fromUser = connection.get('from');
+        toUser = connection.get('to');
+        channel = await ChatService.createChatChannel(fromUser, uniqueId);
         await ChatService.addMembersToChannel(channel.sid, [
           fromUser.id,
           toUser.id,
@@ -74,6 +79,23 @@ const updateConnection = async request => {
       }
       connection.set('status', status);
       await connection.save(null, { useMasterKey: true });
+
+      // Notify that the user accepted the connection
+      const toFullName = `${toUser.get('givenName')} ${toUser.get(
+        'familyName',
+      )}`;
+      const data = {
+        catetory: 'connectionConfirmed',
+        title: 'Connection confirmed 🙌',
+        body: `You are now connected to ${toFullName}.`,
+        channelId: channel.sid,
+        target: 'channel',
+      };
+      await PushService.sendPushNotificationToUsers(
+        NOTIFICATION_TYPES.CONNECTION_CONFIRMED,
+        data,
+        [fromUser],
+      );
     }
     return connection;
   } catch (error) {

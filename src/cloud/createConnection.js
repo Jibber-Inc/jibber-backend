@@ -1,6 +1,7 @@
 import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 import ConnectionService from '../services/ConnectionService';
+import PushService from '../services/PushService';
 
 // Constants
 import {
@@ -8,6 +9,7 @@ import {
   STATUS_ACCEPTED,
   STATUS_DECLINED,
   STATUS_PENDING,
+  NOTIFICATION_TYPES,
 } from '../constants';
 
 const STATUS_LIST = [
@@ -27,7 +29,7 @@ const createConnection = async request => {
     throw new CreateConnectionError('[t3K7GMD6] Expected to"');
   }
 
-  const toUser = await new Parse.Query('User').equalTo('objectId', to).first();
+  const toUser = await new Parse.Query('User').get(to);
 
   if (!(toUser instanceof Parse.User)) {
     throw new CreateConnectionError('[uDA2jPox] To user not found.');
@@ -53,6 +55,24 @@ const createConnection = async request => {
       toUser,
       status,
     );
+
+    // Notify the user about the connection request
+    if (connection && status === STATUS_INVITED) {
+      const fullName = `${user.get('givenName')} ${user.get('familyName')}`;
+      const data = {
+        category: 'connectionRequest',
+        title: 'Connection Request handshake',
+        body: `You have a connection request from ${fullName}.`,
+        connectionId: connection.id,
+        target: 'channel',
+      };
+      await PushService.sendPushNotificationToUsers(
+        NOTIFICATION_TYPES.CONNECTION_REQUEST,
+        data,
+        [toUser],
+      );
+    }
+
     return connection;
   } catch (error) {
     throw new CreateConnectionError(error.message);
