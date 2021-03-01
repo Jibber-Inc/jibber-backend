@@ -58,13 +58,11 @@ const createConnection = async request => {
 
     // Notify the user about the connection request
     if (connection && status === STATUS_INVITED) {
-      const toFullName = `${toUser.get('givenName')} ${toUser.get(
-        'familyName',
-      )}`;
+      const fullName = `${user.get('givenName')} ${user.get('familyName')}`;
       const data = {
         category: 'connectionRequest',
         title: 'Connection Request handshake',
-        body: `You have a connection request from ${toFullName}.`,
+        body: `You have a connection request from ${fullName}.`,
         connectionId: connection.id,
         target: 'channel',
       };
