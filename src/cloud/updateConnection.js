@@ -92,7 +92,7 @@ const updateConnection = async request => {
         target: 'channel',
       };
       await PushService.sendPushNotificationToUsers(
-        NOTIFICATION_TYPES.CONNECTION_REQUEST,
+        NOTIFICATION_TYPES.CONNECTION_CONFIRMED,
         data,
         [fromUser],
       );
