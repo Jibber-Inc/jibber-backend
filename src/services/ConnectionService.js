@@ -2,7 +2,7 @@
 import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 
-import { STATUS_ACCEPTED } from '../constants';
+import { STATUS_CREATED } from '../constants';
 
 class ConnectionServiceError extends ExtendableError {}
 
@@ -41,7 +41,7 @@ const createUserPreference = async (fromUser, toUser) => {
 const createConnection = async (
   fromUser,
   targetUser,
-  status = STATUS_ACCEPTED,
+  status = STATUS_CREATED,
 ) => {
   // Get "Connection" schema
   const Connection = Parse.Object.extend('Connection');
