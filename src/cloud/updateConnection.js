@@ -3,6 +3,7 @@ import hat from 'hat';
 import Parse from '../providers/ParseProvider';
 import ChatService from '../services/ChatService';
 import PushService from '../services/PushService';
+import UserService from '../services/UserService';
 
 // Constants
 import {
@@ -79,6 +80,12 @@ const updateConnection = async request => {
       }
       connection.set('status', status);
       await connection.save(null, { useMasterKey: true });
+
+      // Create Users preferences
+      await Promise.all([
+        UserService.createUserPreference(toUser, fromUser),
+        UserService.createUserPreference(fromUser, toUser),
+      ]);
 
       // Notify that the user accepted the connection
       const toFullName = `${toUser.get('givenName')} ${toUser.get(

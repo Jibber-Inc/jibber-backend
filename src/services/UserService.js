@@ -239,6 +239,30 @@ const setActiveStatus = async user => {
   return user;
 };
 
+/**
+ * Creates the preference for the given user
+ *
+ * @param {*} fromUser
+ * @param {*} toUser
+ */
+const createUserPreference = async (fromUser, toUser) => {
+  let userPreferences = fromUser.get('userPreferences');
+  const fromUserPreference = {
+    userId: toUser.id,
+    nickname: '',
+    color: '',
+    notes: '',
+  };
+
+  if (userPreferences) {
+    userPreferences.push(fromUserPreference);
+  } else {
+    userPreferences = [fromUserPreference];
+  }
+  fromUser.set('userPreferences', userPreferences);
+  await fromUser.save();
+};
+
 export default {
   createUser,
   asignDefaultRole,
@@ -249,4 +273,5 @@ export default {
   deleteConnections,
   deleteReservations,
   setActiveStatus,
+  createUserPreference,
 };
