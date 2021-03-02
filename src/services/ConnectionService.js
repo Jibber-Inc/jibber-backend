@@ -7,6 +7,30 @@ import { STATUS_ACCEPTED } from '../constants';
 class ConnectionServiceError extends ExtendableError {}
 
 /**
+ * Creates the preference for the given user
+ *
+ * @param {*} fromUser
+ * @param {*} toUser
+ */
+const createUserPreference = async (fromUser, toUser) => {
+  let userPreferences = fromUser.get('userPreferences');
+  const fromUserPreference = {
+    userId: toUser.id,
+    nickname: '',
+    color: '',
+    notes: '',
+  };
+
+  if (userPreferences) {
+    userPreferences.push(fromUserPreference);
+  } else {
+    userPreferences = [fromUserPreference];
+  }
+  fromUser.set('userPreferences', userPreferences);
+  await fromUser.save();
+};
+
+/**
  * Create a connection between 2 users and return
  * If connection already exists, return it
  *
@@ -39,7 +63,15 @@ const createConnection = async (
     connection.set('to', targetUser);
     connection.set('from', fromUser);
     connection.set('status', status);
-    return connection.save();
+    await connection.save();
+
+    // Create Users preferences
+    await Promise.all([
+      createUserPreference(targetUser, fromUser),
+      createUserPreference(targetUser, fromUser),
+    ]);
+
+    return connection;
   } catch (error) {
     throw new ConnectionServiceError(error.message);
   }
