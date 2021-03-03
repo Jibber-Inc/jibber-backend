@@ -9,6 +9,7 @@ import generatePassword from '../utils/generatePassword';
 // Services
 import QuePositionsService from './QuePositionsService';
 import ChatService from './ChatService';
+import FeedService from './FeedService';
 
 class UserServiceError extends ExtendableError {}
 
@@ -226,14 +227,21 @@ const setActiveStatus = async user => {
 
   // At this point, if the user hasn't 'active' status, he/she is in the waitlist
   // So default chat channels won't be created for the user yet.
+  // Also, if the user is 'active', the Feed and the inicial unreadMessages posts are created
   if (user.get('status') === 'active') {
+    // Check if the user has the initial channels already
     const userHasInitialChannels = await ChatService.userHasInitialChannels(
       user.id,
     );
 
+    // If the user doesn't have the initial channels, create them
     if (!userHasInitialChannels) {
       await ChatService.createInitialChannels(user);
     }
+
+    // Create the user Feed object and the related initial posts
+    await FeedService.createFeedForUser(user);
+    await FeedService.createGeneralUnreadMessagesPost(user);
   }
 
   return user;

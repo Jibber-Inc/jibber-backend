@@ -3,7 +3,6 @@ import ExtendableError from 'extendable-error-class';
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber';
 // Providers
 import Parse from '../providers/ParseProvider';
-import FeedService from '../services/FeedService';
 // Services
 import TwoFAService, { TwoFAServiceError } from '../services/TwoFAService';
 import UserService from '../services/UserService';
@@ -76,8 +75,6 @@ const sendCode = async request => {
     user.set('smsVerificationStatus', status);
     await user.save(null, { useMasterKey: true });
     await UserService.asignDefaultRole(user);
-    await FeedService.createFeedForUser(user);
-    await FeedService.createGeneralUnreadMessagesPost(user);
 
     return { status: 'code sent' };
   } catch (error) {
