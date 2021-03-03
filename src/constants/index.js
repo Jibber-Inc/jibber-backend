@@ -7,6 +7,7 @@ export const STATUS_INVITED = 'invited';
 export const STATUS_ACCEPTED = 'accepted';
 export const STATUS_DECLINED = 'declined';
 export const STATUS_PENDING = 'pending';
+export const STATUS_CREATED = 'created';
 export const NOTIFICATION_TYPES = {
   MESSAGE_READ: 'MESSAGE_READ',
   ALERT_MESSAGE: 'ALERT_MESSAGE',
