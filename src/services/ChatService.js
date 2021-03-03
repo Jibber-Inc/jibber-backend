@@ -4,6 +4,9 @@ import Parse from '../providers/ParseProvider';
 import Twilio from '../providers/TwilioProvider';
 // Utils
 import MessagesUtil from '../utils/messages';
+// Constants
+import { ONBOARDING_ADMIN } from '../constants/index';
+import FeedService from './FeedService';
 
 export class ChatServiceError extends ExtendableError {}
 
@@ -255,7 +258,7 @@ const createInitialChannels = async user => {
   // If the desired role exists, add to channel members the admin with that role
   // Get parse role
   const onboardingRole = await new Parse.Query(Parse.Role)
-    .equalTo('name', 'ONBOARDING_ADMIN')
+    .equalTo('name', ONBOARDING_ADMIN)
     .first();
   if (onboardingRole) {
     // If the role is defined, get the first user with it
@@ -279,6 +282,7 @@ const createInitialChannels = async user => {
     givenName: user.get('givenName'),
   });
   await addMembersToChannel(welcomeChannel.sid, members);
+  await FeedService.createUnreadMessagesPost(user, welcomeChannel);
 
   const feedbackChannel = await createChatChannel(
     user,
@@ -290,6 +294,7 @@ const createInitialChannels = async user => {
   // Send the feedback message
   await createMessagesForChannel(feedbackChannel);
   await addMembersToChannel(feedbackChannel.sid, members);
+  await FeedService.createUnreadMessagesPost(user, feedbackChannel);
 };
 
 export default {

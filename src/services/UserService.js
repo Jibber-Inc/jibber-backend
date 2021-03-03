@@ -225,6 +225,10 @@ const setActiveStatus = async user => {
     await QuePositionsService.update('claimedPosition', claimedPosition);
   }
 
+  // Create the user Feed object and the related initial posts
+  await FeedService.createFeedForUser(user);
+  await FeedService.createGeneralUnreadMessagesPost(user);
+
   // At this point, if the user hasn't 'active' status, he/she is in the waitlist
   // So default chat channels won't be created for the user yet.
   // Also, if the user is 'active', the Feed and the inicial unreadMessages posts are created
@@ -238,10 +242,6 @@ const setActiveStatus = async user => {
     if (!userHasInitialChannels) {
       await ChatService.createInitialChannels(user);
     }
-
-    // Create the user Feed object and the related initial posts
-    await FeedService.createFeedForUser(user);
-    await FeedService.createGeneralUnreadMessagesPost(user);
   }
 
   return user;
