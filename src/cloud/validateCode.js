@@ -36,23 +36,24 @@ const setUserStatus = async (user, reservation = null) => {
   // get maxQuePosition from parse. This variable is manually set depending on the needs
   const maxQuePosition = config.get('maxQuePosition');
   // get the last position of the queue + 1. For more information, check db import.
-  const currentQuePosition = await db.getValueForNextSequence(
-    'unclaimedPosition',
-  );
+  let currentQuePosition = user.get('quePosition');
 
-  await QuePositionsService.update('unclaimedPosition', currentQuePosition);
+  if (!currentQuePosition) {
+    currentQuePosition = await db.getValueForNextSequence('unclaimedPosition');
 
-  // FIXME: Check if the user is active when no reservation is given
-  if (reservation) {
-    if (user.status !== 'active') {
-      user.set('status', 'inactive');
-    }
-  } else {
-    user.set('quePosition', currentQuePosition);
-    if (maxQuePosition >= currentQuePosition) {
+    await QuePositionsService.update('unclaimedPosition', currentQuePosition);
+  }
+
+  if (user.get('status') && user.get('status') !== 'active') {
+    if (reservation) {
       user.set('status', 'inactive');
     } else {
-      user.set('status', 'waitlist');
+      user.set('quePosition', currentQuePosition);
+      if (maxQuePosition >= currentQuePosition) {
+        user.set('status', 'inactive');
+      } else {
+        user.set('status', 'waitlist');
+      }
     }
   }
 };

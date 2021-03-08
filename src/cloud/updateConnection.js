@@ -106,7 +106,7 @@ const updateConnection = async request => {
     }
     return connection;
   } catch (error) {
-    throw new UpdateConnectionError('[TeeBMaPz] Connection not found');
+    throw new UpdateConnectionError(error.message);
   }
 };
 
