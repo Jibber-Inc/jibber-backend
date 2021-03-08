@@ -18,12 +18,12 @@ class FeedServiceError extends ExtendableError {}
 const createFeedForUser = async user => {
   try {
     let feed = await new Parse.Query('Feed')
-      .equalTo('user', user)
+      .equalTo('owner', user)
       .first({ useMasterKey: true });
     if (!feed) {
       feed = new Parse.Object('Feed');
       feed.setACL(new Parse.ACL(user));
-      feed.set('user', user);
+      feed.set('owner', user);
       await feed.save(null, { userMasterKey: true });
     }
     return feed;
@@ -35,7 +35,7 @@ const createFeedForUser = async user => {
 const getUserFeed = async user => {
   try {
     const feed = await new Parse.Query('Feed')
-      .equalTo('user', user)
+      .equalTo('owner', user)
       .first({ useMasterKey: true });
     if (!feed) {
       throw new FeedServiceError('Feed not found');
@@ -52,7 +52,7 @@ const getUserFeed = async user => {
 const deleteFeedAndPosts = async user => {
   try {
     const query = new Parse.Query('Feed');
-    query.equalTo('user', user);
+    query.equalTo('owner', user);
     const feed = await query.first({ useMasterKey: true });
     const posts = await feed.relation('posts').query().find();
     await Parse.Object.destroyAll(posts);
@@ -74,6 +74,7 @@ const createPost = async data => {
     body,
     expirationDate = null,
     triggerDate = null,
+    duration = 5,
     author,
     attributes,
   } = data;
@@ -84,6 +85,7 @@ const createPost = async data => {
     post.set('body', body);
     post.set('expirationDate', expirationDate);
     post.set('triggerDate', triggerDate);
+    post.set('duration', duration);
     post.set('author', author);
     post.set('attributes', attributes);
     await post.save(null, { useMasterKey: true });
