@@ -179,12 +179,14 @@ const createGeneralUnreadMessagesPost = async user => {
  *
  * @param {*} channelsid
  */
-const increasePostUnreadMessages = async channelsid => {
+const increasePostUnreadMessages = async (fromUser, channelsid) => {
   // Get all unreadMessages posts for the channel
   const unreadMessagesPosts = await new Parse.Query('Post')
     .equalTo('type', UNREADMESSAGES_POST_TYPE)
     .equalTo('attributes.channelSid', channelsid)
-    .find();
+    .notEqualTo('author', fromUser)
+    .find({ userMasterKey: true });
+
   // Increase by 1 the unreadMessages counter
   if (unreadMessagesPosts.length) {
     unreadMessagesPosts.forEach(urmp => {
@@ -206,25 +208,24 @@ const increasePostUnreadMessages = async channelsid => {
  *
  * @param {*} channelsid
  */
-const increaseGeneralPostUnreadMessages = async channelsid => {
-  // Get all the generalUnreadMessages post for the channel
-  const generalUnreadMessagesPosts = await new Parse.Query('Post')
-    .equalTo('type', GENERAL_UNREADMESSAGES_POST_TYPE)
-    .equalTo('attributes.channelSid', channelsid)
-    .find();
-  // Increase by 1 the unreadMessages counter
-  if (generalUnreadMessagesPosts.length) {
-    generalUnreadMessagesPosts.forEach(gurmp => {
-      db.getValueForNextSequence(`unreadMessages_${gurmp.id}`)
-        .then(numberOfUnread => {
-          gurmp.set('attributes.numberOfUnread', numberOfUnread);
-          gurmp.save(null, { useMasterKey: true });
-        })
-        .catch(error => {
-          throw new FeedServiceError(error.message);
-        });
-    });
-  }
+const increaseGeneralPostUnreadMessages = async users => {
+  users.forEach(user => {
+    new Parse.Query('Post')
+      .equalTo('type', GENERAL_UNREADMESSAGES_POST_TYPE)
+      .equalTo('author', user)
+      .first({ userMasterKey: true })
+      .then(post => {
+        db.getValueForNextSequence(`generalUnreadMessages_${post.id}`).then(
+          numberOfUnread => {
+            post.set('attributes.numberOfUnread', numberOfUnread);
+            post.save(null, { useMasterKey: true });
+          },
+        );
+      })
+      .catch(error => {
+        throw new FeedServiceError(error.message);
+      });
+  });
 };
 
 /**
@@ -241,14 +242,13 @@ const decreasePostUnreadMessages = async (reader, channelsid) => {
     .equalTo('attributes.channelSid', channelsid)
     .equalTo('author', reader)
     .first({ useMasterKey: true });
+
   // Decrease by 1 the unreadMessages counter
   if (urmp) {
     db.getPreviousValueForSequence(`unreadMessages_${urmp.id}`)
       .then(numberOfUnread => {
-        if (numberOfUnread) {
-          urmp.set('attributes.numberOfUnread', numberOfUnread);
-          urmp.save(null, { useMasterKey: true });
-        }
+        urmp.set('attributes.numberOfUnread', numberOfUnread);
+        urmp.save(null, { useMasterKey: true });
       })
       .catch(error => {
         throw new FeedServiceError(error.message);
@@ -267,28 +267,21 @@ const decreasePostUnreadMessages = async (reader, channelsid) => {
  * @param {*} reader
  * @param {*} channelsid
  */
-const decreaseGeneralPostUnreadMessages = async (reader, channelsid) => {
-  // Get all unreadMessages posts for the channel
-  const gurmp = await new Parse.Query('Post')
+const decreaseGeneralPostUnreadMessages = async reader => {
+  // Get the generalUnreadMessages posts for the channel
+  const post = await new Parse.Query('Post')
     .equalTo('type', GENERAL_UNREADMESSAGES_POST_TYPE)
-    .equalTo('attributes.channelSid', channelsid)
     .equalTo('author', reader)
     .first({ useMasterKey: true });
-  // Decrease by 1 the unreadMessages counter
-  if (gurmp) {
-    db.getPreviousValueForSequence(`unreadMessages_${gurmp.id}`)
-      .then(numberOfUnread => {
-        if (numberOfUnread) {
-          gurmp.set('attributes.numberOfUnread', numberOfUnread);
-          gurmp.save(null, { useMasterKey: true });
-        }
-      })
-      .catch(error => {
-        throw new FeedServiceError(error.message);
-      });
-  } else {
-    throw new FeedServiceError('[CODE] General unread messages post not found');
-  }
+
+  db.getPreviousValueForSequence(`generalUnreadMessages_${post.id}`)
+    .then(numberOfUnread => {
+      post.set('attributes.numberOfUnread', numberOfUnread);
+      post.save(null, { useMasterKey: true });
+    })
+    .catch(error => {
+      throw new FeedServiceError(error.message);
+    });
 };
 
 export default {
