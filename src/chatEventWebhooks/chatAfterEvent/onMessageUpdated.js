@@ -1,7 +1,6 @@
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import FeedService from '../../services/FeedService';
-import ChatService from '../../services/ChatService';
 import { NOTIFICATION_TYPES } from '../../constants';
 
 /**
