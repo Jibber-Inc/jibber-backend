@@ -74,7 +74,6 @@ const createPost = async data => {
     body,
     expirationDate = null,
     triggerDate = null,
-    subject,
     author,
     attributes,
   } = data;
@@ -85,7 +84,6 @@ const createPost = async data => {
     post.set('body', body);
     post.set('expirationDate', expirationDate);
     post.set('triggerDate', triggerDate);
-    post.set('subject', subject);
     post.set('author', author);
     post.set('attributes', attributes);
     await post.save(null, { useMasterKey: true });
@@ -122,7 +120,6 @@ const createUnreadMessagesPost = async (user, channel) => {
         body: `You have (0) unread message/s in the conversation: (${channel.FriendlyName}).`,
         expirationDate: null,
         triggerDate: null,
-        subject: UNREADMESSAGES_POST_TYPE,
         author: user,
         attributes: {
           numberOfUnread: 0,
@@ -159,7 +156,6 @@ const createGeneralUnreadMessagesPost = async user => {
         body: `You have (0) unread message/s.`,
         expirationDate: null,
         triggerDate: null,
-        subject: GENERAL_UNREADMESSAGES_POST_TYPE,
         author: user,
         attributes: {
           numberOfUnread: 0,
