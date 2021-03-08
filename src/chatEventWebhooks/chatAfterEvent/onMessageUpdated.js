@@ -1,6 +1,7 @@
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import FeedService from '../../services/FeedService';
+import ChatService from '../../services/ChatService';
 import { NOTIFICATION_TYPES } from '../../constants';
 
 /**
@@ -32,7 +33,6 @@ const onMessageUpdated = async (request, response) => {
 
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
 
-    // FIXME: Consumers do not exist anymore?
     const { consumers = [], context = '' } = JSON.parse(Attributes);
 
     // Get the Parse.Users for author and reader
@@ -64,7 +64,7 @@ const onMessageUpdated = async (request, response) => {
 
     // Decrease by 1 the unread messages in all the needed posts
     await FeedService.decreasePostUnreadMessages(reader, ChannelSid);
-    await FeedService.decreaseGeneralPostUnreadMessages(reader, ChannelSid);
+    await FeedService.decreaseGeneralPostUnreadMessages(reader);
 
     return response.status(200).json(pushStatus);
   } catch (error) {
