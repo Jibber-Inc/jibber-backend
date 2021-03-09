@@ -1,5 +1,6 @@
 export const UNREADMESSAGES_POST_TYPE = 'unreadMessages';
 export const GENERAL_UNREADMESSAGES_POST_TYPE = 'generalUnreadMessages';
+export const CONNECTION_REQUEST_POST = 'connectionRequest';
 
 export const ONBOARDING_ADMIN = 'ONBOARDING_ADMIN';
 
