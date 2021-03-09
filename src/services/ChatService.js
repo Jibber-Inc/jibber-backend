@@ -222,7 +222,7 @@ const createMessagesForChannel = async (channel, data) => {
       body: formattedMessage,
       attributes: JSON.stringify({
         context: 'casual',
-        updateId: new Date().getTime(),
+        updateId: String(new Date().getTime()),
       }),
     };
     await createMessage(newMessage, channel.sid);
