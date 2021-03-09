@@ -154,7 +154,7 @@ const createGeneralUnreadMessagesPost = async user => {
       // Create the post structure
       const postData = {
         type: GENERAL_UNREADMESSAGES_POST_TYPE,
-        priority: 1,
+        priority: 0,
         body: `You have (0) unread message/s.`,
         expirationDate: null,
         triggerDate: null,
