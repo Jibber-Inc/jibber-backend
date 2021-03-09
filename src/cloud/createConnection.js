@@ -2,6 +2,7 @@ import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 import ConnectionService from '../services/ConnectionService';
 import PushService from '../services/PushService';
+import FeedService from '../services/FeedService';
 
 // Constants
 import {
@@ -10,6 +11,7 @@ import {
   STATUS_DECLINED,
   STATUS_PENDING,
   NOTIFICATION_TYPES,
+  CONNECTION_REQUEST_POST,
 } from '../constants';
 
 const STATUS_LIST = [
@@ -66,6 +68,22 @@ const createConnection = async request => {
         connectionId: connection.id,
         target: 'channel',
       };
+
+      // Set the data for the connection request post
+      const postData = {
+        type: CONNECTION_REQUEST_POST,
+        priority: 1,
+        body: null,
+        expirationDate: null,
+        triggerDate: null,
+        author: user,
+        attributes: {
+          connectionId: connection.id,
+        },
+      };
+      // Create the connection request post
+      await FeedService.createPost(postData);
+
       await PushService.sendPushNotificationToUsers(
         NOTIFICATION_TYPES.CONNECTION_REQUEST,
         data,
