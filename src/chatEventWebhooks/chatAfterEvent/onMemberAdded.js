@@ -22,7 +22,7 @@ const createUserJoinedMessage = async (user, channelSid) => {
     body: `[${handle}](${Identity}) joined the conversation.`,
     attributes: JSON.stringify({
       context: 'status',
-      updateId: new Date().getTime(),
+      updateId: String(new Date().getTime()),
     }),
     from: Identity,
   };

@@ -28,7 +28,7 @@ const onMemberRemoved = async (request, response) => {
       body: `[${user.get('handle')}](${Identity}) left the conversation.`,
       attributes: JSON.stringify({
         context: 'status',
-        updateId: new Date().getTime(),
+        updateId: String(new Date().getTime()),
       }),
     };
 
