@@ -4,15 +4,22 @@ import FeedService from '../services/FeedService';
 class CreateCommentError extends ExtendableError {}
 
 const createComment = async request => {
-  const commentData = request.params;
+  const { post, body, attributes = {}, reply = undefined } = request.params;
 
   try {
-    if (!commentData.post) {
+    if (!post) {
       throw new CreateCommentError('Post not found when creating the comment.');
     }
-    if (!commentData.body) {
+    if (!body) {
       throw new CreateCommentError('Trying to create an empty comment.');
     }
+
+    const commentData = {
+      post,
+      body,
+      attributes,
+      reply,
+    };
 
     const comment = await FeedService.createComment(commentData);
     return comment;

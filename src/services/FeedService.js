@@ -283,7 +283,7 @@ const decreaseGeneralPostUnreadMessages = async reader => {
 };
 
 const createComment = async data => {
-  const { post, body, attributes = {}, reply = undefined } = data;
+  const { post, body, attributes, reply } = data;
 
   let replyComment;
 
