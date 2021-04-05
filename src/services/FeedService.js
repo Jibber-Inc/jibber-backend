@@ -282,6 +282,31 @@ const decreaseGeneralPostUnreadMessages = async reader => {
     });
 };
 
+const createComment = async data => {
+  const { post, body, attributes, reply } = data;
+
+  let replyComment;
+
+  if (reply) {
+    replyComment = await new Parse.Query('Comment').get(reply, {
+      useMasterKey: true,
+    });
+  }
+
+  const comment = new Parse.Object('Comment');
+  comment.set('body', body);
+  comment.set('attributes', attributes);
+  comment.set('reply', replyComment);
+  await comment.save(null, { useMasterKey: true });
+
+  const relatedPost = await new Parse.Query('Post').get(post);
+  const relation = relatedPost.relation('comments');
+  relation.add(comment);
+  await relatedPost.save(null, { useMasterKey: true });
+
+  return comment;
+};
+
 export default {
   createPost,
   getUserFeed,
@@ -293,4 +318,5 @@ export default {
   increaseGeneralPostUnreadMessages,
   decreasePostUnreadMessages,
   decreaseGeneralPostUnreadMessages,
+  createComment,
 };
