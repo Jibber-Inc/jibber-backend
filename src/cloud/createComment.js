@@ -3,7 +3,7 @@ import FeedService from '../services/FeedService';
 
 class CreateCommentError extends ExtendableError {}
 
-const createConnection = async request => {
+const createComment = async request => {
   const commentData = request.params;
 
   try {
@@ -21,4 +21,4 @@ const createConnection = async request => {
   }
 };
 
-export default createConnection;
+export default createComment;
