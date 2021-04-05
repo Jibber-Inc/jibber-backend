@@ -288,7 +288,9 @@ const createComment = async data => {
   let replyComment;
 
   if (reply) {
-    replyComment = await new Parse.Query('Comment').get(reply);
+    replyComment = await new Parse.Query('Comment').get(reply, {
+      useMasterKey: true,
+    });
   }
 
   const comment = new Parse.Object('Comment');
