@@ -4,6 +4,8 @@ export const CONNECTION_REQUEST_POST = 'connectionRequest';
 
 export const ONBOARDING_ADMIN = 'ONBOARDING_ADMIN';
 
+export const CHANNEL_INVITE_POST = 'channelInvite';
+
 export const STATUS_INVITED = 'invited';
 export const STATUS_ACCEPTED = 'accepted';
 export const STATUS_DECLINED = 'declined';
