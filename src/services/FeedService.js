@@ -103,6 +103,52 @@ const createPost = async data => {
 };
 
 /**
+ * Retrieves all the media posts for a given user
+ * and all the media posts for their contacts (connections)
+ *
+ * @param {*} user
+ * @returns
+ */
+const getMediaPosts = async user => {
+  // Query for connections to the user
+  const toQuery = new Parse.Query('Connection').equalTo('to', user);
+  // Query for connections from the user
+  const fromQuery = new Parse.Query('Connection').equalTo('from', user);
+  // Get all the connections of the user
+  const userConnections = await Parse.Query.or(toQuery, fromQuery).find();
+  // Take from the connections all the contacts of the user
+  const userContacts = userConnections.map(con =>
+    con.get('from') === user ? con.get('to') : con.get('from'),
+  );
+  // For each contact, retrieve the media posts
+  const resultPosts = await Promise.all(
+    userContacts.map(async contact =>
+      new Parse.Query('Post')
+        .equalTo('type', 'media')
+        .equalTo('author', contact)
+        .greaterThan('expirationDate', new Date())
+        .find({ useMasterKey: true }),
+    ),
+  );
+  // Put all the elements in the same array
+  const contactsMediaPosts = resultPosts.flat();
+  // Get the user's posts
+  const userMediaPosts = await new Parse.Query('Post')
+    .equalTo('type', 'media')
+    .equalTo('author', user)
+    .greaterThan('expirationDate', new Date())
+    .find({ useMasterKey: true });
+
+  // Merge all the posts in one object
+  const mediaPosts = {
+    userMediaPosts,
+    contactsMediaPosts,
+  };
+
+  return mediaPosts;
+};
+
+/**
  * Creates the post for the unread messages for the recently added member
  *
  * @param {*} user
@@ -321,4 +367,6 @@ export default {
   decreasePostUnreadMessages,
   decreaseGeneralPostUnreadMessages,
   createComment,
+
+  getMediaPosts,
 };
