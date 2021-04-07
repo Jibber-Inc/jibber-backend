@@ -13,6 +13,7 @@ import setActiveStatus from './setActiveStatus';
 import updateReservation from './updateReservation';
 import createConnection from './createConnection';
 import createComment from './createComment';
+import createPost from './createPost';
 
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
@@ -43,6 +44,7 @@ Parse.Cloud.define('updateReservation', updateReservation);
 Parse.Cloud.define('sendMessage', sendMessage);
 Parse.Cloud.define('createConnection', createConnection);
 Parse.Cloud.define('createComment', createComment);
+Parse.Cloud.define('createPost', createPost);
 
 // --- Cloud code webhooks ----------------------------------------------------
 // Connection webhooks
