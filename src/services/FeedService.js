@@ -109,11 +109,15 @@ const createPost = async data => {
  * @param {*} user
  * @returns
  */
-const getMediaPosts = async user => {
+const getMediaFeeds = async user => {
   // Query for connections to the user
-  const toQuery = new Parse.Query('Connection').equalTo('to', user);
+  const toQuery = new Parse.Query('Connection')
+    .equalTo('to', user)
+    .equalTo('status', 'accepted');
   // Query for connections from the user
-  const fromQuery = new Parse.Query('Connection').equalTo('from', user);
+  const fromQuery = new Parse.Query('Connection')
+    .equalTo('from', user)
+    .equalTo('status', 'accepted');
   // Get all the connections of the user
   const userConnections = await Parse.Query.or(toQuery, fromQuery).find();
   // Take from the connections all the contacts of the user
@@ -121,7 +125,7 @@ const getMediaPosts = async user => {
     con.get('from') === user ? con.get('to') : con.get('from'),
   );
   // For each contact, retrieve the media posts
-  const resultPosts = await Promise.all(
+  const contactsMediaPosts = await Promise.all(
     userContacts.map(async contact =>
       new Parse.Query('Post')
         .equalTo('type', 'media')
@@ -130,22 +134,30 @@ const getMediaPosts = async user => {
         .find({ useMasterKey: true }),
     ),
   );
-  // Put all the elements in the same array
-  const contactsMediaPosts = resultPosts.flat();
-  // Get the user's posts
-  const userMediaPosts = await new Parse.Query('Post')
-    .equalTo('type', 'media')
-    .equalTo('author', user)
-    .greaterThan('expirationDate', new Date())
-    .find({ useMasterKey: true });
 
-  // Merge all the posts in one object
-  const mediaPosts = {
-    userMediaPosts,
-    contactsMediaPosts,
-  };
+  // Filter the user that has media posts
+  const contactsWithMediaPosts = contactsMediaPosts
+    .filter(posts => posts.length)
+    .map(posts => posts[0].get('author'));
 
-  return mediaPosts;
+  // Get the Feed object for every user with media posts
+  const [contactsFeeds] = await Promise.all(
+    contactsWithMediaPosts.map(contact =>
+      new Parse.Query('Feed')
+        .equalTo('owner', contact)
+        .find({ useMasterKey: true }),
+    ),
+  );
+
+  // Get the user's Feed
+  const userFeed = await new Parse.Query('Feed')
+    .equalTo('owner', user)
+    .first({ useMasterKey: true });
+
+  // Merge all the Feeds in one array
+  const mediaFeeds = [userFeed, ...contactsFeeds];
+
+  return mediaFeeds;
 };
 
 /**
@@ -368,5 +380,5 @@ export default {
   decreaseGeneralPostUnreadMessages,
   createComment,
 
-  getMediaPosts,
+  getMediaFeeds,
 };
