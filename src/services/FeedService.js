@@ -141,7 +141,7 @@ const getMediaFeeds = async user => {
     .map(posts => posts[0].get('author'));
 
   // Get the Feed object for every user with media posts
-  const contactsFeeds = await Promise.all(
+  const [contactsFeeds] = await Promise.all(
     contactsWithMediaPosts.map(contact =>
       new Parse.Query('Feed')
         .equalTo('owner', contact)
@@ -152,7 +152,7 @@ const getMediaFeeds = async user => {
   // Get the user's Feed
   const userFeed = await new Parse.Query('Feed')
     .equalTo('owner', user)
-    .find({ useMasterKey: true });
+    .first({ useMasterKey: true });
 
   // Merge all the Feeds in one array
   const mediaFeeds = [userFeed, ...contactsFeeds];
