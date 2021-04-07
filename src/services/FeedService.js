@@ -70,13 +70,14 @@ const deleteFeedAndPosts = async user => {
 const createPost = async data => {
   const {
     type,
-    priority,
+    priority = 1,
     body,
     expirationDate = null,
     triggerDate = null,
     duration = 5,
     author,
-    attributes,
+    attributes = {},
+    file,
   } = data;
   try {
     const post = new Parse.Object('Post');
@@ -88,6 +89,7 @@ const createPost = async data => {
     post.set('duration', duration);
     post.set('author', author);
     post.set('attributes', attributes);
+    post.set('file', file);
     await post.save(null, { useMasterKey: true });
 
     const feed = await getUserFeed(author);
