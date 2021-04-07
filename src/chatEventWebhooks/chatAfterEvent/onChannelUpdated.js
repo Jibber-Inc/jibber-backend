@@ -1,3 +1,9 @@
+import FeedService from '../../services/FeedService';
+import ChatService from '../../services/ChatService';
+import Parse from '../../providers/ParseProvider';
+
+import { CHANNEL_INVITE_POST } from '../../constants/index';
+
 /**
  * EventType - string - Always onChannelUpdated
  * ChannelSid - string - Channel String Identifier
@@ -10,6 +16,31 @@
  * UniqueName - string, optional - The unique name of the channel, if set
  * ChannelType - string - The Channel type. Either private or public
  */
-const onChannelUpdated = (request, response) => response.status(200).json({});
+const onChannelUpdated = async (request, response) => {
+  const { ChannelSid, Identity } = request.body;
+  try {
+    const user = await new Parse.Query(Parse.User).get(Identity);
+    const channel = await ChatService.fetchChannel(ChannelSid);
+    if (channel.status === 'invited') {
+      const postData = {
+        type: CHANNEL_INVITE_POST,
+        priority: 1,
+        body: `You have been invited to join ${channel.friendlyName}, by ${user.givenName} ${user.familyName}`,
+        expirationDate: null,
+        triggerDate: null,
+        author: user,
+        duration: 5,
+        attributes: {
+          channelSid: channel.sid,
+        },
+      };
+      const post = await FeedService.createPost(postData);
+      return response.status(200).json(post);
+    }
+    return response.status(200).json(channel);
+  } catch (error) {
+    return response.status(500).json({ error: error.message });
+  }
+};
 
 export default onChannelUpdated;
