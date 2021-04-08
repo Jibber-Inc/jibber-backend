@@ -137,9 +137,9 @@ const getFeeds = async user => {
     const contactsMediaPosts = await Promise.all(
       userContacts.map(async contact =>
         new Parse.Query('Post')
-          // .equalTo('type', 'media')
+          .equalTo('type', 'media')
           .equalTo('author', contact)
-          // .greaterThan('expirationDate', new Date())
+          .greaterThan('expirationDate', new Date())
           .find({ useMasterKey: true }),
       ),
     );
