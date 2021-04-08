@@ -129,7 +129,7 @@ const getFeeds = async user => {
   const userConnections = await Parse.Query.or(toQuery, fromQuery).find();
   // Take from the connections all the contacts of the user
   const userContacts = userConnections.map(con =>
-    con.get('from') === user ? con.get('to') : con.get('from'),
+    con.get('from').id === user.id ? con.get('to') : con.get('from'),
   );
 
   // For each contact, retrieve the media posts
@@ -158,11 +158,10 @@ const getFeeds = async user => {
       ),
     );
   }
-
   // Merge all the Feeds in one array
   let mediaFeeds = [userFeed];
   if (contactsFeeds) {
-    mediaFeeds = [mediaFeeds, ...contactsFeeds];
+    mediaFeeds = [...mediaFeeds, ...contactsFeeds];
   }
 
   return mediaFeeds;
