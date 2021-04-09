@@ -104,6 +104,71 @@ const createPost = async data => {
 };
 
 /**
+ * Retrieves all the media posts for a given user
+ * and all the media posts for their contacts (connections)
+ *
+ * @param {*} user
+ * @returns
+ */
+const getFeeds = async user => {
+  let contactsFeeds;
+
+  // Get the user's Feed
+  const userFeed = await new Parse.Query('Feed')
+    .equalTo('owner', user)
+    .first({ useMasterKey: true });
+
+  // Query for connections to the user
+  const toQuery = new Parse.Query('Connection')
+    .equalTo('to', user)
+    .equalTo('status', 'accepted');
+  // Query for connections from the user
+  const fromQuery = new Parse.Query('Connection')
+    .equalTo('from', user)
+    .equalTo('status', 'accepted');
+  // Get all the connections of the user
+  const userConnections = await Parse.Query.or(toQuery, fromQuery).find();
+  // Take from the connections all the contacts of the user
+  const userContacts = userConnections.map(con =>
+    con.get('from').id === user.id ? con.get('to') : con.get('from'),
+  );
+
+  // For each contact, retrieve the media posts
+  if (userContacts.length) {
+    const contactsMediaPosts = await Promise.all(
+      userContacts.map(async contact =>
+        new Parse.Query('Post')
+          .equalTo('type', 'media')
+          .equalTo('author', contact)
+          .greaterThan('expirationDate', new Date())
+          .find({ useMasterKey: true }),
+      ),
+    );
+
+    // Filter the user that has media posts
+    const contactsWithMediaPosts = contactsMediaPosts
+      .filter(posts => posts.length)
+      .map(posts => posts[0].get('author'));
+
+    // Get the Feed object for every user with media posts
+    [contactsFeeds] = await Promise.all(
+      contactsWithMediaPosts.map(contact =>
+        new Parse.Query('Feed')
+          .equalTo('owner', contact)
+          .find({ useMasterKey: true }),
+      ),
+    );
+  }
+  // Merge all the Feeds in one array
+  let mediaFeeds = [userFeed];
+  if (contactsFeeds) {
+    mediaFeeds = [...mediaFeeds, ...contactsFeeds];
+  }
+
+  return mediaFeeds;
+};
+
+/**
  * Creates the post for the unread messages for the recently added member
  *
  * @param {*} user
@@ -322,4 +387,5 @@ export default {
   decreasePostUnreadMessages,
   decreaseGeneralPostUnreadMessages,
   createComment,
+  getFeeds,
 };
