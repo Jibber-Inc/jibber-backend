@@ -351,7 +351,7 @@ const decreaseGeneralPostUnreadMessages = async reader => {
 };
 
 const createComment = async data => {
-  const { post, body, attributes, reply } = data;
+  const { author, post, body, attributes, reply } = data;
 
   let replyComment;
 
@@ -362,6 +362,7 @@ const createComment = async data => {
   }
 
   const comment = new Parse.Object('Comment');
+  comment.set('author', author);
   comment.set('body', body);
   comment.set('attributes', attributes);
   comment.set('reply', replyComment);
