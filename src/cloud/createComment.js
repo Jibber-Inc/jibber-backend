@@ -1,12 +1,17 @@
 import ExtendableError from 'extendable-error-class';
+import Parse from '../providers/ParseProvider';
 import FeedService from '../services/FeedService';
 
 class CreateCommentError extends ExtendableError {}
 
 const createComment = async request => {
+  const { user } = request;
   const { post, body, attributes = {}, reply = undefined } = request.params;
 
   try {
+    if (!(user instanceof Parse.User)) {
+      throw new CreateCommentError('User not found.');
+    }
     if (!post) {
       throw new CreateCommentError('Post not found when creating the comment.');
     }
@@ -15,6 +20,7 @@ const createComment = async request => {
     }
 
     const commentData = {
+      author: user,
       post,
       body,
       attributes,
