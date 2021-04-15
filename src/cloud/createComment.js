@@ -6,7 +6,13 @@ class CreateCommentError extends ExtendableError {}
 
 const createComment = async request => {
   const { user } = request;
-  const { post, body, attributes = {}, reply = undefined } = request.params;
+  const {
+    post,
+    body,
+    attributes = {},
+    reply = undefined,
+    updateId,
+  } = request.params;
 
   try {
     if (!(user instanceof Parse.User)) {
@@ -25,6 +31,7 @@ const createComment = async request => {
       body,
       attributes,
       reply,
+      updateId,
     };
 
     const comment = await FeedService.createComment(commentData);

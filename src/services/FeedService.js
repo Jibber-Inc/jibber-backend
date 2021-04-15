@@ -351,7 +351,7 @@ const decreaseGeneralPostUnreadMessages = async reader => {
 };
 
 const createComment = async data => {
-  const { author, post, body, attributes, reply } = data;
+  const { author, post, body, attributes, reply, updateId } = data;
 
   let replyComment;
 
@@ -369,6 +369,7 @@ const createComment = async data => {
   comment.set('attributes', attributes);
   comment.set('reply', replyComment);
   comment.set('post', relatedPost);
+  comment.set('updateId', updateId);
   await comment.save(null, { useMasterKey: true });
 
   const relation = relatedPost.relation('comments');
