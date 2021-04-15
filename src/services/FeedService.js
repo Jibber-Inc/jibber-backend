@@ -362,14 +362,15 @@ const createComment = async data => {
   }
 
   const comment = new Parse.Object('Comment');
+  const relatedPost = await new Parse.Query('Post').get(post);
+
   comment.set('author', author);
   comment.set('body', body);
   comment.set('attributes', attributes);
   comment.set('reply', replyComment);
-  comment.set('post', post);
+  comment.set('post', relatedPost);
   await comment.save(null, { useMasterKey: true });
 
-  const relatedPost = await new Parse.Query('Post').get(post);
   const relation = relatedPost.relation('comments');
   relation.add(comment);
   await relatedPost.save(null, { useMasterKey: true });
