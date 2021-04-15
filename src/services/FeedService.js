@@ -366,6 +366,7 @@ const createComment = async data => {
   comment.set('body', body);
   comment.set('attributes', attributes);
   comment.set('reply', replyComment);
+  comment.set('post', post);
   await comment.save(null, { useMasterKey: true });
 
   const relatedPost = await new Parse.Query('Post').get(post);
