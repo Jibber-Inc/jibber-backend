@@ -15,6 +15,7 @@ const createPost = async request => {
     author = user,
     attributes,
     file,
+    preview,
   } = request.params;
 
   try {
@@ -28,6 +29,7 @@ const createPost = async request => {
       author,
       attributes,
       file,
+      preview,
     };
 
     const post = await FeedService.createPost(postData);
