@@ -77,12 +77,12 @@ const createPost = async data => {
     duration = 5,
     author,
     attributes = {},
-    file,
-    preview,
+    file = null,
+    preview = null,
   } = data;
   try {
-    const mediaFile = new Parse.File('post_photo.jpg', file);
-    const mediaPreview = new Parse.File('preview_photo.jpg', preview);
+    let mediaFile;
+    let mediaPreview;
     const post = new Parse.Object('Post');
     post.set('type', type);
     post.set('priority', priority);
@@ -92,8 +92,14 @@ const createPost = async data => {
     post.set('duration', duration);
     post.set('author', author);
     post.set('attributes', attributes);
-    post.set('file', mediaFile);
-    post.set('preview', mediaPreview);
+    if (file) {
+      mediaFile = new Parse.File('post_photo.jpg', file);
+      post.set('file', mediaFile);
+    }
+    if (preview) {
+      mediaPreview = new Parse.File('preview_photo.jpg', preview);
+      post.set('preview', mediaPreview);
+    }
     await post.save(null, { useMasterKey: true });
 
     const feed = await getUserFeed(author);
