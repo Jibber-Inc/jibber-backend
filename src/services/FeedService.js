@@ -254,11 +254,11 @@ const createGeneralUnreadMessagesPost = async user => {
  *
  * @param {*} channelsid
  */
-const increasePostUnreadMessages = async (fromUser, channelsid) => {
+const increasePostUnreadMessages = async (fromUser, channel) => {
   // Get all unreadMessages posts for the channel
   const unreadMessagesPosts = await new Parse.Query('Post')
     .equalTo('type', UNREADMESSAGES_POST_TYPE)
-    .equalTo('attributes.channelSid', channelsid)
+    .equalTo('attributes.channelSid', channel.sid)
     .notEqualTo('author', fromUser)
     .find({ userMasterKey: true });
 
@@ -267,6 +267,10 @@ const increasePostUnreadMessages = async (fromUser, channelsid) => {
     unreadMessagesPosts.forEach(urmp => {
       db.getValueForNextSequence(`unreadMessages_${urmp.id}`)
         .then(numberOfUnread => {
+          urmp.set(
+            'body',
+            `You have (${numberOfUnread}) unread message/s in the conversation: (${channel.FriendlyName}).`,
+          );
           urmp.set('attributes.numberOfUnread', numberOfUnread);
           urmp.save(null, { useMasterKey: true });
         })
@@ -283,7 +287,7 @@ const increasePostUnreadMessages = async (fromUser, channelsid) => {
  *
  * @param {*} channelsid
  */
-const increaseGeneralPostUnreadMessages = async users => {
+const increaseGeneralPostUnreadMessages = async (users, channel) => {
   users.forEach(user => {
     new Parse.Query('Post')
       .equalTo('type', GENERAL_UNREADMESSAGES_POST_TYPE)
@@ -292,6 +296,10 @@ const increaseGeneralPostUnreadMessages = async users => {
       .then(post => {
         db.getValueForNextSequence(`generalUnreadMessages_${post.id}`).then(
           numberOfUnread => {
+            post.set(
+              'body',
+              `You have (${numberOfUnread}) unread message/s in the conversation: (${channel.FriendlyName}).`,
+            );
             post.set('attributes.numberOfUnread', numberOfUnread);
             post.save(null, { useMasterKey: true });
           },
@@ -310,11 +318,11 @@ const increaseGeneralPostUnreadMessages = async users => {
  * @param {*} reader
  * @param {*} channelsid
  */
-const decreasePostUnreadMessages = async (reader, channelsid) => {
+const decreasePostUnreadMessages = async (reader, channel) => {
   // Get all unreadMessages posts for the channel
   const urmp = await new Parse.Query('Post')
     .equalTo('type', UNREADMESSAGES_POST_TYPE)
-    .equalTo('attributes.channelSid', channelsid)
+    .equalTo('attributes.channelSid', channel.sid)
     .equalTo('author', reader)
     .first({ useMasterKey: true });
 
@@ -322,6 +330,10 @@ const decreasePostUnreadMessages = async (reader, channelsid) => {
   if (urmp) {
     db.getPreviousValueForSequence(`unreadMessages_${urmp.id}`)
       .then(numberOfUnread => {
+        urmp.set(
+          'body',
+          `You have (${numberOfUnread}) unread message/s in the conversation: (${channel.FriendlyName}).`,
+        );
         urmp.set('attributes.numberOfUnread', numberOfUnread);
         urmp.save(null, { useMasterKey: true });
       })
@@ -330,7 +342,7 @@ const decreasePostUnreadMessages = async (reader, channelsid) => {
       });
   } else {
     throw new FeedServiceError(
-      `[CODE] Unread messages post not found for the channel ${channelsid}`,
+      `[CODE] Unread messages post not found for the channel ${channel.sid}`,
     );
   }
 };
@@ -342,7 +354,7 @@ const decreasePostUnreadMessages = async (reader, channelsid) => {
  * @param {*} reader
  * @param {*} channelsid
  */
-const decreaseGeneralPostUnreadMessages = async reader => {
+const decreaseGeneralPostUnreadMessages = async (reader, channel) => {
   // Get the generalUnreadMessages posts for the channel
   const post = await new Parse.Query('Post')
     .equalTo('type', GENERAL_UNREADMESSAGES_POST_TYPE)
@@ -351,6 +363,10 @@ const decreaseGeneralPostUnreadMessages = async reader => {
 
   db.getPreviousValueForSequence(`generalUnreadMessages_${post.id}`)
     .then(numberOfUnread => {
+      post.set(
+        'body',
+        `You have (${numberOfUnread}) unread message/s in the conversation: (${channel.FriendlyName}).`,
+      );
       post.set('attributes.numberOfUnread', numberOfUnread);
       post.save(null, { useMasterKey: true });
     })

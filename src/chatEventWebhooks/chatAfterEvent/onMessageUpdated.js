@@ -2,6 +2,7 @@ import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import FeedService from '../../services/FeedService';
 import { NOTIFICATION_TYPES } from '../../constants';
+import ChatService from '../../services/ChatService';
 
 /**
  * EventType - string - Always onMessageUpdated
@@ -32,6 +33,7 @@ const onMessageUpdated = async (request, response) => {
 
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
 
+    const channel = await ChatService.fetchChannel(ChannelSid);
     const { consumers = [], context = '' } = JSON.parse(Attributes);
 
     // Get the Parse.Users for author and reader
@@ -62,8 +64,8 @@ const onMessageUpdated = async (request, response) => {
     }
 
     // Decrease by 1 the unread messages in all the needed posts
-    await FeedService.decreasePostUnreadMessages(reader, ChannelSid);
-    await FeedService.decreaseGeneralPostUnreadMessages(reader);
+    await FeedService.decreasePostUnreadMessages(reader, channel);
+    await FeedService.decreaseGeneralPostUnreadMessages(reader, channel);
 
     return response.status(200).json(pushStatus);
   } catch (error) {
