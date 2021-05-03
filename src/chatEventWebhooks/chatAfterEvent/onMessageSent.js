@@ -25,6 +25,7 @@ const onMessageSent = async (request, response) => {
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
     const { context } = JSON.parse(Attributes);
 
+    const channel = await ChatService.fetchChannel(ChannelSid);
     const membersList = await ChatService.getChannelMembers(ChannelSid);
 
     const usersIdentities = membersList
@@ -51,8 +52,8 @@ const onMessageSent = async (request, response) => {
       }
 
       // Increase by 1 the unread messages in all the needed posts
-      await FeedService.increasePostUnreadMessages(fromUser, ChannelSid);
-      await FeedService.increaseGeneralPostUnreadMessages(users);
+      await FeedService.increasePostUnreadMessages(fromUser, channel);
+      await FeedService.increaseGeneralPostUnreadMessages(users, channel);
     }
 
     return response.status(200).json(pushStatus);
