@@ -3,7 +3,7 @@ import hat from 'hat';
 import Parse from '../providers/ParseProvider';
 import ConnectionService from './ConnectionService';
 import ChatService from './ChatService';
-// import db from '../utils/db';
+import { STATUS_ACCEPTED } from '../constants';
 
 export class ReservationServiceError extends ExtendableError {}
 
@@ -17,8 +17,6 @@ const createReservation = async user => {
     const reservation = new Parse.Object('Reservation');
     reservation.set('isClaimed'.false);
     reservation.set('createdBy', user);
-    // TODO: Check if its ok to give public read+write ACL
-    // reservation.setACL(new Parse.ACL(user));
     return reservation.save(null, { useMasterKey: true });
   } catch (error) {
     throw new ReservationServiceError(error.message);
@@ -84,10 +82,11 @@ const claimReservation = async (reservationId, user) => {
     await reservation.save(null, { useMasterKey: true });
     const fromUser = reservation.get('createdBy');
     const uniqueId = hat();
+    const status = STATUS_ACCEPTED;
     const connection = await ConnectionService.createConnection(
       fromUser,
       user,
-      uniqueId,
+      status,
     );
 
     if (!connection.get('channelSid')) {
