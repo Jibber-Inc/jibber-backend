@@ -18,6 +18,7 @@ const {
   IOS_PUSH_PRODUCTION = false,
   IOS_TOPIC = 'com.Benji.Ours',
   REDIS_URL,
+  S3_BUCKET,
 } = process.env;
 
 // Build parse server instance
@@ -47,6 +48,12 @@ const api = new ParseServer({
   protectedFields: {
     _User: {
       '*': ['hashcode'],
+    },
+  },
+  filesAdapter: {
+    module: '@parse/s3-files-adapter',
+    options: {
+      bucket: S3_BUCKET,
     },
   },
 });
