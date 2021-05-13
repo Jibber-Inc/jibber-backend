@@ -51,9 +51,11 @@ const onMessageSent = async (request, response) => {
         );
       }
 
-      // Increase by 1 the unread messages in all the needed posts
-      await FeedService.increasePostUnreadMessages(fromUser, channel);
-      await FeedService.increaseGeneralPostUnreadMessages(users, channel);
+      // Increase by 1 the unread messages in all the needed posts if the context is not 'status'
+      if (context !== 'status') {
+        await FeedService.increasePostUnreadMessages(fromUser, channel);
+        await FeedService.increaseGeneralPostUnreadMessages(users, channel);
+      }
     }
 
     return response.status(200).json(pushStatus);
