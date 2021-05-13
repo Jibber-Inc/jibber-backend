@@ -42,7 +42,16 @@ const api = new ParseServer({
   },
   liveQuery: {
     // List of classes to support for query subscriptions
-    classNames: ['QuePositions', 'Post', 'Feed', '_User', 'Ritual', 'Comment'],
+    classNames: [
+      'QuePositions',
+      'Post',
+      'Feed',
+      '_User',
+      'Ritual',
+      'Comment',
+      'Channel',
+      'Notification',
+    ],
     redisUrl: REDIS_URL,
   },
   protectedFields: {
