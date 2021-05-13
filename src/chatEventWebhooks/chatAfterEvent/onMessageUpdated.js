@@ -47,7 +47,10 @@ const onMessageUpdated = async (request, response) => {
     // If the messages has emergency context,
     // send a push notification that it has been read
     if (consumers.includes(ModifiedBy) && context === 'emergency') {
-      const body = `${reader.get('handle')} read your message`;
+      const message = await ChatService.fetchMessage(MessageSid);
+      const body = `${reader.get('giveName')} ${reader.get(
+        'familyName',
+      )} read: ${message.body}`;
       const data = {
         messageId: MessageSid,
         channelId: ChannelSid,

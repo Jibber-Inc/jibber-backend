@@ -213,6 +213,19 @@ const fetchChannel = async ChannelSid => {
   }
 };
 
+/**
+ * Fetch a message by a message id.
+ *
+ * @param {string} ChannelSid
+ */
+const fetchMessage = async MessageSid => {
+  try {
+    return new Twilio().client.messages(MessageSid).fetch();
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
 const createMessagesForChannel = async (channel, data) => {
   const { messages } = MessagesUtil;
   // eslint-disable-next-line no-restricted-syntax
@@ -306,6 +319,7 @@ export default {
   deleteUserChannels,
   createMessage,
   fetchChannel,
+  fetchMessage,
   getUserChannels,
   userHasInitialChannels,
   createInitialChannels,
