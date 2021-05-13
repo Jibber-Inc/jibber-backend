@@ -31,7 +31,7 @@ export const initiate2FAService = (authCode, user) => {
   }
 
   return new Twilio().client.messages.create({
-    body: `Your code for Benji is: ${authCode}`,
+    body: `Your code for Ours is: ${authCode}`,
     from: process.env.TWILIO_PHONE_NUMBER || '+12012560616',
     to: user.get('phoneNumber'),
   });
