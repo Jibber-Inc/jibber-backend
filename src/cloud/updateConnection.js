@@ -4,6 +4,7 @@ import Parse from '../providers/ParseProvider';
 import ChatService from '../services/ChatService';
 import PushService from '../services/PushService';
 import UserService from '../services/UserService';
+import UserUtils from '../utils/userData';
 
 // Constants
 import {
@@ -88,9 +89,7 @@ const updateConnection = async request => {
       ]);
 
       // Notify that the user accepted the connection
-      const toFullName = `${toUser.get('givenName')} ${toUser.get(
-        'familyName',
-      )}`;
+      const toFullName = UserUtils.getFullName(toUser);
       const data = {
         catetory: 'connectionConfirmed',
         title: 'Connection confirmed 🙌',
