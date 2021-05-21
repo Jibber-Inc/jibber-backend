@@ -51,6 +51,7 @@ const api = new ParseServer({
       'Comment',
       'Channel',
       'Notification',
+      'Connection',
     ],
     redisUrl: REDIS_URL,
   },
