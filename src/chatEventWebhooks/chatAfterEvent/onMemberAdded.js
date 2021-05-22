@@ -1,6 +1,5 @@
 import ExtendableError from 'extendable-error-class';
 import ChatService from '../../services/ChatService';
-import FeedService from '../../services/FeedService';
 import Parse from '../../providers/ParseProvider';
 import { ONBOARDING_ADMIN } from '../../constants/index';
 
