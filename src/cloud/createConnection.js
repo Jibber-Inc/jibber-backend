@@ -3,6 +3,7 @@ import Parse from '../providers/ParseProvider';
 import ConnectionService from '../services/ConnectionService';
 import PushService from '../services/PushService';
 import FeedService from '../services/FeedService';
+import NotificationService from '../services/NotificationService';
 import UserUtils from '../utils/userData';
 
 // Constants
@@ -53,6 +54,8 @@ const createConnection = async request => {
   }
 
   try {
+    const userFullName = UserUtils.getFullName(user);
+
     const connection = await ConnectionService.createConnection(
       user,
       toUser,
@@ -61,15 +64,6 @@ const createConnection = async request => {
 
     // Notify the user about the connection request
     if (connection && status === STATUS_INVITED) {
-      const fullName = UserUtils.getFullName(user);
-      const data = {
-        category: 'connectionRequest',
-        title: 'Connection Request handshake',
-        body: `You have a connection request from ${fullName}.`,
-        connectionId: connection.id,
-        target: 'channel',
-      };
-
       // Set the data for the connection request post
       const postData = {
         type: CONNECTION_REQUEST_POST,
@@ -85,6 +79,29 @@ const createConnection = async request => {
       // Create the connection request post
       await FeedService.createPost(postData);
 
+      // Set the data for the connection request Notification object
+      const notificationData = {
+        type: NOTIFICATION_TYPES.CONNECTION_REQUEST,
+        body: `You have a connection request from ${userFullName}.`,
+        attributes: {
+          connectionId: connection.id,
+        },
+        priority: 2,
+        user,
+      };
+      // Create the Notification object
+      await NotificationService.createNotification(notificationData);
+
+      // Set the data for the push notification
+      const data = {
+        category: 'connectionRequest',
+        title: 'Connection Request handshake',
+        body: `You have a connection request from ${userFullName}.`,
+        connectionId: connection.id,
+        target: 'channel',
+      };
+
+      // Create the push notification
       await PushService.sendPushNotificationToUsers(
         NOTIFICATION_TYPES.CONNECTION_REQUEST,
         data,
