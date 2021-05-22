@@ -6,7 +6,6 @@ import Twilio from '../providers/TwilioProvider';
 import MessagesUtil from '../utils/messages';
 // Constants
 import { ONBOARDING_ADMIN } from '../constants/index';
-import FeedService from './FeedService';
 
 export class ChatServiceError extends ExtendableError {}
 
@@ -295,7 +294,6 @@ const createInitialChannels = async user => {
     givenName: user.get('givenName'),
   });
   await addMembersToChannel(welcomeChannel.sid, members);
-  await FeedService.createUnreadMessagesPost(user, welcomeChannel);
 
   const feedbackChannel = await createChatChannel(
     user,
@@ -307,7 +305,6 @@ const createInitialChannels = async user => {
   // Send the feedback message
   await createMessagesForChannel(feedbackChannel);
   await addMembersToChannel(feedbackChannel.sid, members);
-  await FeedService.createUnreadMessagesPost(user, feedbackChannel);
 };
 
 export default {
