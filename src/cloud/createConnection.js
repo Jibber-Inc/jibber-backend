@@ -3,6 +3,7 @@ import Parse from '../providers/ParseProvider';
 import ConnectionService from '../services/ConnectionService';
 import PushService from '../services/PushService';
 import FeedService from '../services/FeedService';
+import UserUtils from '../utils/userData';
 
 // Constants
 import {
@@ -60,7 +61,7 @@ const createConnection = async request => {
 
     // Notify the user about the connection request
     if (connection && status === STATUS_INVITED) {
-      const fullName = `${user.get('givenName')} ${user.get('familyName')}`;
+      const fullName = UserUtils.getFullName(user);
       const data = {
         category: 'connectionRequest',
         title: 'Connection Request handshake',

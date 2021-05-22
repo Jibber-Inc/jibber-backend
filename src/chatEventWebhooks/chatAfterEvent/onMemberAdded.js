@@ -1,6 +1,5 @@
 import ExtendableError from 'extendable-error-class';
 import ChatService from '../../services/ChatService';
-import FeedService from '../../services/FeedService';
 import Parse from '../../providers/ParseProvider';
 import { ONBOARDING_ADMIN } from '../../constants/index';
 
@@ -64,12 +63,10 @@ const onMemberAdded = async (request, response) => {
         .first();
       // Check the role
       if (userRole && userRole.get('name') !== ONBOARDING_ADMIN) {
-        const message = await createUserJoinedMessage(user, channel.sid);
+        const message = await createUserJoinedMessage(user, ChannelSid);
         messageSid = message.sid;
       }
     }
-    // Finally, create the post for the unread messages for the user
-    await FeedService.createUnreadMessagesPost(user, channel);
 
     return response.status(200).json({ messageSid });
   } catch (error) {

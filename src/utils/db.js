@@ -47,7 +47,7 @@ const getPreviousValueForSequence = async sequenceOfName => {
       { $inc: { sequence_value: -1 } },
       { upsert: true },
     );
-    return !value ? -1 : value.sequence_value - 1;
+    return !value ? 0 : value.sequence_value - 1;
   } catch (error) {
     throw new DbUtilError(error.message);
   }
