@@ -3,6 +3,7 @@ import PushService from '../../services/PushService';
 import ChatService from '../../services/ChatService';
 import { NOTIFICATION_TYPES } from '../../constants';
 import FeedService from '../../services/FeedService';
+import UserUtils from '../../utils/userData';
 
 /**
  * EventType - string - Always onMessageSent
@@ -24,10 +25,7 @@ const onMessageSent = async (request, response) => {
   try {
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
     const { context } = JSON.parse(Attributes);
-
-    const channel = await ChatService.fetchChannel(ChannelSid);
     const membersList = await ChatService.getChannelMembers(ChannelSid);
-
     const usersIdentities = membersList
       .map(m => m.identity)
       .filter(u => u !== From);
@@ -36,11 +34,12 @@ const onMessageSent = async (request, response) => {
     if (users.length) {
       const fromUser = await new Parse.Query(Parse.User).get(From);
       if (context === 'emergency') {
+        const fullName = UserUtils.getFullName(fromUser);
         const data = {
           messageId: MessageSid,
           channelId: ChannelSid,
           identifier: MessageSid + context,
-          title: `Urgent message from: (${fromUser.get('handle')})`,
+          title: `🚨 ${fullName}`,
           body: Body,
           target: 'channel',
         };
@@ -51,9 +50,10 @@ const onMessageSent = async (request, response) => {
         );
       }
 
-      // Increase by 1 the unread messages in all the needed posts
-      await FeedService.increasePostUnreadMessages(fromUser, channel);
-      await FeedService.increaseGeneralPostUnreadMessages(users, channel);
+      // Increase by 1 the unread messages in all the needed posts if the context is not 'status'
+      if (context !== 'status') {
+        await FeedService.increasePostUnreadMessages(fromUser, ChannelSid);
+      }
     }
 
     return response.status(200).json(pushStatus);

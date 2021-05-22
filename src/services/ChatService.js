@@ -6,7 +6,6 @@ import Twilio from '../providers/TwilioProvider';
 import MessagesUtil from '../utils/messages';
 // Constants
 import { ONBOARDING_ADMIN } from '../constants/index';
-import FeedService from './FeedService';
 
 export class ChatServiceError extends ExtendableError {}
 
@@ -213,6 +212,19 @@ const fetchChannel = async ChannelSid => {
   }
 };
 
+/**
+ * Fetch a message by a message id.
+ *
+ * @param {string} ChannelSid
+ */
+const fetchMessage = async MessageSid => {
+  try {
+    return new Twilio().client.messages(MessageSid).fetch();
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
 const createMessagesForChannel = async (channel, data) => {
   const { messages } = MessagesUtil;
   // eslint-disable-next-line no-restricted-syntax
@@ -282,7 +294,6 @@ const createInitialChannels = async user => {
     givenName: user.get('givenName'),
   });
   await addMembersToChannel(welcomeChannel.sid, members);
-  await FeedService.createUnreadMessagesPost(user, welcomeChannel);
 
   const feedbackChannel = await createChatChannel(
     user,
@@ -294,7 +305,6 @@ const createInitialChannels = async user => {
   // Send the feedback message
   await createMessagesForChannel(feedbackChannel);
   await addMembersToChannel(feedbackChannel.sid, members);
-  await FeedService.createUnreadMessagesPost(user, feedbackChannel);
 };
 
 export default {
@@ -306,6 +316,7 @@ export default {
   deleteUserChannels,
   createMessage,
   fetchChannel,
+  fetchMessage,
   getUserChannels,
   userHasInitialChannels,
   createInitialChannels,

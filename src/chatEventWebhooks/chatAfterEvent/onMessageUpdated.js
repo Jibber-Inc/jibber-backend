@@ -32,10 +32,7 @@ const onMessageUpdated = async (request, response) => {
     } = request.body;
 
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
-
-    const channel = await ChatService.fetchChannel(ChannelSid);
     const { consumers = [], context = '' } = JSON.parse(Attributes);
-
     // Get the Parse.Users for author and reader
     const [author, reader] = await Promise.all([
       new Parse.Query(Parse.User).get(From, { useMasterKey: true }),
@@ -47,7 +44,10 @@ const onMessageUpdated = async (request, response) => {
     // If the messages has emergency context,
     // send a push notification that it has been read
     if (consumers.includes(ModifiedBy) && context === 'emergency') {
-      const body = `${reader.get('handle')} read your message`;
+      const message = await ChatService.fetchMessage(MessageSid);
+      const body = `${reader.get('giveName')} ${reader.get(
+        'familyName',
+      )} read: ${message.body}`;
       const data = {
         messageId: MessageSid,
         channelId: ChannelSid,
@@ -62,10 +62,8 @@ const onMessageUpdated = async (request, response) => {
         [author],
       );
     }
-
     // Decrease by 1 the unread messages in all the needed posts
-    await FeedService.decreasePostUnreadMessages(reader, channel);
-    await FeedService.decreaseGeneralPostUnreadMessages(reader, channel);
+    await FeedService.decreasePostUnreadMessages(reader, ChannelSid);
 
     return response.status(200).json(pushStatus);
   } catch (error) {

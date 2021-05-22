@@ -18,6 +18,7 @@ const {
   IOS_PUSH_PRODUCTION = false,
   IOS_TOPIC = 'com.Benji.Ours',
   REDIS_URL,
+  S3_BUCKET,
 } = process.env;
 
 // Build parse server instance
@@ -41,7 +42,17 @@ const api = new ParseServer({
   },
   liveQuery: {
     // List of classes to support for query subscriptions
-    classNames: ['QuePositions', 'Post', 'Feed', '_User', 'Ritual', 'Comment'],
+    classNames: [
+      'QuePositions',
+      'Post',
+      'Feed',
+      '_User',
+      'Ritual',
+      'Comment',
+      'Channel',
+      'Notification',
+      'Connection',
+    ],
     redisUrl: REDIS_URL,
   },
   protectedFields: {
@@ -49,6 +60,13 @@ const api = new ParseServer({
       '*': ['hashcode'],
     },
   },
+  filesAdapter: {
+    module: '@parse/s3-files-adapter',
+    options: {
+      bucket: S3_BUCKET,
+    },
+  },
+  maxUploadSize: '50mb',
 });
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
 // If you wish you require them, you can set them as options in the initialization above:
