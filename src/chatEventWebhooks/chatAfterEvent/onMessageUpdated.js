@@ -32,10 +32,7 @@ const onMessageUpdated = async (request, response) => {
     } = request.body;
 
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
-
-    const channel = await ChatService.fetchChannel(ChannelSid);
     const { consumers = [], context = '' } = JSON.parse(Attributes);
-
     // Get the Parse.Users for author and reader
     const [author, reader] = await Promise.all([
       new Parse.Query(Parse.User).get(From, { useMasterKey: true }),
@@ -65,10 +62,8 @@ const onMessageUpdated = async (request, response) => {
         [author],
       );
     }
-
     // Decrease by 1 the unread messages in all the needed posts
-    await FeedService.decreasePostUnreadMessages(reader, channel);
-    await FeedService.decreaseGeneralPostUnreadMessages(reader, channel);
+    await FeedService.decreasePostUnreadMessages(reader, ChannelSid);
 
     return response.status(200).json(pushStatus);
   } catch (error) {
