@@ -6,7 +6,6 @@ import Twilio from '../providers/TwilioProvider';
 import MessagesUtil from '../utils/messages';
 // Constants
 import { ONBOARDING_ADMIN } from '../constants/index';
-import FeedService from './FeedService';
 
 export class ChatServiceError extends ExtendableError {}
 
