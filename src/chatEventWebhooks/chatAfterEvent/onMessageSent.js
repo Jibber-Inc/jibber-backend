@@ -3,6 +3,7 @@ import PushService from '../../services/PushService';
 import ChatService from '../../services/ChatService';
 import { NOTIFICATION_TYPES } from '../../constants';
 import FeedService from '../../services/FeedService';
+import UserUtils from '../../utils/userData';
 
 /**
  * EventType - string - Always onMessageSent
@@ -33,11 +34,12 @@ const onMessageSent = async (request, response) => {
     if (users.length) {
       const fromUser = await new Parse.Query(Parse.User).get(From);
       if (context === 'emergency') {
+        const fullName = UserUtils.getFullName(fromUser);
         const data = {
           messageId: MessageSid,
           channelId: ChannelSid,
           identifier: MessageSid + context,
-          title: `Urgent message from: (${fromUser.get('handle')})`,
+          title: `🚨 ${fullName}`,
           body: Body,
           target: 'channel',
         };
