@@ -3,7 +3,7 @@ import PushService from '../../services/PushService';
 import ChatService from '../../services/ChatService';
 import { NOTIFICATION_TYPES } from '../../constants';
 import FeedService from '../../services/FeedService';
-import NotificationService from '../../services/NotificationService';
+import NoticeService from '../../services/NoticeService';
 import UserUtils from '../../utils/userData';
 
 /**
@@ -35,18 +35,8 @@ const onMessageSent = async (request, response) => {
     if (users.length) {
       const fromUser = await new Parse.Query(Parse.User).get(From);
       if (context === 'emergency') {
-        const fullName = UserUtils.getFullName(fromUser);
-        const data = {
-          messageId: MessageSid,
-          channelId: ChannelSid,
-          identifier: MessageSid + context,
-          title: `🚨 ${fullName}`,
-          body: Body,
-          target: 'channel',
-        };
-
-        // Set the data for the alert message Notification object
-        const notificationData = {
+        // Set the data for the alert message Notice object
+        const noticeData = {
           type: NOTIFICATION_TYPES.ALERT_MESSAGE,
           body: Body,
           attributes: {
@@ -56,9 +46,20 @@ const onMessageSent = async (request, response) => {
           priority: 1,
           fromUser,
         };
-        // Create the Notification object
-        await NotificationService.createNotification(notificationData);
+        // Create the Notice object
+        await NoticeService.createNotice(noticeData);
 
+        // Set the data for the alert message push notification
+        const fullName = UserUtils.getFullName(fromUser);
+        const data = {
+          messageId: MessageSid,
+          channelId: ChannelSid,
+          identifier: MessageSid + context,
+          title: `🚨 ${fullName}`,
+          body: Body,
+          target: 'channel',
+        };
+        // Send the push notification
         pushStatus = await PushService.sendPushNotificationToUsers(
           NOTIFICATION_TYPES.ALERT_MESSAGE,
           data,
