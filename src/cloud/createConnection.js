@@ -3,7 +3,7 @@ import Parse from '../providers/ParseProvider';
 import ConnectionService from '../services/ConnectionService';
 import PushService from '../services/PushService';
 import FeedService from '../services/FeedService';
-import NotificationService from '../services/NotificationService';
+import NoticeService from '../services/NoticeService';
 import UserUtils from '../utils/userData';
 
 // Constants
@@ -79,8 +79,8 @@ const createConnection = async request => {
       // Create the connection request post
       await FeedService.createPost(postData);
 
-      // Set the data for the connection request Notification object
-      const notificationData = {
+      // Set the data for the connection request Notice object
+      const noticeData = {
         type: NOTIFICATION_TYPES.CONNECTION_REQUEST,
         body: `You have a connection request from ${userFullName}.`,
         attributes: {
@@ -89,8 +89,8 @@ const createConnection = async request => {
         priority: 2,
         user,
       };
-      // Create the Notification object
-      await NotificationService.createNotification(notificationData);
+      // Create the Notice object
+      await NoticeService.createNotice(noticeData);
 
       // Set the data for the push notification
       const data = {
