@@ -42,6 +42,7 @@ const onMessageSent = async (request, response) => {
           attributes: {
             channelId: ChannelSid,
             messageId: MessageSid,
+            author: From,  
           },
           priority: 1,
           fromUser,
