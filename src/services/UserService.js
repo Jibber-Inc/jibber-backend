@@ -268,7 +268,7 @@ const createUserPreference = async (fromUser, toUser) => {
     userPreferences = [fromUserPreference];
   }
   fromUser.set('userPreferences', userPreferences);
-  await fromUser.save();
+  await fromUser.save(null, { useMasterKey: true });
 };
 
 export default {
