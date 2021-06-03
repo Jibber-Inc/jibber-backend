@@ -21,7 +21,14 @@ import UserUtils from '../../utils/userData';
  * DateCreated - date string - The timestamp of message creation
  */
 const onMessageSent = async (request, response) => {
-  const { ChannelSid, MessageSid, Body, From, Attributes } = request.body;
+  const {
+    ChannelSid,
+    MessageSid,
+    Body,
+    From,
+    Index,
+    Attributes,
+  } = request.body;
   let pushStatus = {};
   try {
     if (!Attributes) throw new Error('No Attributes present on the resquest.');
@@ -42,7 +49,8 @@ const onMessageSent = async (request, response) => {
           attributes: {
             channelId: ChannelSid,
             messageId: MessageSid,
-            author: From,  
+            author: From,
+            index: Index,
           },
           priority: 1,
           fromUser,
