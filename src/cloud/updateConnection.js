@@ -82,12 +82,6 @@ const updateConnection = async request => {
       connection.set('status', status);
       await connection.save(null, { useMasterKey: true });
 
-      // Create Users preferences
-      await Promise.all([
-        UserService.createUserPreference(toUser, fromUser),
-        UserService.createUserPreference(fromUser, toUser),
-      ]);
-
       // Notify that the user accepted the connection
       const toFullName = UserUtils.getFullName(toUser);
       const data = {
@@ -97,11 +91,18 @@ const updateConnection = async request => {
         channelId: channel.sid,
         target: 'channel',
       };
+
       await PushService.sendPushNotificationToUsers(
         NOTIFICATION_TYPES.CONNECTION_CONFIRMED,
         data,
         [fromUser],
       );
+
+      // Create Users preferences
+      await Promise.all([
+        UserService.createUserPreference(toUser, fromUser),
+        UserService.createUserPreference(fromUser, toUser),
+      ]);
     }
     return connection;
   } catch (error) {
