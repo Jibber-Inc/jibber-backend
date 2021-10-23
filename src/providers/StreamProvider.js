@@ -2,9 +2,12 @@ import { StreamChat } from 'stream-chat';
 
 class StreamProvider {
   constructor() {
+
+    // Load environment variables
+    const { STREAM_KEY, STREAM_SECRET } = process.env;
     // instantiate your stream client using the API key and secret 
     // the secret is only used server side and gives you full access to the API 
-    this.client = StreamChat.getInstance('hvmd2mhxcres', '6bymtfbe6udf8aa3gsdp5r47ysz4cu8rvqnwc5r5cg9vtd898r3akzwxgjz5qfbq');
+    this.client = StreamChat.getInstance(STREAM_KEY, STREAM_SECRET);
   }
 }
 
