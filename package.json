@@ -26,6 +26,7 @@
     "hat": "0.0.3",
     "mongoose": "^5.9.6",
     "parse-server": "^4.5.0",
+    "stream-chat": "^4.2.0",
     "tcp-port-used": "^1.0.1",
     "twilio": "^3.54.1",
     "twilio-chat": "^4.1.0",
