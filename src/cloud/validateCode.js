@@ -97,13 +97,12 @@ const validateCode = async request => {
       if (testUser.isTestUser(phoneNumber)) {
         status = testUser.validate(authCode);
       } else {
-		  // TODO: Implement 2 factor authentication service from STREAM
-         // const result = await TwoFAService.verifyCode(
-		 //  user.get('phoneNumber'),
-		 //  authCode,
-		 // );
-		 // status = result.status;
-		  status = 'approved';
+       const result = await TwoFAService.verifyCode(
+			user.get('phoneNumber'),
+		   authCode,
+		);
+
+       status = result.status;
       }
 
       // If the code is wrong, status wont be approved
