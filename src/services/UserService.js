@@ -125,22 +125,6 @@ const deleteUserInstallations = async user => {
 };
 
 /**
- * Delete all user rituals.
- *
- * @param {Parse.User} user
- */
-const deleteRituals = async user => {
-  try {
-    if (user.get('ritual')) {
-      const ritual = await user.get('ritual').fetch();
-      await ritual.destroy({ useMasterKey: true });
-    }
-  } catch (error) {
-    throw new UserServiceError(error.message);
-  }
-};
-
-/**
  * Delete all user connections
  *
  * @param {Parse.User} user
@@ -277,7 +261,6 @@ export default {
   getLastSessionToken,
   clearUserSessions,
   deleteUserInstallations,
-  deleteRituals,
   deleteConnections,
   deleteReservations,
   setActiveStatus,
