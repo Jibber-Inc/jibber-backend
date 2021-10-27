@@ -10,6 +10,7 @@ import QuePositionsService from '../services/QuePositionsService';
 // Utils
 import testUser from '../utils/testUser';
 import db from '../utils/db';
+import Stream from '../providers/StreamProvider'
 
 class ValidateCodeError extends ExtendableError {}
 
@@ -96,11 +97,12 @@ const validateCode = async request => {
       if (testUser.isTestUser(phoneNumber)) {
         status = testUser.validate(authCode);
       } else {
-        const result = await TwoFAService.verifyCode(
-          user.get('phoneNumber'),
-          authCode,
-        );
-        status = result.status;
+       const result = await TwoFAService.verifyCode(
+			user.get('phoneNumber'),
+		   authCode,
+		);
+
+       status = result.status;
       }
 
       // If the code is wrong, status wont be approved
@@ -136,7 +138,12 @@ const validateCode = async request => {
       return logged.getSessionToken();
     }
 
-    return sessionToken;
+    const streamToken = Stream.client.createToken(user.id);
+
+    return {
+		parseSessionToken: sessionToken,
+		streamToken
+	};
   } catch (error) {
     if (error instanceof ReservationServiceError) {
       setUserStatus(user);
