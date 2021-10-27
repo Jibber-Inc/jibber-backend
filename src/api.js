@@ -47,7 +47,6 @@ const api = new ParseServer({
       'Post',
       'Feed',
       '_User',
-      'Ritual',
       'Comment',
       'Channel',
       'Notice',
