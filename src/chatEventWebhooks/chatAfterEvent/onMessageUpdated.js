@@ -1,6 +1,5 @@
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
-import FeedService from '../../services/FeedService';
 import { NOTIFICATION_TYPES } from '../../constants';
 import ChatService from '../../services/ChatService';
 
@@ -63,7 +62,6 @@ const onMessageUpdated = async (request, response) => {
       );
     }
     // Decrease by 1 the unread messages in all the needed posts
-    await FeedService.decreasePostUnreadMessages(reader, ChannelSid);
 
     return response.status(200).json(pushStatus);
   } catch (error) {

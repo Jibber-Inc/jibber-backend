@@ -2,7 +2,6 @@ import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 import ConnectionService from '../services/ConnectionService';
 import PushService from '../services/PushService';
-import FeedService from '../services/FeedService';
 import NoticeService from '../services/NoticeService';
 import UserUtils from '../utils/userData';
 
@@ -76,8 +75,6 @@ const createConnection = async request => {
           connectionId: connection.id,
         },
       };
-      // Create the connection request post
-      await FeedService.createPost(postData);
 
       // Set the data for the connection request Notice object
       const noticeData = {

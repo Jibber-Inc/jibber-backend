@@ -2,7 +2,6 @@ import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import ChatService from '../../services/ChatService';
 import { NOTIFICATION_TYPES } from '../../constants';
-import FeedService from '../../services/FeedService';
 import NoticeService from '../../services/NoticeService';
 import UserUtils from '../../utils/userData';
 
@@ -78,7 +77,6 @@ const onMessageSent = async (request, response) => {
 
       // Increase by 1 the unread messages in all the needed posts if the context is not 'status'
       if (context !== 'status') {
-        await FeedService.increasePostUnreadMessages(fromUser, ChannelSid);
       }
     }
 

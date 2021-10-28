@@ -3,7 +3,6 @@ import Parse from '../../providers/ParseProvider';
 
 import ChatService from '../../services/ChatService';
 import UserService from '../../services/UserService';
-import FeedService from '../../services/FeedService';
 
 class UserAfterDeleteError extends ExtendableError {}
 
@@ -29,7 +28,6 @@ const userAfterDelete = async request => {
       UserService.clearUserSessions(user),
       ChatService.deleteUserChannels(user.id),
       ChatService.deleteTwilioUser(user.id),
-      FeedService.deleteFeedAndPosts(user),
     ]);
   } catch (error) {
     console.log(error);
