@@ -22,19 +22,6 @@ const onChannelUpdated = async (request, response) => {
     const user = await new Parse.Query(Parse.User).get(Identity);
     const channel = await ChatService.fetchChannel(ChannelSid);
     if (channel.status === 'invited') {
-      const postData = {
-        type: CHANNEL_INVITE_POST,
-        priority: 1,
-        body: `You have been invited to join ${channel.friendlyName}, by ${user.givenName} ${user.familyName}`,
-        expirationDate: null,
-        triggerDate: null,
-        author: user,
-        duration: 5,
-        attributes: {
-          channelSid: channel.sid,
-        },
-      };
-      const post = await FeedService.createPost(postData);
       return response.status(200).json(post);
     }
     return response.status(200).json(channel);

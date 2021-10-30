@@ -29,7 +29,6 @@ const userAfterDelete = async request => {
       UserService.clearUserSessions(user),
       ChatService.deleteUserChannels(user.id),
       ChatService.deleteTwilioUser(user.id),
-      FeedService.deleteFeedAndPosts(user),
     ]);
   } catch (error) {
     console.log(error);

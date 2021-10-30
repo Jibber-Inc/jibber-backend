@@ -64,20 +64,7 @@ const createConnection = async request => {
 
     // Notify the user about the connection request
     if (connection && status === STATUS_INVITED) {
-      // Set the data for the connection request post
-      const postData = {
-        type: CONNECTION_REQUEST_POST,
-        priority: 1,
-        body: null,
-        expirationDate: null,
-        triggerDate: null,
-        author: user,
-        attributes: {
-          connectionId: connection.id,
-        },
-      };
-      // Create the connection request post
-      await FeedService.createPost(postData);
+
 
       // Set the data for the connection request Notice object
       const noticeData = {
