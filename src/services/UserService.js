@@ -9,9 +9,11 @@ import generatePassword from '../utils/generatePassword';
 // Services
 import QuePositionsService from './QuePositionsService';
 import ChatService from './ChatService';
-import FeedService from './FeedService';
+// import FeedService from './FeedService';
+// Constants
+import UserStatus from '../constants/userStatus';
 
-class UserServiceError extends ExtendableError {}
+class UserServiceError extends ExtendableError { }
 
 /**
  * Create a new user.
@@ -188,35 +190,36 @@ const createUserHandle = async (user, claimedPosition, maxQuePosition) => {
  *
  * @param {*} user
  */
-const setActiveStatus = async user => {
-  if (!(user instanceof Parse.User)) {
-    throw new UserServiceError('[zIslmc6c] User not found');
-  }
-
+const setActiveStatus = async (user, givenName, familyName) => {
   // If the user has an 'inactive' state, make it 'active'
   // This  updates the claimedPosition value and creates the handle for the user
-  if (user.get('status') === 'inactive') {
+  if (user.get('status') === UserStatus.USER_STATUS_INACTIVE) {
     const maxQuePosition = await QuePositionsService.getMaxQuePosition();
     const claimedPosition = await QuePositionsService.getClaimedPosition();
+    user.set('givenName', givenName);
+    user.set('familyName', familyName);
     const handle = await createUserHandle(
       user,
       claimedPosition,
       maxQuePosition,
     );
     user.set('handle', handle);
-    user.set('status', 'active');
+    user.set('status', UserStatus.USER_STATUS_ACTIVE);
+
     await user.save(null, { useMasterKey: true });
     await QuePositionsService.update('claimedPosition', claimedPosition);
   }
 
+  // TODO: Remove this logic
   // Create the user Feed object and the related initial posts
-  await FeedService.createFeedForUser(user);
-  await FeedService.createUnreadMessagesPost(user);
+  // await FeedService.createFeedForUser(user);
+  // await FeedService.createUnreadMessagesPost(user);
 
   // At this point, if the user hasn't 'active' status, he/she is in the waitlist
   // So default chat channels won't be created for the user yet.
   // Also, if the user is 'active', the Feed and the inicial unreadMessages posts are created
-  if (user.get('status') === 'active') {
+
+  if (user.get('status') === UserStatus.USER_STATUS_ACTIVE) {
     // Check if the user has the initial channels already
     const userHasInitialChannels = await ChatService.userHasInitialChannels(
       user.id,

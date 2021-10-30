@@ -5,7 +5,7 @@ import ChatService from '../../services/ChatService';
 import UserService from '../../services/UserService';
 import FeedService from '../../services/FeedService';
 
-class UserAfterDeleteError extends ExtendableError {}
+class UserAfterDeleteError extends ExtendableError { }
 
 /**
  * After delete webhook for User objects.
