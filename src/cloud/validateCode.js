@@ -10,7 +10,6 @@ import QuePositionsService from '../services/QuePositionsService';
 // Utils
 import testUser from '../utils/testUser';
 import db from '../utils/db';
-import Stream from '../providers/StreamProvider'
 
 class ValidateCodeError extends ExtendableError { }
 
@@ -138,12 +137,7 @@ const validateCode = async request => {
       return logged.getSessionToken();
     }
 
-    const streamToken = Stream.client.createToken(user.id);
-
-    return {
-      parseSessionToken: sessionToken,
-      streamToken
-    };
+    return sessionToken;
   } catch (error) {
     if (error instanceof ReservationServiceError) {
       setUserStatus(user);

@@ -2,6 +2,10 @@ import ExtendableError from 'extendable-error-class';
 import UserService from '../services/UserService';
 // Providers
 import Parse from '../providers/ParseProvider';
+// Constants
+import UserStatus from '../constants/userStatus';
+// Services
+import ChatService from '../services/ChatService';
 
 class SetActiveStatusError extends ExtendableError { }
 
@@ -22,7 +26,18 @@ const setActiveStatus = async request => {
   }
 
   try {
-    const updatedUser = await UserService.setActiveStatus(user, givenName, familyName);
+    user.set('givenName', givenName);
+    user.set('familyName', familyName);
+    await user.save(null, { useMasterKey: true });
+
+    const updatedUser = await UserService.setActiveStatus(user);
+
+    // At this point, if the user hasn't 'active' status, he/she is in the waitlist
+    // So default chat channels won't be created for the user yet.
+    if (user.get('status') === UserStatus.USER_STATUS_ACTIVE) {
+      await ChatService.createInitialChannels(user);
+    }
+
     return updatedUser;
   } catch (error) {
     throw new SetActiveStatusError(error.message);
