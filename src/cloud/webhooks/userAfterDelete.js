@@ -31,6 +31,7 @@ const userAfterDelete = async request => {
     ]);
   } catch (error) {
     console.log(error);
+    console.log('hello')
   }
 };
 
