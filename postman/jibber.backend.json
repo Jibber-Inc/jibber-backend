@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "8cd26c4a-5875-4f5e-8d45-d814d202903f",
-		"name": "Benji",
+		"name": "Jibber Backend",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -49,7 +49,6 @@
 							"pm.test(\"Set session token\", function () {",
 							"    var jsonData = pm.response.json();",
 							"    pm.environment.set(\"sessionToken\", jsonData.result);",
-							"",
 							"    console.log(jsonData.result);",
 							"});"
 						],
@@ -73,7 +72,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\",\n    \"authCode\": \"1766\"\n}",
+					"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\",\n    \"authCode\": \"5612\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -198,7 +197,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\"\n}",
+					"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\",\n    \"givenName\": \"Guille\",\n    \"familyName\": \"Colotti\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
