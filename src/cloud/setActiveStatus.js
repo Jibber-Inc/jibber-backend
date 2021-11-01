@@ -26,46 +26,19 @@ const setActiveStatus = async request => {
   }
 
   try {
-    // user.set('givenName', givenName);
-    // user.set('familyName', familyName);
-    // await user.save(null, { useMasterKey: true });
+    user.set('givenName', givenName);
+    user.set('familyName', familyName);
+    await user.save(null, { useMasterKey: true });
 
-    // const updatedUser = await UserService.setActiveStatus(user);
-
-    // const result = await UserService.connectUser(user)
-
-    // TODO: Remove this logic
-    // Create the user Feed object and the related initial posts
-    // await FeedService.createFeedForUser(user);
-    // await FeedService.createUnreadMessagesPost(user);
+    const updatedUser = await UserService.setActiveStatus(user);
 
     // At this point, if the user hasn't 'active' status, he/she is in the waitlist
     // So default chat channels won't be created for the user yet.
-    // Also, if the user is 'active', the Feed and the inicial unreadMessages posts are created
-
     if (user.get('status') === UserStatus.USER_STATUS_ACTIVE) {
-      // Check if the user has the initial channels already
-      // const userHasInitialChannels = await ChatService.userHasInitialChannels(
-      //   user.id,
-      // );
-
-      // console.log('userHasInitialChannelsuserHasInitialChannelsuserHasInitialChannels', userHasInitialChannels)
-
-      // If the user doesn't have the initial channels, create them
-      // if (!userHasInitialChannels) {
-      //   await ChatService.createInitialChannels(user);
-      // }
+      await ChatService.createInitialChannels(user);
     }
 
-    // const userHasInitialChannels = await ChatService.userHasInitialChannels(
-    //   user.id,
-    // );
-
-    // console.log('userHasInitialChannelsuserHasInitialChannelsuserHasInitialChannels', userHasInitialChannels)
-
-    await ChatService.createInitialChannels(user);
-    // return { updatedUser, result };
-    // return userHasInitialChannels;
+    return updatedUser;
   } catch (error) {
     throw new SetActiveStatusError(error.message);
   }

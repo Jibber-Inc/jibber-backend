@@ -222,10 +222,10 @@ const fetchMessage = async MessageSid => {
   }
 };
 
-const createMessagesForChannel = async (channel, senderId, data) => {
+const createMessagesForChannel = async ({ channel }, channelConfig, senderId, data) => {
   const { messages } = MessagesUtil;
   // eslint-disable-next-line no-restricted-syntax
-  for await (const message of messages[channel.friendlyName]) {
+  for await (const message of messages[channel.name]) {
     const formattedMessage = MessagesUtil.getMessage(message, data);
     const newMessage = {
       text: formattedMessage,
@@ -235,7 +235,7 @@ const createMessagesForChannel = async (channel, senderId, data) => {
         updateId: String(new Date().getTime()),
       }),
     };
-    await createMessage(newMessage, channel);
+    await createMessage(newMessage, channelConfig);
   }
 };
 
@@ -291,9 +291,9 @@ const createInitialChannels = async user => {
     members,
     created_by_id: createdById
   });
-  const welcomeChannel = await welcomeChannelConfig.create();
+  const welcomeChannelInstance = await welcomeChannelConfig.create();
   // Send the welcome messages
-  await createMessagesForChannel(welcomeChannel, createdById, {
+  await createMessagesForChannel(welcomeChannelInstance, welcomeChannelConfig, createdById, {
     givenName: user.get('givenName'),
   });
 
@@ -303,11 +303,9 @@ const createInitialChannels = async user => {
     members,
     created_by_id: createdById
   });
-  const feedbackChannel = await feedbackChannelConfig.create();
+  const feedbackChannelInstance = await feedbackChannelConfig.create();
   // Send the feedback messages
-  await createMessagesForChannel(feedbackChannel, createdById, {});
-
-  return { welcomeChannel, feedbackChannel }
+  await createMessagesForChannel(feedbackChannelInstance, feedbackChannelConfig, createdById, {});
 };
 
 export default {
