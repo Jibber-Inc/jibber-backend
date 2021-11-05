@@ -2,13 +2,14 @@ import ExtendableError from 'extendable-error-class';
 // Providers
 import Parse from '../providers/ParseProvider';
 import Twilio from '../providers/TwilioProvider';
-import Stream from '../providers/StreamProvider'
+import Stream from '../providers/StreamProvider';
 // Utils
 import MessagesUtil from '../utils/messages';
 // Constants
 import { ONBOARDING_ADMIN } from '../constants/index';
+import UserService from './UserService';
 
-export class ChatServiceError extends ExtendableError { }
+export class ChatServiceError extends ExtendableError {}
 
 const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
 
@@ -182,8 +183,8 @@ const deleteUserChannels = async userId => {
 /**
  * Create a message on a given channel.
  *
- * @param { TwilioMessage } message
- * @param { string } ChannelSid
+ * @param { Stream } message
+ * @param { string } channel
  */
 const createMessage = async (message, channel) => {
   try {
@@ -222,8 +223,14 @@ const fetchMessage = async MessageSid => {
   }
 };
 
-const createMessagesForChannel = async ({ channel }, channelConfig, senderId, data) => {
+const createMessagesForChannel = async (
+  { channel },
+  channelConfig,
+  senderId,
+  data,
+) => {
   const { messages } = MessagesUtil;
+
   // eslint-disable-next-line no-restricted-syntax
   for await (const message of messages[channel.name]) {
     const formattedMessage = MessagesUtil.getMessage(message, data);
@@ -253,7 +260,7 @@ const userHasInitialChannels = async userId => {
     // );
     // return hasInitialChannels.length > 0;
 
-    return channels
+    return channels;
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
@@ -273,39 +280,64 @@ const createInitialChannels = async user => {
   const onboardingRole = await new Parse.Query(Parse.Role)
     .equalTo('name', ONBOARDING_ADMIN)
     .first();
+
   if (onboardingRole) {
     // If the role is defined, get the first user with it
     admin = await onboardingRole.get('users').query().first();
     // If we have users with the desired role, add them to the members
     if (admin) {
       members.push(admin.id);
+
+      await Stream.client.disconnectUser();
+      await UserService.connectUser(admin);
+
+      // type, id, channel-data(name, image, members)
+      const welcomeChannelConfig = Stream.client.channel(
+        'messaging',
+        `welcome_${user.id}`,
+        {
+          name: 'welcome',
+          description: 'Start here to learn your way around.',
+          members,
+          created_by_id: admin.id,
+        },
+      );
+
+      const welcomeChannelInstance = await welcomeChannelConfig.create();
+
+      // Send the welcome messages
+      await createMessagesForChannel(
+        welcomeChannelInstance,
+        welcomeChannelConfig,
+        admin.id,
+        {
+          givenName: user.get('givenName'),
+        },
+      );
+
+      const feedbackChannelConfig = Stream.client.channel(
+        'messaging',
+        `feedback_${user.id}`,
+        {
+          name: 'feedback',
+          description: 'Got something to say? Say it here!',
+          members,
+          created_by_id: admin.id,
+        },
+      );
+
+      const feedbackChannelInstance = await feedbackChannelConfig.create();
+      // Send the feedback messages
+      await createMessagesForChannel(
+        feedbackChannelInstance,
+        feedbackChannelConfig,
+        admin.id,
+        {},
+      );
+
+      await Stream.client.disconnectUser();
     }
   }
-
-  const createdById = admin.id || user.id
-
-  // type, id, channel-data(name, image, members)
-  const welcomeChannelConfig = Stream.client.channel('messaging', `welcome_${user.id}`, {
-    name: 'welcome',
-    description: 'Start here to learn your way around.',
-    members,
-    created_by_id: createdById
-  });
-  const welcomeChannelInstance = await welcomeChannelConfig.create();
-  // Send the welcome messages
-  await createMessagesForChannel(welcomeChannelInstance, welcomeChannelConfig, createdById, {
-    givenName: user.get('givenName'),
-  });
-
-  const feedbackChannelConfig = Stream.client.channel('messaging', `feedback_${user.id}`, {
-    name: 'feedback',
-    description: 'Got something to say? Say it here!',
-    members,
-    created_by_id: createdById
-  });
-  const feedbackChannelInstance = await feedbackChannelConfig.create();
-  // Send the feedback messages
-  await createMessagesForChannel(feedbackChannelInstance, feedbackChannelConfig, createdById, {});
 };
 
 export default {
@@ -321,4 +353,5 @@ export default {
   getUserChannels,
   userHasInitialChannels,
   createInitialChannels,
+  createMessagesForChannel,
 };
