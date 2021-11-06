@@ -4,7 +4,7 @@ import Parse from '../../providers/ParseProvider';
 import ChatService from '../../services/ChatService';
 import UserService from '../../services/UserService';
 
-class UserAfterDeleteError extends ExtendableError {}
+class UserAfterDeleteError extends ExtendableError { }
 
 /**
  * After delete webhook for User objects.
@@ -21,7 +21,6 @@ const userAfterDelete = async request => {
 
   try {
     await Promise.all([
-      UserService.deleteRituals(user),
       UserService.deleteConnections(user),
       UserService.deleteReservations(user),
       UserService.deleteUserInstallations(user),

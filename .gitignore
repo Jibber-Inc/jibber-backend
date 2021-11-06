@@ -105,3 +105,6 @@ dist/
 
 # dev ignores
 dev.p12
+
+# PHPStorm Folder
+.idea

@@ -45,7 +45,6 @@ const api = new ParseServer({
     classNames: [
       'QuePositions',
       '_User',
-      'Ritual',
       'Channel',
       'Notice',
       'Connection',

@@ -11,7 +11,7 @@ import QuePositionsService from '../services/QuePositionsService';
 import testUser from '../utils/testUser';
 import db from '../utils/db';
 
-class ValidateCodeError extends ExtendableError {}
+class ValidateCodeError extends ExtendableError { }
 
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
@@ -100,6 +100,7 @@ const validateCode = async request => {
           user.get('phoneNumber'),
           authCode,
         );
+
         status = result.status;
       }
 
