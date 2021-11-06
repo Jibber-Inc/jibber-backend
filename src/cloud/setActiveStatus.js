@@ -31,12 +31,12 @@ const setActiveStatus = async request => {
     await user.save(null, { useMasterKey: true });
 
     const updatedUser = await UserService.setActiveStatus(user);
-    await UserService.connectUser(user);
+    await UserService.connectUser(updatedUser);
 
     // At this point, if the user hasn't 'active' status, he/she is in the waitlist
     // So default chat channels won't be created for the user yet.
-    if (user.get('status') === UserStatus.USER_STATUS_ACTIVE) {
-      await ChatService.createInitialChannels(user);
+    if (updatedUser.get('status') === UserStatus.USER_STATUS_ACTIVE) {
+      await ChatService.createInitialChannels(updatedUser);
     }
 
     return updatedUser;

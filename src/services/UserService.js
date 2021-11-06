@@ -244,8 +244,7 @@ const getUserStreamToken = (user) => Stream.client.createToken(user.id);
 
 /**
  * 
- * @param {*} user 
- * @param {*} token 
+ * @param {ParseUser} user 
  */
 const connectUser = async (user) => {
   const result = await Stream.client.connectUser(

@@ -234,7 +234,7 @@ const createMessagesForChannel = async (
   { channel },
   channelConfig,
   senderId,
-  data,
+  data = {},
 ) => {
   const { messages } = MessagesUtil;
   // eslint-disable-next-line no-restricted-syntax
@@ -277,7 +277,6 @@ const createInitialChannels = async user => {
       await Stream.client.disconnectUser();
       await UserService.connectUser(admin);
 
-      // type, id, channel-data(name, image, members)
       const welcomeChannelConfig = Stream.client.channel(
         'messaging',
         `welcome_${user.id}`,
@@ -317,8 +316,7 @@ const createInitialChannels = async user => {
       await createMessagesForChannel(
         feedbackChannelInstance,
         feedbackChannelConfig,
-        admin.id,
-        {},
+        admin.id
       );
 
       await Stream.client.disconnectUser();
