@@ -44,10 +44,7 @@ const api = new ParseServer({
     // List of classes to support for query subscriptions
     classNames: [
       'QuePositions',
-      'Post',
-      'Feed',
       '_User',
-      'Comment',
       'Channel',
       'Notice',
       'Connection',
