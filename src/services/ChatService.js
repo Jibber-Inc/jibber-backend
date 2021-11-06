@@ -9,7 +9,7 @@ import MessagesUtil from '../utils/messages';
 import { ONBOARDING_ADMIN } from '../constants/index';
 import UserService from './UserService';
 
-export class ChatServiceError extends ExtendableError {}
+export class ChatServiceError extends ExtendableError { }
 
 const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
 
@@ -183,8 +183,8 @@ const deleteUserChannels = async userId => {
 /**
  * Create a message on a given channel.
  *
- * @param { Stream } message
- * @param { string } channel
+ * @param {Object} message
+ * @param {StreamChannel} channel
  */
 const createMessage = async (message, channel) => {
   try {
@@ -197,7 +197,7 @@ const createMessage = async (message, channel) => {
 /**
  * Fetch a channel by a channel id.
  *
- * @param {string} ChannelSid
+ * @param {String} ChannelSid
  */
 const fetchChannel = async ChannelSid => {
   try {
@@ -213,7 +213,7 @@ const fetchChannel = async ChannelSid => {
 /**
  * Fetch a message by a message id.
  *
- * @param {string} ChannelSid
+ * @param {String} ChannelSid
  */
 const fetchMessage = async MessageSid => {
   try {
@@ -223,6 +223,13 @@ const fetchMessage = async MessageSid => {
   }
 };
 
+/**
+ * 
+ * @param {StreamChannel} channelInstance 
+ * @param {StreamChannel} channelConfig 
+ * @param {String} senderId 
+ * @param {Object} data 
+ */
 const createMessagesForChannel = async (
   { channel },
   channelConfig,
@@ -230,7 +237,6 @@ const createMessagesForChannel = async (
   data,
 ) => {
   const { messages } = MessagesUtil;
-
   // eslint-disable-next-line no-restricted-syntax
   for await (const message of messages[channel.name]) {
     const formattedMessage = MessagesUtil.getMessage(message, data);
@@ -243,26 +249,6 @@ const createMessagesForChannel = async (
       }),
     };
     await createMessage(newMessage, channelConfig);
-  }
-};
-
-const userHasInitialChannels = async userId => {
-  try {
-    const channels = await getUserChannels(userId);
-    // const userChannelsSid = channels.map(channel => channel.channelSid);
-    // const userChannels = await Promise.all(
-    //   userChannelsSid.map(channelSid => fetchChannel(channelSid)),
-    // );
-    // const hasInitialChannels = userChannels.filter(
-    //   channel =>
-    //     channel.friendlyName === 'feedback' ||
-    //     channel.friendlyName === 'welcome',
-    // );
-    // return hasInitialChannels.length > 0;
-
-    return channels;
-  } catch (error) {
-    throw new ChatServiceError(error.message);
   }
 };
 
@@ -351,7 +337,6 @@ export default {
   fetchChannel,
   fetchMessage,
   getUserChannels,
-  userHasInitialChannels,
   createInitialChannels,
   createMessagesForChannel,
 };
