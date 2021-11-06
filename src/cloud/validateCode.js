@@ -100,11 +100,10 @@ const validateCode = async request => {
           user.get('phoneNumber'),
           authCode,
         );
-
         status = result.status;
       }
 
-      // If the code is wrong, status wont be approved
+      // If the code is wrong, user won't be approved
       if (status !== 'approved') {
         throw new ValidateCodeError('[KTN1RYO9] Auth code validation failed');
       }
