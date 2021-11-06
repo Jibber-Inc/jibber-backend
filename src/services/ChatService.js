@@ -2,11 +2,12 @@ import ExtendableError from 'extendable-error-class';
 // Providers
 import Parse from '../providers/ParseProvider';
 import Twilio from '../providers/TwilioProvider';
-import Stream from '../providers/StreamProvider'
+import Stream from '../providers/StreamProvider';
 // Utils
 import MessagesUtil from '../utils/messages';
 // Constants
 import { ONBOARDING_ADMIN } from '../constants/index';
+import UserService from './UserService';
 
 export class ChatServiceError extends ExtendableError { }
 
@@ -182,8 +183,8 @@ const deleteUserChannels = async userId => {
 /**
  * Create a message on a given channel.
  *
- * @param { TwilioMessage } message
- * @param { string } ChannelSid
+ * @param {Object} message
+ * @param {StreamChannel} channel
  */
 const createMessage = async (message, channel) => {
   try {
@@ -196,7 +197,7 @@ const createMessage = async (message, channel) => {
 /**
  * Fetch a channel by a channel id.
  *
- * @param {string} ChannelSid
+ * @param {String} ChannelSid
  */
 const fetchChannel = async ChannelSid => {
   try {
@@ -212,7 +213,7 @@ const fetchChannel = async ChannelSid => {
 /**
  * Fetch a message by a message id.
  *
- * @param {string} ChannelSid
+ * @param {String} ChannelSid
  */
 const fetchMessage = async MessageSid => {
   try {
@@ -222,7 +223,19 @@ const fetchMessage = async MessageSid => {
   }
 };
 
-const createMessagesForChannel = async ({ channel }, channelConfig, senderId, data) => {
+/**
+ * 
+ * @param {StreamChannel} channelInstance 
+ * @param {StreamChannel} channelConfig 
+ * @param {String} senderId 
+ * @param {Object} data 
+ */
+const createMessagesForChannel = async (
+  { channel },
+  channelConfig,
+  senderId,
+  data = {},
+) => {
   const { messages } = MessagesUtil;
   // eslint-disable-next-line no-restricted-syntax
   for await (const message of messages[channel.name]) {
@@ -236,26 +249,6 @@ const createMessagesForChannel = async ({ channel }, channelConfig, senderId, da
       }),
     };
     await createMessage(newMessage, channelConfig);
-  }
-};
-
-const userHasInitialChannels = async userId => {
-  try {
-    const channels = await getUserChannels(userId);
-    // const userChannelsSid = channels.map(channel => channel.channelSid);
-    // const userChannels = await Promise.all(
-    //   userChannelsSid.map(channelSid => fetchChannel(channelSid)),
-    // );
-    // const hasInitialChannels = userChannels.filter(
-    //   channel =>
-    //     channel.friendlyName === 'feedback' ||
-    //     channel.friendlyName === 'welcome',
-    // );
-    // return hasInitialChannels.length > 0;
-
-    return channels
-  } catch (error) {
-    throw new ChatServiceError(error.message);
   }
 };
 
@@ -273,39 +266,62 @@ const createInitialChannels = async user => {
   const onboardingRole = await new Parse.Query(Parse.Role)
     .equalTo('name', ONBOARDING_ADMIN)
     .first();
+
   if (onboardingRole) {
     // If the role is defined, get the first user with it
     admin = await onboardingRole.get('users').query().first();
     // If we have users with the desired role, add them to the members
     if (admin) {
       members.push(admin.id);
+
+      await Stream.client.disconnectUser();
+      await UserService.connectUser(admin);
+
+      const welcomeChannelConfig = Stream.client.channel(
+        'messaging',
+        `welcome_${user.id}`,
+        {
+          name: 'welcome',
+          description: 'Start here to learn your way around.',
+          members,
+          created_by_id: admin.id,
+        },
+      );
+
+      const welcomeChannelInstance = await welcomeChannelConfig.create();
+
+      // Send the welcome messages
+      await createMessagesForChannel(
+        welcomeChannelInstance,
+        welcomeChannelConfig,
+        admin.id,
+        {
+          givenName: user.get('givenName'),
+        },
+      );
+
+      const feedbackChannelConfig = Stream.client.channel(
+        'messaging',
+        `feedback_${user.id}`,
+        {
+          name: 'feedback',
+          description: 'Got something to say? Say it here!',
+          members,
+          created_by_id: admin.id,
+        },
+      );
+
+      const feedbackChannelInstance = await feedbackChannelConfig.create();
+      // Send the feedback messages
+      await createMessagesForChannel(
+        feedbackChannelInstance,
+        feedbackChannelConfig,
+        admin.id
+      );
+
+      await Stream.client.disconnectUser();
     }
   }
-
-  const createdById = admin.id || user.id
-
-  // type, id, channel-data(name, image, members)
-  const welcomeChannelConfig = Stream.client.channel('messaging', `welcome_${user.id}`, {
-    name: 'welcome',
-    description: 'Start here to learn your way around.',
-    members,
-    created_by_id: createdById
-  });
-  const welcomeChannelInstance = await welcomeChannelConfig.create();
-  // Send the welcome messages
-  await createMessagesForChannel(welcomeChannelInstance, welcomeChannelConfig, createdById, {
-    givenName: user.get('givenName'),
-  });
-
-  const feedbackChannelConfig = Stream.client.channel('messaging', `feedback_${user.id}`, {
-    name: 'feedback',
-    description: 'Got something to say? Say it here!',
-    members,
-    created_by_id: createdById
-  });
-  const feedbackChannelInstance = await feedbackChannelConfig.create();
-  // Send the feedback messages
-  await createMessagesForChannel(feedbackChannelInstance, feedbackChannelConfig, createdById, {});
 };
 
 export default {
@@ -319,6 +335,6 @@ export default {
   fetchChannel,
   fetchMessage,
   getUserChannels,
-  userHasInitialChannels,
   createInitialChannels,
+  createMessagesForChannel,
 };

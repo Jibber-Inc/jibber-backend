@@ -9,7 +9,7 @@ import UserService from '../services/UserService';
 // Utils
 import testUser from '../utils/testUser';
 
-class SendCodeError extends ExtendableError {}
+class SendCodeError extends ExtendableError { }
 
 /**
  * Initiate 2-Factor Authentication for given phone number
@@ -74,7 +74,7 @@ const sendCode = async request => {
     }
     user.set('smsVerificationStatus', status);
     await user.save(null, { useMasterKey: true });
-    await UserService.asignDefaultRole(user);
+    await UserService.assignDefaultRole(user);
 
     return { status: 'code sent' };
   } catch (error) {

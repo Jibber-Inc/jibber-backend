@@ -19,6 +19,7 @@ import connectionAfterSave from './webhooks/connectionAfterSave';
 import userBeforeSave from './webhooks/userBeforeSave';
 import userAfterSave from './webhooks/userAfterSave';
 import userAfterDelete from './webhooks/userAfterDelete';
+import sendSMS from './sendSMS';
 import sendMessage from './sendMessage';
 
 // Load Environment variables
@@ -30,19 +31,22 @@ if (!BENJI_SECRET_PASSWORD_TOKEN) {
 }
 
 // Cloud code functions
+// Signup workflow
 Parse.Cloud.define('sendCode', sendCode);
-Parse.Cloud.define('sendPush', sendPush);
 Parse.Cloud.define('validateCode', validateCode);
+Parse.Cloud.define('setActiveStatus', setActiveStatus);
+
+// Others
+Parse.Cloud.define('sendPush', sendPush);
 Parse.Cloud.define('createHandle', createHandle);
 Parse.Cloud.define('getChatToken', getChatToken);
 Parse.Cloud.define('getConnections', getConnections);
 Parse.Cloud.define('updateConnection', updateConnection);
 Parse.Cloud.define('createChannel', createChannel);
-Parse.Cloud.define('setActiveStatus', setActiveStatus);
 Parse.Cloud.define('updateReservation', updateReservation);
-Parse.Cloud.define('sendMessage', sendMessage);
 Parse.Cloud.define('createConnection', createConnection);
-
+Parse.Cloud.define('sendSMS', sendSMS);
+Parse.Cloud.define('sendMessage', sendMessage);
 
 // --- Cloud code webhooks ----------------------------------------------------
 // Connection webhooks
