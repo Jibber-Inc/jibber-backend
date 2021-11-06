@@ -55,7 +55,7 @@ const createUser = async (phoneNumber, installationId) => {
  *
  * @param {*} user
  */
-const asignDefaultRole = async user => {
+const assignDefaultRole = async user => {
   try {
     const userRole = await new Parse.Query(Parse.Role)
       .equalTo('users', user)
@@ -207,7 +207,7 @@ const setActiveStatus = async (user) => {
     await user.save(null, { useMasterKey: true });
     await QuePositionsService.update('claimedPosition', claimedPosition);
   }
-  
+
   return user;
 };
 
@@ -260,7 +260,7 @@ const connectUser = async (user) => {
 
 export default {
   createUser,
-  asignDefaultRole,
+  assignDefaultRole,
   getLastSessionToken,
   clearUserSessions,
   deleteUserInstallations,
