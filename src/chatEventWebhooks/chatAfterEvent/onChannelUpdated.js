@@ -1,4 +1,4 @@
-import FeedService from '../../services/FeedService';
+
 import ChatService from '../../services/ChatService';
 import Parse from '../../providers/ParseProvider';
 
@@ -34,7 +34,6 @@ const onChannelUpdated = async (request, response) => {
           channelSid: channel.sid,
         },
       };
-      const post = await FeedService.createPost(postData);
       return response.status(200).json(post);
     }
     return response.status(200).json(channel);

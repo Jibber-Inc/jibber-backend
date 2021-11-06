@@ -10,9 +10,6 @@ import generatePassword from '../utils/generatePassword';
 import UserUtils from '../utils/userData';
 // Services
 import QuePositionsService from './QuePositionsService';
-// TODO: Remove unused imports
-// import ChatService from './ChatService';
-// import FeedService from './FeedService';
 // Constants
 import UserStatus from '../constants/userStatus';
 
@@ -210,6 +207,7 @@ const setActiveStatus = async (user) => {
     await user.save(null, { useMasterKey: true });
     await QuePositionsService.update('claimedPosition', claimedPosition);
   }
+  
   return user;
 };
 
