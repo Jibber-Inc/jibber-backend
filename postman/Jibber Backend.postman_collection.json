@@ -1,0 +1,526 @@
+{
+	"info": {
+		"_postman_id": "0c1f115c-c549-4982-8bf3-f63781c46320",
+		"name": "Jibber Backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "chatAfterEvent",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"value": "BenjiApp",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"EventType\": \"onMemberAdded\",\n    \"ChannelSid\": \"CH1cd2ac4c32b845159b3538e04ffcdbc1\",\n    \"Identity\": \"T9j5ucBuRa\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5337/chatAfterEvent",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5337",
+					"path": [
+						"chatAfterEvent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "validateCode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Set session token\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"sessionToken\", jsonData.result);",
+							"    console.log(jsonData.result);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"type": "text",
+						"value": "{{appId}}"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"type": "text",
+						"value": "{{installationId}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\",\n    \"authCode\": \"3620\",\n    \"passId\": \"AVaUnie3oO\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{hostname}}/functions/validateCode",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"functions",
+						"validateCode"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "test",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"type": "text",
+						"value": "{{appId}}"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"type": "text",
+						"value": "{{installationId}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"phoneNumber\": \"+5493764699808\",\n    \"userId\": \"uXRv9mbIIE\",\n    \"usersId\": [\"wHkY9k22HA\"],\n    \"channelSid\": \"CHc0bf3ed3902e490e97522c90c5368f6f\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5337/parse/functions/test",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5337",
+					"path": [
+						"parse",
+						"functions",
+						"test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createComment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"type": "text",
+						"value": "{{appId}}"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"type": "text",
+						"value": "{{installationId}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"post\": \"87K9GlMEyU\",\n    \"body\": \"Test comment from Postman\",\n    \"attributes\": {\n        \"testAttribute\": \"test\"\n    }\n    \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5337/parse/functions/createComment",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5337",
+					"path": [
+						"parse",
+						"functions",
+						"createComment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "setActiveStatus",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"type": "text",
+						"value": "{{appId}}"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"type": "text",
+						"value": "{{installationId}}"
+					},
+					{
+						"key": "X-Parse-Session-Token",
+						"value": "{{sessionToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\",\n    \"givenName\": \"Juan\",\n    \"familyName\": \"Blariza\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{hostname}}/functions/setActiveStatus",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"functions",
+						"setActiveStatus"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createConnection",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"type": "text",
+						"value": "{{appId}}"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"type": "text",
+						"value": "{{installationId}}"
+					},
+					{
+						"key": "X-Parse-Session-Token",
+						"type": "text",
+						"value": "{{sessionToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"to\": \"unP4tKvkEj\",\n    \"status\": \"invited\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{hostname}}/functions/createConnection",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"functions",
+						"createConnection"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getMediaFeeds",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"type": "text",
+						"value": "BenjiApp"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"type": "text",
+						"value": "{{installationId}}"
+					},
+					{
+						"key": "X-Parse-Session-Token",
+						"type": "text",
+						"value": "{{sessionToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"to\": \"CL4p1WdYWS\",\n    \"status\": \"invited\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5337/parse/functions/getMediaFeeds",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5337",
+					"path": [
+						"parse",
+						"functions",
+						"getMediaFeeds"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createChatChannel",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"type": "text",
+						"value": "BenjiApp"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"type": "text",
+						"value": "{{installationId}}"
+					},
+					{
+						"key": "X-Parse-Session-Token",
+						"type": "text",
+						"value": "{{sessionToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uniqueName\": \"CL4p1WdYWS\",\n    \"friendlyName\": \"invited\",\n    \"type\": \"\",\n    \"members\": [\"\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5337/parse/functions/createChannel",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5337",
+					"path": [
+						"parse",
+						"functions",
+						"createChannel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateConnection",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"type": "text",
+						"value": "{{appId}}"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"type": "text",
+						"value": "{{installationId}}"
+					},
+					{
+						"key": "X-Parse-Session-Token",
+						"type": "text",
+						"value": "{{sessionToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"connectionId\": \"oQ8EjQn2UF\",\n    \"status\": \"accepted\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{hostname}}/functions/updateConnection",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"functions",
+						"updateConnection"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateReservation",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"type": "text",
+						"value": "BenjiApp"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"type": "text",
+						"value": "{{installationId}}"
+					},
+					{
+						"key": "X-Parse-Session-Token",
+						"value": "{{sessionToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5337/parse/functions/setActiveStatus",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5337",
+					"path": [
+						"parse",
+						"functions",
+						"setActiveStatus"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sendCode",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"value": "{{appId}}",
+						"type": "text"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"value": "{{installationId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{hostname}}/functions/sendCode",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"functions",
+						"sendCode"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createMessage",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"value": "{{appId}}",
+						"type": "text"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"value": "{{installationId}}",
+						"type": "text"
+					},
+					{
+						"key": "X-Parse-Session-Token",
+						"value": "{{sessionToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"channelId\": \"feedback_1PWahLoJuf\",\n    \"message\": {\n        \"text\": \"esto es una prueba desde el postman\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{hostname}}/functions/sendMessage",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"functions",
+						"sendMessage"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
