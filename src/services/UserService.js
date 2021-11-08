@@ -4,14 +4,16 @@ import uuidv4 from 'uuid/v4';
 import ExtendableError from 'extendable-error-class';
 // Providers
 import Parse from '../providers/ParseProvider';
+import Stream from '../providers/StreamProvider'
 // Utils
 import generatePassword from '../utils/generatePassword';
+import UserUtils from '../utils/userData';
 // Services
 import QuePositionsService from './QuePositionsService';
-import ChatService from './ChatService';
-import FeedService from './FeedService';
+// Constants
+import UserStatus from '../constants/userStatus';
 
-class UserServiceError extends ExtendableError {}
+class UserServiceError extends ExtendableError { }
 
 /**
  * Create a new user.
@@ -53,7 +55,7 @@ const createUser = async (phoneNumber, installationId) => {
  *
  * @param {*} user
  */
-const asignDefaultRole = async user => {
+const assignDefaultRole = async user => {
   try {
     const userRole = await new Parse.Query(Parse.Role)
       .equalTo('users', user)
@@ -125,22 +127,6 @@ const deleteUserInstallations = async user => {
 };
 
 /**
- * Delete all user rituals.
- *
- * @param {Parse.User} user
- */
-const deleteRituals = async user => {
-  try {
-    if (user.get('ritual')) {
-      const ritual = await user.get('ritual').fetch();
-      await ritual.destroy({ useMasterKey: true });
-    }
-  } catch (error) {
-    throw new UserServiceError(error.message);
-  }
-};
-
-/**
  * Delete all user connections
  *
  * @param {Parse.User} user
@@ -204,14 +190,10 @@ const createUserHandle = async (user, claimedPosition, maxQuePosition) => {
  *
  * @param {*} user
  */
-const setActiveStatus = async user => {
-  if (!(user instanceof Parse.User)) {
-    throw new UserServiceError('[zIslmc6c] User not found');
-  }
-
+const setActiveStatus = async (user) => {
   // If the user has an 'inactive' state, make it 'active'
   // This  updates the claimedPosition value and creates the handle for the user
-  if (user.get('status') === 'inactive') {
+  if (user.get('status') === UserStatus.USER_STATUS_INACTIVE) {
     const maxQuePosition = await QuePositionsService.getMaxQuePosition();
     const claimedPosition = await QuePositionsService.getClaimedPosition();
     const handle = await createUserHandle(
@@ -220,28 +202,10 @@ const setActiveStatus = async user => {
       maxQuePosition,
     );
     user.set('handle', handle);
-    user.set('status', 'active');
+    user.set('status', UserStatus.USER_STATUS_ACTIVE);
+
     await user.save(null, { useMasterKey: true });
     await QuePositionsService.update('claimedPosition', claimedPosition);
-  }
-
-  // Create the user Feed object and the related initial posts
-  await FeedService.createFeedForUser(user);
-  await FeedService.createUnreadMessagesPost(user);
-
-  // At this point, if the user hasn't 'active' status, he/she is in the waitlist
-  // So default chat channels won't be created for the user yet.
-  // Also, if the user is 'active', the Feed and the inicial unreadMessages posts are created
-  if (user.get('status') === 'active') {
-    // Check if the user has the initial channels already
-    const userHasInitialChannels = await ChatService.userHasInitialChannels(
-      user.id,
-    );
-
-    // If the user doesn't have the initial channels, create them
-    if (!userHasInitialChannels) {
-      await ChatService.createInitialChannels(user);
-    }
   }
 
   return user;
@@ -271,15 +235,38 @@ const createUserPreference = async (fromUser, toUser) => {
   await fromUser.save(null, { useMasterKey: true });
 };
 
+/**
+ * 
+ * @param {*} user 
+ * @returns 
+ */
+const getUserStreamToken = (user) => Stream.client.createToken(user.id);
+
+/**
+ * 
+ * @param {ParseUser} user 
+ */
+const connectUser = async (user) => {
+  const result = await Stream.client.connectUser(
+    {
+      id: user.id,
+      name: UserUtils.getFullName(user),
+    },
+    getUserStreamToken(user),
+  );
+  return result;
+}
+
 export default {
   createUser,
-  asignDefaultRole,
+  assignDefaultRole,
   getLastSessionToken,
   clearUserSessions,
   deleteUserInstallations,
-  deleteRituals,
   deleteConnections,
   deleteReservations,
   setActiveStatus,
   createUserPreference,
+  getUserStreamToken,
+  connectUser
 };

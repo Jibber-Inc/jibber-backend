@@ -3,7 +3,7 @@ import { isMobilePhone } from 'validator';
 import Parse from '../providers/ParseProvider';
 import Twilio from '../providers/TwilioProvider';
 
-export class Inititate2FAServiceError extends ExtendableError {}
+export class Inititate2FAServiceError extends ExtendableError { }
 
 /**
  * Given an auth code and instance of Parse.User, send text to the user phone #
@@ -31,7 +31,7 @@ export const initiate2FAService = (authCode, user) => {
   }
 
   return new Twilio().client.messages.create({
-    body: `Your code for Ours is: ${authCode}`,
+    body: `Your Jibber verification code is: ${authCode}`,
     from: process.env.TWILIO_PHONE_NUMBER || '+12012560616',
     to: user.get('phoneNumber'),
   });
