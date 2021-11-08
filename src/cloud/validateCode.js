@@ -14,7 +14,7 @@ import db from '../utils/db';
 // Providers
 import Stream from '../providers/StreamProvider';
 
-class ValidateCodeError extends ExtendableError {}
+class ValidateCodeError extends ExtendableError { }
 
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
@@ -94,6 +94,7 @@ const validateCode = async request => {
   }
 
   try {
+    let channelId = undefined;
     if (user.get('smsVerificationStatus') !== 'approved') {
       let status;
       if (testUser.isTestUser(phoneNumber)) {
@@ -128,10 +129,11 @@ const validateCode = async request => {
         await pass.save(null, { useMasterKey: true });
 
         const members = [user.id, owner.id];
+        channelId = `pass_${user.id}_${owner.id}`;
 
         const channelConfig = Stream.client.channel(
           'messaging',
-          `pass_${user.id}_${owner.id}`,
+          channelId,
           {
             name: `${user.id} - ${owner.id}`,
             description: 'Hi, I was invited by pass ID',
@@ -169,7 +171,10 @@ const validateCode = async request => {
       return logged.getSessionToken();
     }
 
-    return sessionToken;
+    return {
+      sessionToken,
+      channelId,
+    };
   } catch (error) {
     if (error instanceof ReservationServiceError) {
       setUserStatus(user);
