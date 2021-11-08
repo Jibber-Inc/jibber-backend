@@ -12,7 +12,6 @@ import {
   STATUS_DECLINED,
   STATUS_PENDING,
   NOTIFICATION_TYPES,
-  CONNECTION_REQUEST_POST,
 } from '../constants';
 
 const STATUS_LIST = [
@@ -22,7 +21,7 @@ const STATUS_LIST = [
   STATUS_PENDING,
 ];
 
-class CreateConnectionError extends ExtendableError {}
+class CreateConnectionError extends ExtendableError { }
 
 const createConnection = async request => {
   const { user } = request;
@@ -63,18 +62,6 @@ const createConnection = async request => {
 
     // Notify the user about the connection request
     if (connection && status === STATUS_INVITED) {
-      // Set the data for the connection request post
-      const postData = {
-        type: CONNECTION_REQUEST_POST,
-        priority: 1,
-        body: null,
-        expirationDate: null,
-        triggerDate: null,
-        author: user,
-        attributes: {
-          connectionId: connection.id,
-        },
-      };
 
       // Set the data for the connection request Notice object
       const noticeData = {

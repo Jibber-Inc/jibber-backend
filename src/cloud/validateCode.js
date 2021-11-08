@@ -94,7 +94,7 @@ const validateCode = async request => {
   }
 
   try {
-    let channelId = undefined;
+    let channelId;
     if (user.get('smsVerificationStatus') !== 'approved') {
       let status;
       if (testUser.isTestUser(phoneNumber)) {
