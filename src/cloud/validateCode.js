@@ -94,7 +94,7 @@ const validateCode = async request => {
   }
 
   try {
-    let channelId = undefined;
+    let channelId;
     if (user.get('smsVerificationStatus') !== 'approved') {
       let status;
       if (testUser.isTestUser(phoneNumber)) {
@@ -135,8 +135,8 @@ const validateCode = async request => {
           'messaging',
           channelId,
           {
-            name: `${user.id} - ${owner.id}`,
-            description: 'Hi, I was invited by pass ID',
+            name: "",
+            description: "",
             members,
             created_by_id: user.id,
           },
