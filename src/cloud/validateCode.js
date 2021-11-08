@@ -11,8 +11,10 @@ import ConnectionService from '../services/ConnectionService';
 // Utils
 import testUser from '../utils/testUser';
 import db from '../utils/db';
+// Providers
+import Stream from '../providers/StreamProvider';
 
-class ValidateCodeError extends ExtendableError { }
+class ValidateCodeError extends ExtendableError {}
 
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
@@ -116,13 +118,31 @@ const validateCode = async request => {
       if (passId) {
         const pass = await new Parse.Query('Pass').get(passId);
         const owner = pass.get('owner');
-        const connection = await ConnectionService.createConnection(user, owner, 'accepted');
+        const connection = await ConnectionService.createConnection(
+          user,
+          owner,
+          'accepted',
+        );
         const relation = pass.relation('connections');
         relation.add(connection);
         await pass.save(null, { useMasterKey: true });
 
-        // TODO: Create channels between both users (STREAM)
-        user.set('status', 'inactive')
+        const members = [user.id, owner.id];
+
+        const channelConfig = Stream.client.channel(
+          'messaging',
+          `pass_${user.id}_${owner.id}`,
+          {
+            name: `${user.id} - ${owner.id}`,
+            description: 'Hi, I was invited by pass ID',
+            members,
+            created_by_id: user.id,
+          },
+        );
+
+        await channelConfig.create();
+
+        user.set('status', 'inactive');
       } else {
         await setUserStatus(user, reservationId);
       }
