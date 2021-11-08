@@ -7,6 +7,7 @@ import ReservationService, {
   ReservationServiceError,
 } from '../services/ReservationService';
 import QuePositionsService from '../services/QuePositionsService';
+import ConnectionService from '../services/ConnectionService';
 // Utils
 import testUser from '../utils/testUser';
 import db from '../utils/db';
@@ -60,7 +61,7 @@ const setUserStatus = async (user, reservation = null) => {
 
 const validateCode = async request => {
   const { params, installationId } = request;
-  const { phoneNumber, authCode, reservationId } = params;
+  const { phoneNumber, authCode, reservationId, passId } = params;
 
   // Phone number is required in request body
   if (!phoneNumber) {
@@ -112,7 +113,19 @@ const validateCode = async request => {
         await ReservationService.claimReservation(reservationId, user);
       }
 
-      await setUserStatus(user, reservationId);
+      if (passId) {
+        const pass = await new Parse.Query('Pass').get(passId);
+        const owner = pass.get('owner');
+        const connection = await ConnectionService.createConnection(user, owner, 'accepted');
+        const relation = pass.relation('connections');
+        relation.add(connection);
+        await pass.save(null, { useMasterKey: true });
+
+        // TODO: Create channels between both users (STREAM)
+        user.set('status', 'inactive')
+      } else {
+        await setUserStatus(user, reservationId);
+      }
 
       user.set('smsVerificationStatus', status);
       await user.save(null, { useMasterKey: true });
