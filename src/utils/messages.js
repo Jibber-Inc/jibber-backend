@@ -24,9 +24,6 @@ const messages = {
     'All messages are set to READ manually. This ensures that you know when a message is actually read, not just scrolled too 🧐. Simply tap a message, you want to set, or pull up on the last message in the conversation.',
     'Hit us up in Feeback if you have issues or suggestions. Enjoy! 🥳',
   ],
-  feedback: [
-    'Jibber is a community of people driven to create a better place to communicate online. That includes you and your feedback! Have a suggestion 🧐? Found a bug 🤭? Let us know here!',
-  ],
 };
 
 export default {

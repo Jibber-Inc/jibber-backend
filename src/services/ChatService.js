@@ -299,26 +299,6 @@ const createInitialChannels = async user => {
           givenName: user.get('givenName'),
         },
       );
-
-      const feedbackChannelConfig = Stream.client.channel(
-        'messaging',
-        `feedback_${user.id}`,
-        {
-          name: 'feedback',
-          description: 'Got something to say? Say it here!',
-          members,
-          created_by_id: admin.id,
-        },
-      );
-
-      const feedbackChannelInstance = await feedbackChannelConfig.create();
-      // Send the feedback messages
-      await createMessagesForChannel(
-        feedbackChannelInstance,
-        feedbackChannelConfig,
-        admin.id
-      );
-
       await Stream.client.disconnectUser();
     }
   }
