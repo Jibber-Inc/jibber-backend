@@ -4,7 +4,7 @@ import path from 'path';
 import twilio from 'twilio';
 import { createServer } from 'http';
 
-// Benji api
+// Jibber api
 import api from './api';
 
 // Twilio Webhooks

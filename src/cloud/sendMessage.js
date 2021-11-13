@@ -12,14 +12,15 @@ const sendMessage = async request => {
   const { params, user } = request;
   const { channelId, message } = params;
 
-  await UserService.connectUser(user);
-
   if (!user) throw new Error('A logged user is required');
+
   if (!channelId) throw new Error('A channelId is required');
+
   if (!message || !message.text) throw new Error('A message.text is required');
 
   try {
-    const filter = { id: channelId };
+    await UserService.connectUser(user);
+    const filter = { id: { $eq: channelId } };
     const sort = [{ last_message_at: -1 }];
     const options = { message_limit: 0, limit: 1, state: true };
 
@@ -29,7 +30,8 @@ const sendMessage = async request => {
       options,
     );
 
-    if (!channelId.length) throw new Error('channelId is non-existent');
+    if (!queryChannelsResponse.length)
+      throw new Error("There's no channel with the given channel ID");
 
     const channel = queryChannelsResponse[0];
 
@@ -40,7 +42,6 @@ const sendMessage = async request => {
     });
 
     const messageCreated = await ChatService.createMessage(message, channel);
-
     Stream.client.disconnectUser();
 
     return messageCreated;
