@@ -13,7 +13,6 @@ import setActiveStatus from './setActiveStatus';
 import updateReservation from './updateReservation';
 import createConnection from './createConnection';
 
-
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
 import userBeforeSave from './webhooks/userBeforeSave';
@@ -23,11 +22,11 @@ import sendSMS from './sendSMS';
 import sendMessage from './sendMessage';
 
 // Load Environment variables
-const { BENJI_SECRET_PASSWORD_TOKEN } = process.env;
+const { JIBBER_SECRET_PASSWORD_TOKEN } = process.env;
 
 // Don't allow undefined or empty variable for secret password token
-if (!BENJI_SECRET_PASSWORD_TOKEN) {
-  throw new Error('BENJI_SECRET_PASSWORD_TOKEN must be set');
+if (!JIBBER_SECRET_PASSWORD_TOKEN) {
+  throw new Error('JIBBER_SECRET_PASSWORD_TOKEN must be set');
 }
 
 // Cloud code functions
