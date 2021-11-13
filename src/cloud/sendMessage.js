@@ -20,7 +20,7 @@ const sendMessage = async request => {
 
   try {
     await UserService.connectUser(user);
-    const filter = { id: channelId };
+    const filter = { id: { $eq: channelId } };
     const sort = [{ last_message_at: -1 }];
     const options = { message_limit: 0, limit: 1, state: true };
 
@@ -42,7 +42,6 @@ const sendMessage = async request => {
     });
 
     const messageCreated = await ChatService.createMessage(message, channel);
-
     Stream.client.disconnectUser();
 
     return messageCreated;

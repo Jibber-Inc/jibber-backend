@@ -7,7 +7,7 @@ import UserStatus from '../constants/userStatus';
 // Services
 import ChatService from '../services/ChatService';
 
-class SetActiveStatusError extends ExtendableError { }
+class SetActiveStatusError extends ExtendableError {}
 
 /**
  * Sets the user's status from inactive to active
@@ -22,7 +22,7 @@ const setActiveStatus = async request => {
   }
 
   if (!givenName || !familyName) {
-    throw new SetActiveStatusError('Given name and family name are mandatory.')
+    throw new SetActiveStatusError('Given name and family name are mandatory.');
   }
 
   try {
@@ -31,9 +31,9 @@ const setActiveStatus = async request => {
     await user.save(null, { useMasterKey: true });
 
     const updatedUser = await UserService.setActiveStatus(user);
-    // ESTE NO SE USA PORQUE DESPUES LLAMA AL INITIAL CHANNELS
-    // Y AHI SE CREA EL ADMIN PARA CREAR DICHOS CANALES
-    // await UserService.connectUser(updatedUser);
+
+    // Here we create the user in Stream
+    await UserService.connectUser(updatedUser);
 
     // At this point, if the user hasn't 'active' status, he/she is in the waitlist
     // So default chat channels won't be created for the user yet.
