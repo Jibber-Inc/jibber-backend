@@ -1,17 +1,50 @@
-import Parse from '../../providers/ParseProvider';
+/**
+ *
+ * @param {*} request
+ * @param {*} response
+ */
+const newMessage = (request, response) => response.status(200).json();
 
-const newMessage = async (request, response) => {
-  const { type } = request.body;
-  console.log('RESPONSE', response);
+/**
+ *
+ * @param {*} request
+ * @param {*} response
+ */
+const read = (request, response) => response.status(200).json();
 
-  // Log Stream event in Parse
-  const eventLog = new Parse.Object('EventLog');
-  eventLog.set('provider', 'Stream');
-  eventLog.set('eventType', `New Message - ${type}`);
-  eventLog.set('payload', request.body);
-  await eventLog.save(null, { useMasterKey: true });
-};
+/**
+ *
+ * @param {*} request
+ * @param {*} response
+ */
+const updated = (request, response) => response.status(200).json();
+
+/**
+ *
+ * @param {*} request
+ * @param {*} response
+ */
+const deleted = (request, response) => response.status(200).json();
+
+/**
+ *
+ * @param {*} request
+ * @param {*} response
+ */
+const flagged = (request, response) => response.status(200).json();
+
+/**
+ *
+ * @param {*} request
+ * @param {*} response
+ */
+const unflagged = (request, response) => response.status(200).json();
 
 export default {
   new: newMessage,
+  read,
+  updated,
+  deleted,
+  flagged,
+  unflagged,
 };

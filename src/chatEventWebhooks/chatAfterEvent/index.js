@@ -16,6 +16,10 @@ const chatAfterEvent = async (request, response) => {
   const { type } = request.body;
   const [currentHandler, eventType] = type && type.split('.');
 
+  if (!currentHandler || !eventType) {
+    return response.status(500).json({ error: 'Webhook type is missing.' });
+  }
+
   const handlers = {
     message,
     reaction,
@@ -24,23 +28,21 @@ const chatAfterEvent = async (request, response) => {
     user,
   };
 
-  // // Log Stream event in Parse
-  // const eventLog = new Parse.Object('EventLog');
-  // eventLog.set('provider', 'Stream');
-  // eventLog.set('eventType', type);
-  // eventLog.set('payload', request.body);
-  // await eventLog.save(null, { useMasterKey: true });
+  const eventLog = new Parse.Object('EventLog');
+  try {
+    // Log Stream event in Parse
+    eventLog.set('provider', 'Stream');
+    eventLog.set('eventType', type);
+    eventLog.set('payload', request.body);
+    await eventLog.save(null, { useMasterKey: true });
 
-  // Return error if no route for EventType
-  // if (!Object.prototype.hasOwnProperty.call(handlers, EventType)) {
-  //   const msg = `No handler found for ${EventType}`;
-  //   // Log twilio event error in Parse
-  //   eventLog.set('error', msg);
-  //   await eventLog.save(null, { useMasterKey: true });
-  //   return response.status(403).send(msg);
-  // }
-
-  return handlers[currentHandler][eventType](request, response);
+    return handlers[currentHandler][eventType](request, response);
+  } catch (error) {
+    const msg = `No handler found for ${type}`;
+    eventLog.set('error', msg);
+    await eventLog.save(null, { useMasterKey: true });
+    return response.status(500).json({ error: msg });
+  }
 };
 
 export default chatAfterEvent;
