@@ -13,6 +13,8 @@ import QuePositionsService from './QuePositionsService';
 // Constants
 import UserStatus from '../constants/userStatus';
 
+import createChatTokenService from '../services/createChatTokenService';
+
 class UserServiceError extends ExtendableError { }
 
 /**
@@ -252,7 +254,7 @@ const connectUser = async (user) => {
       id: user.id,
       name: UserUtils.getFullName(user),
     },
-    getUserStreamToken(user),
+    createChatTokenService(user.id),
   );
   return result;
 }

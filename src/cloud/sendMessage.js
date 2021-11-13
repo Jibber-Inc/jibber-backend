@@ -15,11 +15,11 @@ const sendMessage = async request => {
   await UserService.connectUser(user);
 
   if (!user) throw new Error('A logged user is required');
-  if (!channelId) throw new Error('A channelId is required');
+  //if (!channelId) throw new Error('A channelId is required');
   if (!message || !message.text) throw new Error('A message.text is required');
 
   try {
-    const filter = { id: channelId };
+    const filter = { members: { $in: [user.id] } };
     const sort = [{ last_message_at: -1 }];
     const options = { message_limit: 0, limit: 1, state: true };
 
@@ -29,7 +29,8 @@ const sendMessage = async request => {
       options,
     );
 
-    if (!channelId.length) throw new Error('channelId is non-existent');
+    if (!queryChannelsResponse.length)
+      throw new Error('El wachin no tiene canales');
 
     const channel = queryChannelsResponse[0];
 

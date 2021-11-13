@@ -48,8 +48,8 @@
 						"exec": [
 							"pm.test(\"Set session token\", function () {",
 							"    var jsonData = pm.response.json();",
-							"    pm.environment.set(\"sessionToken\", jsonData.result);",
-							"    console.log(jsonData.result);",
+							"    pm.environment.set(\"sessionToken\", jsonData.result.sessionToken);",
+							"    console.log(\"Result:\" + jsonData.result);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -72,7 +72,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\",\n    \"authCode\": \"3620\",\n    \"passId\": \"AVaUnie3oO\"\n}",
+					"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\",\n    \"authCode\": \"8667\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -502,7 +502,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"channelId\": \"feedback_1PWahLoJuf\",\n    \"message\": {\n        \"text\": \"esto es una prueba desde el postman\"\n    }\n}",
+					"raw": "{\n    \"message\": {\n        \"text\": \"esto es una prueba desde el postman\"\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -517,6 +517,49 @@
 					"path": [
 						"functions",
 						"sendMessage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getChatToken",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Parse-Application-Id",
+						"value": "{{appId}}",
+						"type": "text"
+					},
+					{
+						"key": "X-Parse-Installation-Id",
+						"value": "{{installationId}}",
+						"type": "text"
+					},
+					{
+						"key": "X-Parse-Session-Token",
+						"value": "{{sessionToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{hostname}}/functions/getChatToken",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"functions",
+						"getChatToken"
 					]
 				}
 			},
