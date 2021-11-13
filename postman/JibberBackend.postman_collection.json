@@ -278,7 +278,63 @@
 						}
 					},
 					"response": []
-				},
+				}
+			]
+		},
+		{
+			"name": "Reservation",
+			"item": [
+				{
+					"name": "updateReservation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Parse-Application-Id",
+								"type": "text",
+								"value": "BenjiApp"
+							},
+							{
+								"key": "X-Parse-Installation-Id",
+								"type": "text",
+								"value": "{{installationId}}"
+							},
+							{
+								"key": "X-Parse-Session-Token",
+								"value": "{{sessionToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5337/parse/functions/setActiveStatus",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5337",
+							"path": [
+								"parse",
+								"functions",
+								"setActiveStatus"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Connection",
+			"item": [
 				{
 					"name": "createConnection",
 					"request": {
@@ -321,12 +377,7 @@
 						}
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "Reservation",
-			"item": [
+				},
 				{
 					"name": "updateConnection",
 					"request": {
@@ -365,52 +416,6 @@
 							"path": [
 								"functions",
 								"updateConnection"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "updateReservation",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-Parse-Application-Id",
-								"type": "text",
-								"value": "BenjiApp"
-							},
-							{
-								"key": "X-Parse-Installation-Id",
-								"type": "text",
-								"value": "{{installationId}}"
-							},
-							{
-								"key": "X-Parse-Session-Token",
-								"value": "{{sessionToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:5337/parse/functions/setActiveStatus",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5337",
-							"path": [
-								"parse",
-								"functions",
-								"setActiveStatus"
 							]
 						}
 					},
