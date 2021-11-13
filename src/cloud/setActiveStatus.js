@@ -7,7 +7,7 @@ import UserStatus from '../constants/userStatus';
 // Services
 import ChatService from '../services/ChatService';
 
-class SetActiveStatusError extends ExtendableError { }
+class SetActiveStatusError extends ExtendableError {}
 
 /**
  * Sets the user's status from inactive to active
@@ -22,7 +22,7 @@ const setActiveStatus = async request => {
   }
 
   if (!givenName || !familyName) {
-    throw new SetActiveStatusError('Given name and family name are mandatory.')
+    throw new SetActiveStatusError('Given name and family name are mandatory.');
   }
 
   try {
@@ -31,6 +31,8 @@ const setActiveStatus = async request => {
     await user.save(null, { useMasterKey: true });
 
     const updatedUser = await UserService.setActiveStatus(user);
+
+    // Here we create the user in Stream
     await UserService.connectUser(updatedUser);
 
     // At this point, if the user hasn't 'active' status, he/she is in the waitlist
