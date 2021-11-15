@@ -3,7 +3,7 @@ import express from 'express';
 import path from 'path';
 import { createServer } from 'http';
 
-// Benji api
+// Jibber api
 import api from './api';
 
 // Stream Webhooks

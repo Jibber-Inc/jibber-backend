@@ -16,7 +16,7 @@ const {
   IOS_PFX_CERTIFICATE,
   IOS_PASSPHRASE,
   IOS_PUSH_PRODUCTION = false,
-  IOS_TOPIC = 'com.Benji.Ours',
+  IOS_TOPIC = 'com.jibber-inc.Jibber',
   REDIS_URL,
   S3_BUCKET,
 } = process.env;
@@ -42,13 +42,7 @@ const api = new ParseServer({
   },
   liveQuery: {
     // List of classes to support for query subscriptions
-    classNames: [
-      'QuePositions',
-      '_User',
-      'Channel',
-      'Notice',
-      'Connection',
-    ],
+    classNames: ['QuePositions', '_User', 'Channel', 'Notice', 'Connection'],
     redisUrl: REDIS_URL,
   },
   protectedFields: {

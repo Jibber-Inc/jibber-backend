@@ -9,7 +9,7 @@ import MessagesUtil from '../utils/messages';
 import { ONBOARDING_ADMIN } from '../constants/index';
 import UserService from './UserService';
 
-export class ChatServiceError extends ExtendableError { }
+export class ChatServiceError extends ExtendableError {}
 
 const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
 
@@ -224,11 +224,11 @@ const fetchMessage = async MessageSid => {
 };
 
 /**
- * 
- * @param {StreamChannel} channelInstance 
- * @param {StreamChannel} channelConfig 
- * @param {String} senderId 
- * @param {Object} data 
+ *
+ * @param {StreamChannel} channelInstance
+ * @param {StreamChannel} channelConfig
+ * @param {String} senderId
+ * @param {Object} data
  */
 const createMessagesForChannel = async (
   { channel },
@@ -274,7 +274,6 @@ const createInitialChannels = async user => {
     if (admin) {
       members.push(admin.id);
 
-      await Stream.client.disconnectUser();
       await UserService.connectUser(admin);
 
       const welcomeChannelConfig = Stream.client.channel(
@@ -299,26 +298,7 @@ const createInitialChannels = async user => {
           givenName: user.get('givenName'),
         },
       );
-
-      const feedbackChannelConfig = Stream.client.channel(
-        'messaging',
-        `feedback_${user.id}`,
-        {
-          name: 'feedback',
-          description: 'Got something to say? Say it here!',
-          members,
-          created_by_id: admin.id,
-        },
-      );
-
-      const feedbackChannelInstance = await feedbackChannelConfig.create();
-      // Send the feedback messages
-      await createMessagesForChannel(
-        feedbackChannelInstance,
-        feedbackChannelConfig,
-        admin.id
-      );
-
+      
       await Stream.client.disconnectUser();
     }
   }
