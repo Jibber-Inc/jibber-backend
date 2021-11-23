@@ -18,3 +18,10 @@ export const NOTIFICATION_TYPES = {
   CONNECTION_REQUEST: 'CONNECTION_REQUEST',
   CONNECTION_CONFIRMED: 'CONNECTION_CONFIRMED',
 };
+
+export const MESSAGE = {
+  CONTEXT: {
+    PASSIVE: 'passive',
+    TIME_SENSITIVE: 'time-sensitive',
+  },
+};
