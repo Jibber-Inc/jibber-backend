@@ -6,7 +6,7 @@ import Stream from '../providers/StreamProvider';
 // Utils
 import MessagesUtil from '../utils/messages';
 // Constants
-import { ONBOARDING_ADMIN } from '../constants/index';
+import { ONBOARDING_ADMIN, MESSAGE } from '../constants/index';
 import UserService from './UserService';
 
 export class ChatServiceError extends ExtendableError {}
@@ -243,10 +243,7 @@ const createMessagesForChannel = async (
     const newMessage = {
       text: formattedMessage,
       user_id: senderId,
-      attributes: JSON.stringify({
-        context: 'casual',
-        updateId: String(new Date().getTime()),
-      }),
+      context: MESSAGE.CONTEXT.PASSIVE,
     };
     await createMessage(newMessage, channelConfig);
   }
@@ -298,7 +295,7 @@ const createInitialChannels = async user => {
           givenName: user.get('givenName'),
         },
       );
-      
+
       await Stream.client.disconnectUser();
     }
   }

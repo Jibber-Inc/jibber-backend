@@ -2,7 +2,6 @@ import { StreamChat } from 'stream-chat';
 
 class StreamProvider {
   constructor() {
-
     // Load environment variables
     const { STREAM_KEY, STREAM_SECRET } = process.env;
     // instantiate your stream client using the API key and secret 

@@ -1,13 +1,12 @@
 // Vendor modules
 import express from 'express';
 import path from 'path';
-import twilio from 'twilio';
 import { createServer } from 'http';
 
 // Jibber api
 import api from './api';
 
-// Twilio Webhooks
+// Stream Webhooks
 import chatBeforeEvent from './chatEventWebhooks/chatBeforeEvent';
 import chatAfterEvent from './chatEventWebhooks/chatAfterEvent';
 
@@ -32,8 +31,8 @@ app.get('/', async (request, response) =>
   response.status(200).send({ health: 'ok', date: new Date() }),
 );
 
-// Twilio Pre/Post Even Webhooks
-app.post('/chatBeforeEvent', twilio.webhook(), chatBeforeEvent);
-app.post('/chatAfterEvent', twilio.webhook(), chatAfterEvent);
+// Stream Pre/Post Even Webhooks
+app.post('/stream/chatBeforeEvent', chatBeforeEvent);
+app.post('/stream/chatAfterEvent', chatAfterEvent);
 
 export default createServer(app);
