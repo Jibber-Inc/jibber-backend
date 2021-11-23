@@ -1,8 +1,7 @@
 import ExtendableError from 'extendable-error-class';
 
-const { AccessToken } = require('twilio').jwt;
-
-const { ChatGrant } = AccessToken;
+// Providers
+import Stream from '../providers/StreamProvider';
 
 export class CreateChatTokenError extends ExtendableError {}
 
@@ -11,41 +10,18 @@ export class CreateChatTokenError extends ExtendableError {}
  * @param {String} userId
  * @return {String} Jason Web Token
  */
-const createChatToken = (userId) => {
-  const {
-    TWILIO_ACCOUNT_SID,
-    TWILIO_API_KEY,
-    TWILIO_API_SECRET,
-    TWILIO_SERVICE_SID,
-  } = process.env;
+const createChatToken = userId => {
+  const { STREAM_KEY, STREAM_SECRET } = process.env;
 
-  if (!TWILIO_ACCOUNT_SID) {
-    throw new CreateChatTokenError('[Hr5B+AnF] expected TWILIO_ACCOUNT_SID');
-  }
-  if (!TWILIO_API_KEY) {
-    throw new CreateChatTokenError('[Ot/hJQ6Q] expected TWILIO_API_KEY');
-  }
-  if (!TWILIO_API_SECRET) {
-    throw new CreateChatTokenError('[oa55glNj] expected TWILIO_API_SECRET');
-  }
-  if (!TWILIO_SERVICE_SID) {
-    throw new CreateChatTokenError('[DWLPvwsL] expected TWILIO_SERVICE_SID');
-  }
-  if (!userId || typeof userId !== 'string') {
-    throw new CreateChatTokenError('[KV2wmxfD] expected userId');
+  if (!STREAM_KEY) {
+    throw new CreateChatTokenError('[Ot/hJQ6Q] expected STREAM_KEY');
   }
 
-  const accessToken = new AccessToken(
-    TWILIO_ACCOUNT_SID,
-    TWILIO_API_KEY,
-    TWILIO_API_SECRET,
-  );
-  const chatGrant = new ChatGrant({
-    serviceSid: TWILIO_SERVICE_SID,
-  });
-  accessToken.addGrant(chatGrant);
-  accessToken.identity = userId;
-  return accessToken.toJwt();
+  if (!STREAM_SECRET) {
+    throw new CreateChatTokenError('[oa55glNj] expected STREAM_SECRET');
+  }
+
+  return Stream.client.createToken(userId);
 };
 
 export default createChatToken;

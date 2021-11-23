@@ -1,6 +1,6 @@
 {
-  "name": "benji-backend",
-  "description": "parse-server for benji app",
+  "name": "jibber-backend",
+  "description": "Parse-server for Jibber app",
   "scripts": {
     "clean": "rm -rf dist && mkdir dist",
     "build": "npm run clean && babel -d ./dist ./src -s",

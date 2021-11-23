@@ -4,7 +4,7 @@ import uuidv4 from 'uuid/v4';
 import ExtendableError from 'extendable-error-class';
 // Providers
 import Parse from '../providers/ParseProvider';
-import Stream from '../providers/StreamProvider'
+import Stream from '../providers/StreamProvider';
 // Utils
 import generatePassword from '../utils/generatePassword';
 import UserUtils from '../utils/userData';
@@ -13,7 +13,9 @@ import QuePositionsService from './QuePositionsService';
 // Constants
 import UserStatus from '../constants/userStatus';
 
-class UserServiceError extends ExtendableError { }
+import createChatTokenService from './createChatTokenService';
+
+class UserServiceError extends ExtendableError {}
 
 /**
  * Create a new user.
@@ -190,7 +192,7 @@ const createUserHandle = async (user, claimedPosition, maxQuePosition) => {
  *
  * @param {*} user
  */
-const setActiveStatus = async (user) => {
+const setActiveStatus = async user => {
   // If the user has an 'inactive' state, make it 'active'
   // This  updates the claimedPosition value and creates the handle for the user
   if (user.get('status') === UserStatus.USER_STATUS_INACTIVE) {
@@ -236,26 +238,20 @@ const createUserPreference = async (fromUser, toUser) => {
 };
 
 /**
- * 
- * @param {*} user 
- * @returns 
+ *
+ * @param {ParseUser} user
  */
-const getUserStreamToken = (user) => Stream.client.createToken(user.id);
-
-/**
- * 
- * @param {ParseUser} user 
- */
-const connectUser = async (user) => {
+const connectUser = async user => {
+  await Stream.client.disconnectUser();
   const result = await Stream.client.connectUser(
     {
       id: user.id,
       name: UserUtils.getFullName(user),
     },
-    getUserStreamToken(user),
+    createChatTokenService(user.id),
   );
   return result;
-}
+};
 
 export default {
   createUser,
@@ -267,6 +263,5 @@ export default {
   deleteReservations,
   setActiveStatus,
   createUserPreference,
-  getUserStreamToken,
-  connectUser
+  connectUser,
 };
