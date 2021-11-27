@@ -12,7 +12,7 @@
 const newMessage = async (request, response) => {
   // const {
   //   // eslint-disable-next-line camelcase
-  //   channel_id,
+  //   conversation,
   //   message,
   //   user,
   //   members,
@@ -33,7 +33,7 @@ const newMessage = async (request, response) => {
     //     type: NOTIFICATION_TYPES.ALERT_MESSAGE,
     //     body: message.text,
     //     attributes: {
-    //       channelId: channel_id,
+    //       channelId: conversation,
     //       messageId: message.id,
     //       author: user.id,
     //     },
@@ -47,7 +47,7 @@ const newMessage = async (request, response) => {
     //   const fullName = UserUtils.getFullName(fromUser);
     //   const data = {
     //     messageId: message.id,
-    //     channelId: channel_id,
+    //     channelId: conversation,
     //     identifier: message.id + context,
     //     title: `🚨 ${fullName}`,
     //     body: message.text,
@@ -84,7 +84,7 @@ const updated = (request, response) => {
   try {
     // let pushStatus = {};
     // const {
-    //   channel_id,
+    //   conversation,
     //   message,
     //   // The user that modified the message
     //   user,
@@ -112,8 +112,8 @@ const updated = (request, response) => {
     //   )} read: ${message.text}`;
     //   const data = {
     //     messageId: message.id,
-    //     channelId: channel_id,
-    //     identifier: `${channel_id}read${reader.id}`,
+    //     channelId: conversation,
+    //     identifier: `${conversation}read${reader.id}`,
     //     title: 'Message Read 🤓',
     //     body,
     //     target: 'channel',

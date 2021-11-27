@@ -36,9 +36,9 @@ const setActiveStatus = async request => {
     await UserService.connectUser(updatedUser);
 
     // At this point, if the user hasn't 'active' status, he/she is in the waitlist
-    // So default chat channels won't be created for the user yet.
+    // So default conversation won't be created for the user yet.
     if (updatedUser.get('status') === UserStatus.USER_STATUS_ACTIVE) {
-      await ChatService.createInitialChannels(updatedUser);
+      await ChatService.createInitialConversations(updatedUser);
     }
 
     return updatedUser;

@@ -8,7 +8,7 @@ import createHandle from './createHandle';
 import getChatToken from './getChatToken';
 import getConnections from './getConnections';
 import updateConnection from './updateConnection';
-import createChannel from './createChannel';
+import createConversation from './createConversation';
 import setActiveStatus from './setActiveStatus';
 import updateReservation from './updateReservation';
 import createConnection from './createConnection';
@@ -38,7 +38,7 @@ Parse.Cloud.define('setActiveStatus', setActiveStatus);
 // Chat
 Parse.Cloud.define('getChatToken', getChatToken);
 Parse.Cloud.define('sendMessage', sendMessage);
-Parse.Cloud.define('createChannel', createChannel);
+Parse.Cloud.define('createConversation', createConversation);
 
 // Connection
 Parse.Cloud.define('getConnections', getConnections);

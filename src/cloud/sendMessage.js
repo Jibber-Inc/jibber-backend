@@ -10,30 +10,30 @@ import UserService from '../services/UserService';
  */
 const sendMessage = async request => {
   const { params, user } = request;
-  const { channelId, message } = params;
+  const { conversationId, message } = params;
 
   if (!user) throw new Error('A logged user is required');
 
-  if (!channelId) throw new Error('A channelId is required');
+  if (!conversationId) throw new Error('A conversationId is required');
 
   if (!message || !message.text) throw new Error('A message.text is required');
 
   try {
     await UserService.connectUser(user);
-    const filter = { id: { $eq: channelId } };
+    const filter = { id: { $eq: conversationId } };
     const sort = [{ last_message_at: -1 }];
     const options = { message_limit: 0, limit: 1, state: true };
 
-    const queryChannelsResponse = await Stream.client.queryChannels(
+    const queryConversationsResponse = await Stream.client.queryChannels(
       filter,
       sort,
       options,
     );
 
-    if (!queryChannelsResponse.length)
-      throw new Error("There's no channel with the given channel ID");
+    if (!queryConversationsResponse.length)
+      throw new Error("There's no conversation with the given conversation ID");
 
-    const channel = queryChannelsResponse[0];
+    const conversation = queryConversationsResponse[0];
 
     message.user_id = user.id;
     message.attributes = JSON.stringify({
@@ -41,7 +41,7 @@ const sendMessage = async request => {
       updateId: String(new Date().getTime()),
     });
 
-    const messageCreated = await ChatService.createMessage(message, channel);
+    const messageCreated = await ChatService.createMessage(message, conversation);
     Stream.client.disconnectUser();
 
     return messageCreated;

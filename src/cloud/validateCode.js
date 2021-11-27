@@ -94,7 +94,7 @@ const validateCode = async request => {
   }
 
   try {
-    let channelId;
+    let conversationId;
     if (user.get('smsVerificationStatus') !== 'approved') {
       let status;
       if (testUser.isTestUser(phoneNumber)) {
@@ -129,11 +129,11 @@ const validateCode = async request => {
         await pass.save(null, { useMasterKey: true });
 
         const members = [user.id, owner.id];
-        channelId = `pass_${user.id}_${owner.id}`;
+        conversationId = `pass_${user.id}_${owner.id}`;
 
-        const channelConfig = Stream.client.channel(
+        const conversationConfig = Stream.client.channel(
           'messaging',
-          channelId,
+          conversationId,
           {
             name: "",
             description: "",
@@ -142,7 +142,7 @@ const validateCode = async request => {
           },
         );
 
-        await channelConfig.create();
+        await conversationConfig.create();
 
         user.set('status', 'inactive');
       } else {
@@ -173,7 +173,7 @@ const validateCode = async request => {
 
     return {
       sessionToken,
-      channelId,
+      conversationId,
     };
   } catch (error) {
     if (error instanceof ReservationServiceError) {
