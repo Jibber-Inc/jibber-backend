@@ -7,9 +7,6 @@ import UserStatus from '../constants/userStatus';
 // Services
 import ChatService from '../services/ChatService';
 
-
-require('dotenv').config();
-
 // Load Environment Variables
 const { CREATE_WELCOME_CONVERSATION } = process.env;
 
@@ -43,7 +40,10 @@ const setActiveStatus = async request => {
 
     // At this point, if the user hasn't 'active' status, he/she is in the waitlist
     // So default chat channels won't be created for the user yet.
-    if (updatedUser.get('status') === UserStatus.USER_STATUS_ACTIVE && CREATE_WELCOME_CONVERSATION) {
+    if (
+      updatedUser.get('status') === UserStatus.USER_STATUS_ACTIVE &&
+      CREATE_WELCOME_CONVERSATION
+    ) {
       await ChatService.createInitialChannels(updatedUser);
     }
 
