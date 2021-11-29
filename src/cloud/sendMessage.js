@@ -37,8 +37,7 @@ const sendMessage = async request => {
 
     message.user_id = user.id;
     message.attributes = JSON.stringify({
-      context: 'casual',
-      updateId: String(new Date().getTime()),
+      context: 'casual'
     });
 
     const messageCreated = await ChatService.createMessage(message, channel);
