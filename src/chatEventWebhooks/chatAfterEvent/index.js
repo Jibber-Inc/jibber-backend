@@ -2,7 +2,7 @@ import Parse from '../../providers/ParseProvider';
 import message from './message';
 import reaction from './reaction';
 import member from './member';
-import channel from './channel';
+import conversation from './conversation';
 import user from './user';
 
 /**
@@ -24,7 +24,7 @@ const chatAfterEvent = async (request, response) => {
     message,
     reaction,
     member,
-    channel,
+    conversation,
     user,
   };
 

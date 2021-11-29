@@ -188,7 +188,7 @@ const createUserHandle = async (user, claimedPosition, maxQuePosition) => {
 
 /**
  * If the actual state of the given user is 'inactive', changes it to 'active'
- * and creates default chat channels and a handle
+ * and creates default chat Conversations and a handle
  *
  * @param {*} user
  */

@@ -65,19 +65,19 @@ const updateConnection = async request => {
     if (connection instanceof Connection) {
       let fromUser;
       let toUser;
-      let channel;
+      let conversation;
       if (
         connection.get('status') !== STATUS_ACCEPTED &&
         status === STATUS_ACCEPTED
       ) {
         fromUser = connection.get('from');
         toUser = connection.get('to');
-        channel = await ChatService.createChatChannel(fromUser, uniqueId);
-        await ChatService.addMembersToChannel(channel.sid, [
+        conversation = await ChatService.createConversation(fromUser, uniqueId);
+        await ChatService.addMembersToConversation(conversation.sid, [
           fromUser.id,
           toUser.id,
         ]);
-        connection.set('channelSid', channel.sid);
+        connection.set('channelSid', conversation.sid);
       }
       connection.set('status', status);
       await connection.save(null, { useMasterKey: true });
@@ -85,10 +85,10 @@ const updateConnection = async request => {
       // Notify that the user accepted the connection
       const toFullName = UserUtils.getFullName(toUser);
       const data = {
-        catetory: 'connectionConfirmed',
+        category: 'connectionConfirmed',
         title: 'Connection confirmed 🙌',
         body: `You are now connected to ${toFullName}.`,
-        channelId: channel.sid,
+        channelId: conversation.sid,
         target: 'channel',
       };
 
