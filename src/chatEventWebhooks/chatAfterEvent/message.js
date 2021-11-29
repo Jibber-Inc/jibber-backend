@@ -52,6 +52,7 @@ const newMessage = async (request, response) => {
     //     title: `🚨 ${fullName}`,
     //     body: message.text,
     //     target: 'channel',
+    //     interruptionLevel: getInterruptionLevel()
     //   };
     //   // Send the push notification
     //   pushStatus = await PushService.sendPushNotificationToUsers(
@@ -152,6 +153,19 @@ const flagged = (request, response) => response.status(200).json();
  * @param {*} response
  */
 const unflagged = (request, response) => response.status(200).json();
+
+
+const getInterruptionLevel = (message, focusSatus) => {
+  if(message === 'time-sensitive'){
+    return 'interruption-level'
+  }
+
+  if(focusSatus === 'focused' ){
+     return'passive';
+  }
+
+  return 'active';
+}
 
 export default {
   new: newMessage,
