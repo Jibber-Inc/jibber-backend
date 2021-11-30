@@ -4,6 +4,7 @@ import reaction from './reaction';
 import member from './member';
 import conversation from './conversation';
 import user from './user';
+import EventWrapper from '../../utils/eventWrapper';
 
 /**
  * Post-Event Webhooks fire after any action taken on a Chat Service.
@@ -14,10 +15,12 @@ import user from './user';
  */
 const chatAfterEvent = async (request, response) => {
   const { type } = request.body;
-  const [currentHandler, eventType] = type && type.split('.');
+  const [currentHandler, eventType] = EventWrapper.getEventInfo(type);
 
   if (!currentHandler || !eventType) {
-    return response.status(500).json({ error: 'Webhook type is missing.' });
+    return response
+      .status(500)
+      .json({ error: `Webhook type is missing.Type: ${type}` });
   }
 
   const handlers = {

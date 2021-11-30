@@ -22,90 +22,33 @@ const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
  * @param {Object} attributes
  * @returns {Promise}
  */
-const createConversation = async (
-  owner,
-  uniqueName,
-  friendlyName,
-  type = 'private',
-  attributes = {},
-) => {
+const createConversation = async (owner, conversationId, members = []) => {
   if (!owner) {
     throw new ChatServiceError('[SmQNWk96] owner is required');
   }
 
-  if (!uniqueName || typeof uniqueName !== 'string') {
-    throw new ChatServiceError('[ITLA8RgD] uniqueName is required');
+  if (!conversationId || typeof conversationId !== 'string') {
+    throw new ChatServiceError('[ITLA8RgD] conversationId is required');
+  }
+
+  if (!members.length) {
+    members.push(owner.id);
   }
 
   try {
-    const stringAttributes = JSON.stringify(attributes);
-    const conversation = await new Twilio().client.chat
-      .services(SERVICE_ID)
-      .channels.create({
-        uniqueName,
-        friendlyName,
-        type,
-        attributes: stringAttributes,
-        createdBy: owner.id,
-        xTwilioWebhookEnabled: true,
-      });
-    return conversation;
-  } catch (error) {
-    throw new ChatServiceError(error.message);
-  }
-};
-
-/**
- * Invite Members to a given conversation
- *
- * @param {String} conversationSid
- * @param {Array<String>} members
- *
- * @returns {Promise}
- */
-const inviteMembers = async (conversationSid, members = []) => {
-  try {
-    return members.map(mId =>
-      new Twilio().client.chat
-        .services(SERVICE_ID)
-        .channels(conversationSid)
-        .invites.create({ identity: mId }),
+    const conversationConfig = Stream.client.conversation(
+      'messaging',
+      conversationId,
+      {
+        name: '',
+        description: '',
+        members,
+        created_by_id: owner.id,
+      },
     );
-  } catch (error) {
-    throw new ChatServiceError(error.message);
-  }
-};
 
-/**
- * Add Members to a given conversation
- *
- * @param {String} conversationSid
- * @param {Array<String>} members
- *
- * @returns {Promise}
- */
-const addMembersToConversation = async (conversationSid, members = []) =>
-  members.map(mId =>
-    new Twilio().client.chat
-      .services(SERVICE_ID)
-      .channels(conversationSid)
-      .members.create({ identity: mId, xTwilioWebhookEnabled: true }),
-  );
-
-/**
- * Returns the members of the given conversation
- *
- * @param {*} ConversationSid
- *
- * @returns {Array<String>} membersList
- */
-const getConversationMembers = async ConversationSid => {
-  try {
-    const membersList = await new Twilio().client.chat
-      .services(process.env.TWILIO_SERVICE_SID)
-      .channels(ConversationSid)
-      .members.list();
-    return membersList;
+    const conversation = await conversationConfig.create();
+    return conversation;
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
@@ -173,7 +116,9 @@ const deleteTwilioUser = async userId => {
 const deleteUserConversations = async userId => {
   try {
     const userConversations = await getUserConversations(userId);
-    await Promise.all(userConversations.map(u => deleteConversation(u.conversationSid)));
+    await Promise.all(
+      userConversations.map(u => deleteConversation(u.conversationSid)),
+    );
     return userId;
   } catch (error) {
     throw new ChatServiceError(error.message);
@@ -189,22 +134,6 @@ const deleteUserConversations = async userId => {
 const createMessage = async (message, conversation) => {
   try {
     return await conversation.sendMessage(message);
-  } catch (error) {
-    throw new ChatServiceError(error.message);
-  }
-};
-
-/**
- * Fetch a conversation by a conversation id.
- *
- * @param {String} ConversationSid
- */
-const fetchConversation = async ConversationSid => {
-  try {
-    return new Twilio().client.chat
-      .services(SERVICE_ID)
-      .channels(ConversationSid)
-      .fetch();
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
@@ -303,13 +232,9 @@ const createInitialConversations = async user => {
 
 export default {
   createConversation,
-  inviteMembers,
-  addMembersToConversation,
-  getConversationMembers,
   deleteTwilioUser,
   deleteUserConversations,
   createMessage,
-  fetchConversation,
   fetchMessage,
   getUserConversations,
   createInitialConversations,

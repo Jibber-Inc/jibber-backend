@@ -14,7 +14,7 @@ import db from '../utils/db';
 // Providers
 import Stream from '../providers/StreamProvider';
 
-class ValidateCodeError extends ExtendableError { }
+class ValidateCodeError extends ExtendableError {}
 
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
@@ -131,12 +131,12 @@ const validateCode = async request => {
         const members = [user.id, owner.id];
         conversationId = `pass_${user.id}_${owner.id}`;
 
-        const conversationConfig = Stream.client.channel(
+        const conversationConfig = Stream.client.conversation(
           'messaging',
           conversationId,
           {
-            name: "",
-            description: "",
+            name: '',
+            description: '',
             members,
             created_by_id: user.id,
           },

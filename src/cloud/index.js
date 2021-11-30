@@ -8,10 +8,12 @@ import createHandle from './createHandle';
 import getChatToken from './getChatToken';
 import getConnections from './getConnections';
 import updateConnection from './updateConnection';
-import createConversation from './createConversation';
 import setActiveStatus from './setActiveStatus';
 import updateReservation from './updateReservation';
 import createConnection from './createConnection';
+
+// Test functions
+import test from './test';
 
 // Webhooks
 import connectionAfterSave from './webhooks/connectionAfterSave';
@@ -38,7 +40,6 @@ Parse.Cloud.define('setActiveStatus', setActiveStatus);
 // Chat
 Parse.Cloud.define('getChatToken', getChatToken);
 Parse.Cloud.define('sendMessage', sendMessage);
-Parse.Cloud.define('createConversation', createConversation);
 
 // Connection
 Parse.Cloud.define('getConnections', getConnections);
@@ -52,6 +53,9 @@ Parse.Cloud.define('updateReservation', updateReservation);
 Parse.Cloud.define('sendPush', sendPush);
 Parse.Cloud.define('createHandle', createHandle);
 Parse.Cloud.define('sendSMS', sendSMS);
+
+// Test
+Parse.Cloud.define('test', test);
 
 // --- Cloud code webhooks ----------------------------------------------------
 // Connection webhooks

@@ -1,5 +1,4 @@
 import ExtendableError from 'extendable-error-class';
-import hat from 'hat';
 import Parse from '../providers/ParseProvider';
 import ChatService from '../services/ChatService';
 import PushService from '../services/PushService';
@@ -27,7 +26,6 @@ class UpdateConnectionError extends ExtendableError {}
 const updateConnection = async request => {
   const { user } = request;
   const { connectionId, status } = request.params;
-  const uniqueId = hat();
 
   if (!(user instanceof Parse.User)) {
     throw new UpdateConnectionError('[uDA1jPox] Expected request.user');
@@ -66,18 +64,18 @@ const updateConnection = async request => {
       let fromUser;
       let toUser;
       let conversation;
+      const conversationId = `conv_${fromUser.id}_${toUser.id}`;
       if (
         connection.get('status') !== STATUS_ACCEPTED &&
         status === STATUS_ACCEPTED
       ) {
         fromUser = connection.get('from');
         toUser = connection.get('to');
-        conversation = await ChatService.createConversation(fromUser, uniqueId);
-        await ChatService.addMembersToConversation(conversation.sid, [
-          fromUser.id,
-          toUser.id,
-        ]);
-        connection.set('channelSid', conversation.sid);
+        conversation = await ChatService.createConversation(
+          fromUser,
+          conversationId,
+          [fromUser.id, toUser.id],
+        );
       }
       connection.set('status', status);
       await connection.save(null, { useMasterKey: true });
@@ -88,8 +86,8 @@ const updateConnection = async request => {
         category: 'connectionConfirmed',
         title: 'Connection confirmed 🙌',
         body: `You are now connected to ${toFullName}.`,
-        channelId: conversation.sid,
-        target: 'channel',
+        conversationId: conversation.sid,
+        target: 'conversation',
       };
 
       await PushService.sendPushNotificationToUsers(

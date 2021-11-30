@@ -24,7 +24,7 @@ const sendMessage = async request => {
     const sort = [{ last_message_at: -1 }];
     const options = { message_limit: 0, limit: 1, state: true };
 
-    const queryConversationsResponse = await Stream.client.queryChannels(
+    const queryConversationsResponse = await Stream.client.queryConversations(
       filter,
       sort,
       options,
@@ -37,10 +37,13 @@ const sendMessage = async request => {
 
     message.user_id = user.id;
     message.attributes = JSON.stringify({
-      context: 'casual'
+      context: 'casual',
     });
 
-    const messageCreated = await ChatService.createMessage(message, conversation);
+    const messageCreated = await ChatService.createMessage(
+      message,
+      conversation,
+    );
     Stream.client.disconnectUser();
 
     return messageCreated;
