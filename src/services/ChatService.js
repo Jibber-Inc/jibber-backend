@@ -140,19 +140,6 @@ const createMessage = async (message, conversation) => {
 };
 
 /**
- * Fetch a message by a message id.
- *
- * @param {String} ConversationSid
- */
-const fetchMessage = async MessageSid => {
-  try {
-    return new Twilio().client.messages(MessageSid).fetch();
-  } catch (error) {
-    throw new ChatServiceError(error.message);
-  }
-};
-
-/**
  *
  * @param {StreamConversation} conversationInstance
  * @param {StreamConversation} conversationConfig
@@ -235,7 +222,6 @@ export default {
   deleteTwilioUser,
   deleteUserConversations,
   createMessage,
-  fetchMessage,
   getUserConversations,
   createInitialConversations,
   createMessagesForConversation,
