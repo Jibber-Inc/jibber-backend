@@ -217,6 +217,27 @@ const createInitialConversations = async user => {
   }
 };
 
+const getConversationById = async (conversationId) =>{
+  const filter = { id: { $eq: conversationId } };
+  const sort = [{ last_message_at: -1 }];
+  const options = { message_limit: 0, limit: 1, state: true };
+
+  const conversationsResponse = await Stream.client.queryConversations(
+    filter,
+    sort,
+    options,
+  );
+
+  if (!conversationsResponse.length)
+    throw new Error("There's no conversation with the given conversation ID");
+
+  return conversationsResponse[0];
+};
+
+const addMemberToConversation = async (conversation, members) =>{
+   await conversation.addMembers(members);
+};
+
 export default {
   createConversation,
   deleteTwilioUser,
@@ -225,4 +246,6 @@ export default {
   getUserConversations,
   createInitialConversations,
   createMessagesForConversation,
+  addMemberToConversation,
+  getConversationById
 };

@@ -253,6 +253,10 @@ const connectUser = async user => {
   return result;
 };
 
+const upsertUser = async user => {
+  await Stream.client.upsertUser(user);
+};
+
 export default {
   createUser,
   assignDefaultRole,
@@ -264,4 +268,5 @@ export default {
   setActiveStatus,
   createUserPreference,
   connectUser,
+  upsertUser
 };

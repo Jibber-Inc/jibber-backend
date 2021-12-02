@@ -1,9 +1,6 @@
 import ExtendableError from 'extendable-error-class';
-import hat from 'hat';
-import Parse from '../providers/ParseProvider';
-import ConnectionService from './ConnectionService';
 import ChatService from './ChatService';
-import { STATUS_ACCEPTED } from '../constants';
+import UserService from './UserService';
 
 export class ReservationServiceError extends ExtendableError {}
 
@@ -75,29 +72,19 @@ const claimReservation = async (reservationId, user) => {
   }
   try {
     const reservation = await checkReservation(reservationId);
-
     // set reservation as claimed and create a connection between users
     reservation.set('isClaimed', true);
     reservation.set('user', user);
     await reservation.save(null, { useMasterKey: true });
-    const fromUser = reservation.get('createdBy');
-    const uniqueId = hat();
-    const status = STATUS_ACCEPTED;
-    const connection = await ConnectionService.createConnection(
-      fromUser,
-      user,
-      status,
-    );
+    const conversationId = reservation.get('conversationId');
 
-    if (!connection.get('channelSid')) {
-      // create a channel between 2 users.
-      const channel = await ChatService.createChatChannel(fromUser, uniqueId);
-      await ChatService.addMembersToChannel(channel.sid, [
-        fromUser.id,
-        user.id,
-      ]);
-      connection.set('channelSid', channel.sid);
-      await connection.save(null, { useMasterKey: true });
+    if (conversationId) {
+      const conversation = await ChatService.getConversationById(
+        conversationId,
+      );
+
+      await UserService.upsertUser({ id: user.id });
+      await ChatService.addMemberToConversation(conversation, [user.id]);
     }
   } catch (error) {
     throw new ReservationServiceError(
