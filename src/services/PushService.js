@@ -1,5 +1,6 @@
 import Parse from '../providers/ParseProvider';
 import { NOTIFICATION_TYPES } from '../constants';
+import { Channel } from 'stream-chat';
 
 const sendToChannel = () => ({
   result: 'needs to be implemented',
@@ -28,22 +29,14 @@ const sendToUsers = async (data, users = []) => {
   );
 };
 
-const prepareNotificationData = (type, data = {}) => {
-  if (!Object.keys(NOTIFICATION_TYPES).includes(type)) {
-    throw new Error(`Unsoported push notification type ${type}`);
-  }
+const prepareNotificationData = (notificationType, data = {}, users = {}) => {
+ 
+  console.log('ASDSADASDADDA');
+  console.log(users);
 
   const { title, body, category, ...rest } = data;
   let alert = {};
   let aps = {};
-
-  if (category) {
-    aps = { category };
-  }
-
-  if (title) {
-    alert = { title };
-  }
 
   if (body) {
     alert = { ...alert, body };
@@ -51,9 +44,41 @@ const prepareNotificationData = (type, data = {}) => {
 
   aps = {
     ...aps,
-    alert,
-    badge: 1,
+    alert: {
+       'title': title || null,
+       'body': 'xxx'
+    },
+    threadId: 1,
+    category: "NEW_MESSAGE",
+    interruptionLevel:'asd',
+    mutableContent: 1
   };
+
+  const d = {
+    target: 6,
+    conversationId: 7,
+    messageId: 8,
+    author: 9
+  }
+
+
+  const stream = {
+    target: "conversation",
+    sender: "stream.chat",
+    type: notificationType,
+    version: "v1",
+    author: 'jaun p',
+    id: 1234,
+    cid: 6546
+  }
+
+  const toREturn  = {
+    aps,
+    d,
+    stream
+  };
+ 
+  console.log(toREturn);
 
   return {
     aps,
@@ -63,8 +88,8 @@ const prepareNotificationData = (type, data = {}) => {
   };
 };
 
-const sendPushNotificationToUsers = async (type, data, users = []) => {
-  const customData = prepareNotificationData(type, data);
+const sendPushNotificationToUsers = async (notificationType, data, users = []) => {
+  const customData = prepareNotificationData(notificationType, data, users);
   return sendToUsers(customData, users);
 };
 

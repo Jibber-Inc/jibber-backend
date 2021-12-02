@@ -1,8 +1,8 @@
-// import Parse from '../../providers/ParseProvider';
-// import { NOTIFICATION_TYPES } from '../../constants';
-// import NoticeService from '../../services/NoticeService';
-// import UserUtils from '../../utils/userData';
-// import PushService from '../../services/PushService';
+import Parse from '../../providers/ParseProvider';
+import { NOTIFICATION_TYPES } from '../../constants';
+import NoticeService from '../../services/NoticeService';
+import UserUtils from '../../utils/userData';
+import PushService from '../../services/PushService';
 
 /**
  *
@@ -10,60 +10,93 @@
  * @param {*} response
  */
 const newMessage = async (request, response) => {
-  // const {
-  //   // eslint-disable-next-line camelcase
-  //   channel_id,
-  //   message,
-  //   user,
-  //   members,
-  // } = request.body;
-  // // TODO: Use attributes
-  // const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
-  // const pushStatus = {};
+  console.log('ZZZZ')
+
+  const {
+    // eslint-disable-next-line camelcase
+    channel_id,
+    message,
+    user,
+    members,
+  } = request.body;
+
+  // TODO: Use attributes
+  const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
+  let pushStatus = {};
   try {
-    // const { context } = message;
-    // const usersIdentities = members
-    //   .map(m => m.user_id)
-    //   .filter(u => u !== user.id);
-    // const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
+    const { context } = message;
+    const usersIdentities = members
+      .map(m => m.user_id)
+      .filter(u => u !== user.id);
+    const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
+    if (users.length && context === 'emergency') {
+      // Set the data for the alert message Notice object
+      const noticeData = {
+        type: NOTIFICATION_TYPES.ALERT_MESSAGE,
+        body: message.text,
+        attributes: {
+          channelId: channel_id,
+          messageId: message.id,
+          author: user.id,
+        },
+        priority: 1,
+        fromUser,
+      };
+      // Create the Notice object
+      await NoticeService.createNotice(noticeData);
 
-    // if (users.length && context === 'emergency') {
-    //   // Set the data for the alert message Notice object
-    //   const noticeData = {
-    //     type: NOTIFICATION_TYPES.ALERT_MESSAGE,
-    //     body: message.text,
-    //     attributes: {
-    //       channelId: channel_id,
-    //       messageId: message.id,
-    //       author: user.id,
-    //     },
-    //     priority: 1,
-    //     fromUser,
-    //   };
-    //   // Create the Notice object
-    //   await NoticeService.createNotice(noticeData);
+      // Set the data for the alert message push notification
+      const fullName = UserUtils.getFullName(fromUser);
+      const data = {
+        messageId: message.id,
+        channelId: channel_id,
+        identifier: message.id + context,
+        title: `🚨 ${fullName}`,
+        body: message.text,
+        target: 'channel',
+        interruptionLevel: 'asd',
+      };
 
-    //   // Set the data for the alert message push notification
-    //   const fullName = UserUtils.getFullName(fromUser);
-    //   const data = {
-    //     messageId: message.id,
-    //     channelId: channel_id,
-    //     identifier: message.id + context,
-    //     title: `🚨 ${fullName}`,
-    //     body: message.text,
-    //     target: 'channel',
-    //     interruptionLevel: getInterruptionLevel()
-    //   };
-    //   // Send the push notification
-    //   pushStatus = await PushService.sendPushNotificationToUsers(
-    //     NOTIFICATION_TYPES.ALERT_MESSAGE,
-    //     data,
-    //     users,
-    //   );
-    // }
+      // Send the push notification
+      pushStatus = await PushService.sendPushNotificationToUsers(
+        NOTIFICATION_TYPES.ALERT_MESSAGE,
+        data,
+        users,
+      );
+    }
 
-    // return response.status(200).json(pushStatus);
-    return response.status(200).json();
+    /*   {
+      "aps" : {
+          "alert": {
+              "title": "{{ sender.name }}",
+              "body": "{{ message.text }}"
+          },
+          "thread-id": "{{ channel.cid }}",
+          "category": "NEW_MESSAGE",
+          "interruption-level": "{{ message.context }}",
+          "mutable-content": 1
+      },
+      "data": {
+          "target": "conversation",
+          "conversationId": "{{ channel.cid }}",
+          "messageId": "{{ message.id }}",
+          "author": "{{ sender.id }}"
+      },
+      "stream": {
+          "target": "conversation",
+          "sender": "stream.chat",
+          "type": "message.new",
+          "version": "v1",
+          "author": "{{ sender.id }}",
+          "id": "{{ message.id }}",
+          "cid": "{{ channel.cid }}"
+      }
+  }
+  
+  */
+
+    return response.status(200).json(pushStatus);
+    // return response.status(200).json();
   } catch (error) {
     return response.status(500).json({ error: error.message });
   }
@@ -154,18 +187,17 @@ const flagged = (request, response) => response.status(200).json();
  */
 const unflagged = (request, response) => response.status(200).json();
 
-
 const getInterruptionLevel = (message, focusSatus) => {
-  if(message === 'time-sensitive'){
-    return 'interruption-level'
+  if (message === 'time-sensitive') {
+    return 'interruption-level';
   }
 
-  if(focusSatus === 'focused' ){
-     return'passive';
+  if (focusSatus === 'focused') {
+    return 'passive';
   }
 
   return 'active';
-}
+};
 
 export default {
   new: newMessage,
