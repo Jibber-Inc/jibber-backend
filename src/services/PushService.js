@@ -1,7 +1,7 @@
 import Parse from '../providers/ParseProvider';
 import { NOTIFICATION_TYPES } from '../constants';
 
-const sendToChannel = () => ({
+const sendToConversation = () => ({
   result: 'needs to be implemented',
 });
 
@@ -69,6 +69,6 @@ const sendPushNotificationToUsers = async (type, data, users = []) => {
 };
 
 export default {
-  sendToChannel,
+  sendToConversation,
   sendPushNotificationToUsers,
 };
