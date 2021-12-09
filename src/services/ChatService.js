@@ -14,7 +14,7 @@ export class ChatServiceError extends ExtendableError {}
 const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
 
 /**
- * Create a chat channel
+ * Create a conversation
  * @param {Parse.User} owner
  * @param {String} uniqueName
  * @param {String} friendlyName
@@ -22,121 +22,64 @@ const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
  * @param {Object} attributes
  * @returns {Promise}
  */
-const createChatChannel = async (
-  owner,
-  uniqueName,
-  friendlyName,
-  type = 'private',
-  attributes = {},
-) => {
+const createConversation = async (owner, conversationId, members = []) => {
   if (!owner) {
     throw new ChatServiceError('[SmQNWk96] owner is required');
   }
 
-  if (!uniqueName || typeof uniqueName !== 'string') {
-    throw new ChatServiceError('[ITLA8RgD] uniqueName is required');
+  if (!conversationId || typeof conversationId !== 'string') {
+    throw new ChatServiceError('[ITLA8RgD] conversationId is required');
+  }
+
+  if (!members.length) {
+    members.push(owner.id);
   }
 
   try {
-    const stringAttributes = JSON.stringify(attributes);
-    const channel = await new Twilio().client.chat
-      .services(SERVICE_ID)
-      .channels.create({
-        uniqueName,
-        friendlyName,
-        type,
-        attributes: stringAttributes,
-        createdBy: owner.id,
-        xTwilioWebhookEnabled: true,
-      });
-    return channel;
-  } catch (error) {
-    throw new ChatServiceError(error.message);
-  }
-};
-
-/**
- * Invite Members to a given channel
- *
- * @param {String} channelSid
- * @param {Array<String>} members
- *
- * @returns {Promise}
- */
-const inviteMembers = async (channelSid, members = []) => {
-  try {
-    return members.map(mId =>
-      new Twilio().client.chat
-        .services(SERVICE_ID)
-        .channels(channelSid)
-        .invites.create({ identity: mId }),
+    const conversationConfig = Stream.client.conversation(
+      'messaging',
+      conversationId,
+      {
+        name: '',
+        description: '',
+        members,
+        created_by_id: owner.id,
+      },
     );
+
+    const conversation = await conversationConfig.create();
+    return conversation;
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
 };
 
 /**
- * Add Members to a given channel
- *
- * @param {String} channelSid
- * @param {Array<String>} members
- *
- * @returns {Promise}
- */
-const addMembersToChannel = async (channelSid, members = []) =>
-  members.map(mId =>
-    new Twilio().client.chat
-      .services(SERVICE_ID)
-      .channels(channelSid)
-      .members.create({ identity: mId, xTwilioWebhookEnabled: true }),
-  );
-
-/**
- * Returns the members of the given channel
- *
- * @param {*} ChannelSid
- *
- * @returns {Array<String>} membersList
- */
-const getChannelMembers = async ChannelSid => {
-  try {
-    const membersList = await new Twilio().client.chat
-      .services(process.env.TWILIO_SERVICE_SID)
-      .channels(ChannelSid)
-      .members.list();
-    return membersList;
-  } catch (error) {
-    throw new ChatServiceError(error.message);
-  }
-};
-
-/**
- * Get all user channels
+ * Get all user conversations
  *
  * @param {String} userId
  */
-const getUserChannels = async userId => {
+const getUserConversations = async userId => {
   try {
     const filter = { members: { $in: [userId] } };
-    const userChannels = await Stream.client.queryChannels(filter, {}, {});
+    const userConversations = await Stream.client.queryChannels(filter, {}, {});
 
-    return userChannels;
+    return userConversations;
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
 };
 
 /**
- * Delte a given channel
+ * Delte a given conversation
  *
- * @param {String} channelSid
+ * @param {String} conversationSid
  */
-const deleteChannel = async channelSid => {
+const deleteConversation = async conversationSid => {
   try {
     return new Twilio().client.chat
       .services(SERVICE_ID)
-      .channels(channelSid)
+      .channels(conversationSid)
       .remove();
   } catch (error) {
     throw new ChatServiceError(error.message);
@@ -166,14 +109,16 @@ const deleteTwilioUser = async userId => {
 };
 
 /**
- * Remove all channels from user
+ * Remove all conversations from user
  *
  * @param {String} userId
  */
-const deleteUserChannels = async userId => {
+const deleteUserConversations = async userId => {
   try {
-    const userChannels = await getUserChannels(userId);
-    await Promise.all(userChannels.map(u => deleteChannel(u.channelSid)));
+    const userConversations = await getUserConversations(userId);
+    await Promise.all(
+      userConversations.map(u => deleteConversation(u.conversationSid)),
+    );
     return userId;
   } catch (error) {
     throw new ChatServiceError(error.message);
@@ -181,43 +126,14 @@ const deleteUserChannels = async userId => {
 };
 
 /**
- * Create a message on a given channel.
+ * Create a message on a given conversation.
  *
  * @param {Object} message
- * @param {StreamChannel} channel
+ * @param {StreamConversation} conversation
  */
-const createMessage = async (message, channel) => {
+const createMessage = async (message, conversation) => {
   try {
-    return await channel.sendMessage(message);
-  } catch (error) {
-    throw new ChatServiceError(error.message);
-  }
-};
-
-/**
- * Fetch a channel by a channel id.
- *
- * @param {String} ChannelSid
- */
-const fetchChannel = async ChannelSid => {
-  try {
-    return new Twilio().client.chat
-      .services(SERVICE_ID)
-      .channels(ChannelSid)
-      .fetch();
-  } catch (error) {
-    throw new ChatServiceError(error.message);
-  }
-};
-
-/**
- * Fetch a message by a message id.
- *
- * @param {String} ChannelSid
- */
-const fetchMessage = async MessageSid => {
-  try {
-    return new Twilio().client.messages(MessageSid).fetch();
+    return await conversation.sendMessage(message);
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
@@ -225,40 +141,40 @@ const fetchMessage = async MessageSid => {
 
 /**
  *
- * @param {StreamChannel} channelInstance
- * @param {StreamChannel} channelConfig
+ * @param {StreamConversation} conversationInstance
+ * @param {StreamConversation} conversationConfig
  * @param {String} senderId
  * @param {Object} data
  */
-const createMessagesForChannel = async (
-  { channel },
-  channelConfig,
+const createMessagesForConversation = async (
+  { conversation },
+  conversationConfig,
   senderId,
   data = {},
 ) => {
   const { messages } = MessagesUtil;
   // eslint-disable-next-line no-restricted-syntax
-  for await (const message of messages[channel.name]) {
+  for await (const message of messages[conversation.name]) {
     const formattedMessage = MessagesUtil.getMessage(message, data);
     const newMessage = {
       text: formattedMessage,
       user_id: senderId,
       context: MESSAGE.CONTEXT.PASSIVE,
     };
-    await createMessage(newMessage, channelConfig);
+    await createMessage(newMessage, conversationConfig);
   }
 };
 
 /**
- * Creates the initial channels for the new user
+ * Creates the initial conversations for the new user
  * @param {*} user
  */
-const createInitialChannels = async user => {
-  // Add to channel members the user
+const createInitialConversations = async user => {
+  // Add to conversation members the user
   const members = [user.id];
   let admin;
 
-  // If the desired role exists, add to channel members the admin with that role
+  // If the desired role exists, add to conversation members the admin with that role
   // Get parse role
   const onboardingRole = await new Parse.Query(Parse.Role)
     .equalTo('name', ONBOARDING_ADMIN)
@@ -273,7 +189,7 @@ const createInitialChannels = async user => {
 
       await UserService.connectUser(admin);
 
-      const welcomeChannelConfig = Stream.client.channel(
+      const welcomeConversationConfig = Stream.client.channel(
         'messaging',
         `welcome_${user.id}`,
         {
@@ -284,12 +200,12 @@ const createInitialChannels = async user => {
         },
       );
 
-      const welcomeChannelInstance = await welcomeChannelConfig.create();
+      const welcomeConversationInstance = await welcomeConversationConfig.create();
 
       // Send the welcome messages
-      await createMessagesForChannel(
-        welcomeChannelInstance,
-        welcomeChannelConfig,
+      await createMessagesForConversation(
+        welcomeConversationInstance,
+        welcomeConversationConfig,
         admin.id,
         {
           givenName: user.get('givenName'),
@@ -301,17 +217,35 @@ const createInitialChannels = async user => {
   }
 };
 
+const getConversationById = async (conversationId) =>{
+  const filter = { id: { $eq: conversationId } };
+  const sort = [{ last_message_at: -1 }];
+  const options = { message_limit: 0, limit: 1, state: true };
+
+  const conversationsResponse = await Stream.client.queryConversations(
+    filter,
+    sort,
+    options,
+  );
+
+  if (!conversationsResponse.length)
+    throw new Error("There's no conversation with the given conversation ID");
+
+  return conversationsResponse[0];
+};
+
+const addMemberToConversation = async (conversation, members) =>{
+   await conversation.addMembers(members);
+};
+
 export default {
-  createChatChannel,
-  inviteMembers,
-  addMembersToChannel,
-  getChannelMembers,
+  createConversation,
   deleteTwilioUser,
-  deleteUserChannels,
+  deleteUserConversations,
   createMessage,
-  fetchChannel,
-  fetchMessage,
-  getUserChannels,
-  createInitialChannels,
-  createMessagesForChannel,
+  getUserConversations,
+  createInitialConversations,
+  createMessagesForConversation,
+  addMemberToConversation,
+  getConversationById
 };
