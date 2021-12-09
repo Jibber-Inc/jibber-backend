@@ -1,6 +1,7 @@
 import ExtendableError from 'extendable-error-class';
 import ChatService from './ChatService';
 import UserService from './UserService';
+import Parse from '../providers/ParseProvider';
 
 export class ReservationServiceError extends ExtendableError {}
 
