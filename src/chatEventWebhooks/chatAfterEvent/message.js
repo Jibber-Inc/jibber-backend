@@ -3,6 +3,7 @@
 // import NoticeService from '../../services/NoticeService';
 // import UserUtils from '../../utils/userData';
 // import PushService from '../../services/PushService';
+// import EventWrapper from '../../utils/eventWrapper';
 
 /**
  *
@@ -11,12 +12,11 @@
  */
 const newMessage = async (request, response) => {
   // const {
-  //   // eslint-disable-next-line camelcase
-  //   channel_id,
+  //   conversationId,
   //   message,
   //   user,
   //   members,
-  // } = request.body;
+  // } = EventWrapper.getParams(request.body);
   // // TODO: Use attributes
   // const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
   // const pushStatus = {};
@@ -33,7 +33,7 @@ const newMessage = async (request, response) => {
     //     type: NOTIFICATION_TYPES.ALERT_MESSAGE,
     //     body: message.text,
     //     attributes: {
-    //       channelId: channel_id,
+    //       channelId: conversationId,
     //       messageId: message.id,
     //       author: user.id,
     //     },
@@ -47,7 +47,7 @@ const newMessage = async (request, response) => {
     //   const fullName = UserUtils.getFullName(fromUser);
     //   const data = {
     //     messageId: message.id,
-    //     channelId: channel_id,
+    //     channelId: conversationId,
     //     identifier: message.id + context,
     //     title: `🚨 ${fullName}`,
     //     body: message.text,
@@ -84,11 +84,10 @@ const updated = (request, response) => {
   try {
     // let pushStatus = {};
     // const {
-    //   channel_id,
+    //   conversationId,
     //   message,
-    //   // The user that modified the message
     //   user,
-    // } = request.body;
+    // } = EventWrapper.getParams(request.body);
 
     // // if (!Attributes) throw new Error('No Attributes present on the resquest.');
     // // const { consumers = [], context = '' } = JSON.parse(Attributes);
@@ -112,8 +111,8 @@ const updated = (request, response) => {
     //   )} read: ${message.text}`;
     //   const data = {
     //     messageId: message.id,
-    //     channelId: channel_id,
-    //     identifier: `${channel_id}read${reader.id}`,
+    //     channelId: conversationId,
+    //     identifier: `${conversationId}read${reader.id}`,
     //     title: 'Message Read 🤓',
     //     body,
     //     target: 'channel',

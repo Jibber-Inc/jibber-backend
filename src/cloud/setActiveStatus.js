@@ -44,7 +44,7 @@ const setActiveStatus = async request => {
       updatedUser.get('status') === UserStatus.USER_STATUS_ACTIVE &&
       CREATE_WELCOME_CONVERSATION
     ) {
-      await ChatService.createInitialChannels(updatedUser);
+      await ChatService.createInitialConversations(updatedUser);
     }
 
     return updatedUser;

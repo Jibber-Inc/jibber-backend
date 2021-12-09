@@ -1,5 +1,4 @@
 import ExtendableError from 'extendable-error-class';
-import hat from 'hat';
 import Parse from '../providers/ParseProvider';
 import ChatService from '../services/ChatService';
 import PushService from '../services/PushService';
@@ -27,7 +26,6 @@ class UpdateConnectionError extends ExtendableError {}
 const updateConnection = async request => {
   const { user } = request;
   const { connectionId, status } = request.params;
-  const uniqueId = hat();
 
   if (!(user instanceof Parse.User)) {
     throw new UpdateConnectionError('[uDA1jPox] Expected request.user');
@@ -65,19 +63,19 @@ const updateConnection = async request => {
     if (connection instanceof Connection) {
       let fromUser;
       let toUser;
-      let channel;
+      let conversation;
+      const conversationId = `conv_${fromUser.id}_${toUser.id}`;
       if (
         connection.get('status') !== STATUS_ACCEPTED &&
         status === STATUS_ACCEPTED
       ) {
         fromUser = connection.get('from');
         toUser = connection.get('to');
-        channel = await ChatService.createChatChannel(fromUser, uniqueId);
-        await ChatService.addMembersToChannel(channel.sid, [
-          fromUser.id,
-          toUser.id,
-        ]);
-        connection.set('channelSid', channel.sid);
+        conversation = await ChatService.createConversation(
+          fromUser,
+          conversationId,
+          [fromUser.id, toUser.id],
+        );
       }
       connection.set('status', status);
       await connection.save(null, { useMasterKey: true });
@@ -85,11 +83,11 @@ const updateConnection = async request => {
       // Notify that the user accepted the connection
       const toFullName = UserUtils.getFullName(toUser);
       const data = {
-        catetory: 'connectionConfirmed',
+        category: 'connectionConfirmed',
         title: 'Connection confirmed 🙌',
         body: `You are now connected to ${toFullName}.`,
-        channelId: channel.sid,
-        target: 'channel',
+        conversationId: conversation.sid,
+        target: 'conversation',
       };
 
       await PushService.sendPushNotificationToUsers(
