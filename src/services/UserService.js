@@ -15,7 +15,7 @@ import UserStatus from '../constants/userStatus';
 
 import createChatTokenService from './createChatTokenService';
 
-class UserServiceError extends ExtendableError {}
+class UserServiceError extends ExtendableError { }
 
 /**
  * Create a new user.
