@@ -1,9 +1,9 @@
 import ExtendableError from 'extendable-error-class';
 import Parse from '../../providers/ParseProvider';
-// import ChatService from '../../services/ChatService';
+import ChatService from '../../services/ChatService';
 import UserService from '../../services/UserService';
 
-class UserAfterDeleteError extends ExtendableError {}
+class UserAfterDeleteError extends ExtendableError { }
 
 /**
  * After delete webhook for User objects.
@@ -24,13 +24,10 @@ const userAfterDelete = async request => {
       UserService.deleteReservations(user),
       UserService.deleteUserInstallations(user),
       UserService.clearUserSessions(user),
-      // TODO: Remove user from conversations and not remove conversations?
-      // ChatService.deleteUserConversations(user.id),
-      // TODO: Migrate to Stream
-      // ChatService.deleteTwilioUser(user.id),
+      ChatService.deleteUser(user.id),
     ]);
   } catch (error) {
-    console.log(error);
+    console.warn(error);
   }
 };
 
