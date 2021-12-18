@@ -14,7 +14,7 @@ import db from '../utils/db';
 // Providers
 import Stream from '../providers/StreamProvider';
 
-class ValidateCodeError extends ExtendableError {}
+class ValidateCodeError extends ExtendableError { }
 
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
@@ -82,6 +82,10 @@ const validateCode = async request => {
   // Auth code is required in request body
   if (!authCode) {
     throw new ValidateCodeError('[xDETWSYH] No auth code provided in request');
+  }
+
+  if (!passId || !reservationId) {
+    throw new ValidateCodeError('No passId or reservationId given.');
   }
 
   // Retrieve the user with the phoneNumber
