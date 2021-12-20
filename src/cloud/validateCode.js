@@ -85,10 +85,6 @@ const validateCode = async request => {
     throw new ValidateCodeError('[xDETWSYH] No auth code provided in request');
   }
 
-  if (!passId || !reservationId) {
-    throw new ValidateCodeError('No passId or reservationId given.');
-  }
-
   // Retrieve the user with the phoneNumber
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
