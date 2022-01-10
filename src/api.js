@@ -45,7 +45,7 @@ const api = new ParseServer({
       },
       topic: IOS_BUNDLE_ID, // The bundle identifier associated with your app
       production: false
-    }
+    },
     // ios: {
     //   pfx: IOS_PFX_CERTIFICATE,
     //   passphrase: IOS_PASSPHRASE,
