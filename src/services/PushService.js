@@ -1,9 +1,12 @@
 import Parse from '../providers/ParseProvider';
 
-const sendToConversation = () => ({
-  result: 'needs to be implemented',
-});
-
+/**
+ * Sends the push notif to the given users
+ * 
+ * @param {*} data 
+ * @param {*} users 
+ * @returns 
+ */
 const sendToUsers = async (data, users = []) => {
   if (!data) throw new Error('Cannot send notificaction. Data is required');
   // Find sessions of the user.
@@ -27,8 +30,13 @@ const sendToUsers = async (data, users = []) => {
   );
 };
 
+/**
+ * Prepares the notification payload
+ * 
+ * @param {*} data 
+ * @returns 
+ */
 const prepareNotificationData = (data = {}) => {
-
   const {
     category,
     title,
@@ -78,12 +86,18 @@ const prepareNotificationData = (data = {}) => {
   return payload;
 };
 
+/**
+ * Prepares & sends the notification to the given users
+ * 
+ * @param {*} data 
+ * @param {*} users 
+ * @returns 
+ */
 const sendPushNotificationToUsers = async (data, users = []) => {
   const customData = prepareNotificationData(data);
   return sendToUsers(customData, users);
 };
 
 export default {
-  sendToConversation,
   sendPushNotificationToUsers,
 };

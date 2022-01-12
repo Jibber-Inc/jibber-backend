@@ -3,7 +3,7 @@ import ChatService from './ChatService';
 import UserService from './UserService';
 import Parse from '../providers/ParseProvider';
 
-export class ReservationServiceError extends ExtendableError {}
+export class ReservationServiceError extends ExtendableError { }
 
 /**
  * Create a reservation
