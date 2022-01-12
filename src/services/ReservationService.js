@@ -3,7 +3,7 @@ import ChatService from './ChatService';
 import UserService from './UserService';
 import Parse from '../providers/ParseProvider';
 
-export class ReservationServiceError extends ExtendableError {}
+export class ReservationServiceError extends ExtendableError { }
 
 /**
  * Create a reservation
@@ -58,6 +58,25 @@ const checkReservation = async reservationId => {
   }
 };
 
+/**
+ * 
+ * @param {*} user 
+ * @returns 
+ */
+const resetReservations = async user => {
+  const result = await new Parse.Query('Reservation')
+    .equalTo('user', user).find({ useMasterKey: true });
+  result.forEach(res => {
+    console.log('RESERVATION', res);
+  })
+  return result;
+};
+
+/**
+ * 
+ * @param {*} user 
+ * @returns 
+ */
 const hasReservations = async user => {
   const count = await new Parse.Query('Reservation')
     .equalTo('createdBy', user)
@@ -65,6 +84,11 @@ const hasReservations = async user => {
   return count > 0;
 };
 
+/**
+ * 
+ * @param {*} reservationId 
+ * @param {*} user 
+ */
 const claimReservation = async (reservationId, user) => {
   if (!reservationId) {
     throw new ReservationServiceError(
@@ -100,4 +124,5 @@ export default {
   checkReservation,
   hasReservations,
   claimReservation,
+  resetReservations
 };

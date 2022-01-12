@@ -6,11 +6,11 @@ import UserService from '../services/UserService';
 import ReservationService, {
   ReservationServiceError,
 } from '../services/ReservationService';
-import QuePositionsService from '../services/QuePositionsService';
+// import QuePositionsService from '../services/QuePositionsService';
 import ConnectionService from '../services/ConnectionService';
 // Utils
 import testUser from '../utils/testUser';
-import db from '../utils/db';
+// import db from '../utils/db';
 // Providers
 import Stream from '../providers/StreamProvider';
 
