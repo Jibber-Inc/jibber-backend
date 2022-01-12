@@ -13,6 +13,8 @@ import testUser from '../utils/testUser';
 // import db from '../utils/db';
 // Providers
 import Stream from '../providers/StreamProvider';
+import PushService from '../services/PushService';
+import ChatService from '../services/ChatService';
 
 class ValidateCodeError extends ExtendableError { }
 
@@ -113,8 +115,39 @@ const validateCode = async request => {
         throw new ValidateCodeError('[KTN1RYO9] Auth code validation failed');
       }
 
+      console.log('xxxxxxxxxxx');
+
       if (reservationId) {
-        await ReservationService.claimReservation(reservationId, user);
+        const reservation = await ReservationService.claimReservation(reservationId, user);
+        const conversationCid = reservation.get('conversationId');
+        const conversation = await ChatService.getConversationByCid(
+          conversationCid,
+        );
+        const createdBy = conversation.data.create_by.id;
+
+        console.log('*****************');
+        console.log(conversation.data.);
+
+        const data = {
+          messageId: message.id,
+          channelId: conversationId,
+          conversationCid,
+          identifier: message.id + context,
+          title: `🚨 ${fullName}`,
+          body: message.text,
+          target: 'channel',
+          category: 'message.new',
+          interruptionLevel: 'time-sensitive',
+          threadId: conversationCid,
+          author: fromUser.id,
+          connectionId,
+        };
+
+        await PushService.sendPushNotificationToUsers(
+          data,
+          createdBy,
+        );
+
       }
 
       if (passId) {
