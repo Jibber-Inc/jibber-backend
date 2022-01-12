@@ -29,7 +29,7 @@ const sendToUsers = async (data, users = []) => {
 
 const prepareNotificationData = (data = {}) => {
  
-  console.log('********************* B');
+  console.log('********************* BBB');
 
   const {
     category,
@@ -48,43 +48,41 @@ const prepareNotificationData = (data = {}) => {
     type= "message.new",
   } = data;
 
+  console.log('******************** AAA');
 
-  const aps = {
-    alert: {
-      title,
-      body,
+  const notification = {
+    aps : {
+      alert: {
+        title,
+        body,
+      },
+      'thread-id':threadId,
+      category,
+      'interruption-level': interruptionLevel,
+      'mutable-content': mutableContent,
+      connectionId
     },
-    'thread-id':threadId,
-    category,
-    'interruption-level': interruptionLevel,
-    'mutable-content': mutableContent,
-    connectionId
-  };
-  
-  const dataToReturn = {
-    target,
-    conversationId: conversationCid,
-    messageId,
-    author,
-  };
+    data: {
+      target,
+      conversationId: conversationCid,
+      messageId,
+      author,
+    },
+    stream: {
+      target,
+      sender,
+      type,
+      version,
+      author,
+      id: messageId,
+      cid: conversationCid,
+    }
+    
+  } 
 
-  const stream = {
-    target,
-    sender,
-    type,
-    version,
-    author,
-    id: messageId,
-    cid: conversationCid,
-  };
+  console.log(notification);
 
-  const asd =  {
-    aps,
-    data: dataToReturn,
-    stream,
-  };
-
-  return asd;
+  return notification;
  }; 
 
 const sendPushNotificationToUsers = async (data, users = []) => {
