@@ -91,7 +91,6 @@ const updateConnection = async request => {
       };
 
       await PushService.sendPushNotificationToUsers(
-        NOTIFICATION_TYPES.CONNECTION_CONFIRMED,
         data,
         [fromUser],
       );

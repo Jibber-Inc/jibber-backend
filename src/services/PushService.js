@@ -1,5 +1,4 @@
 import Parse from '../providers/ParseProvider';
-import { NOTIFICATION_TYPES } from '../constants';
 
 const sendToConversation = () => ({
   result: 'needs to be implemented',
@@ -28,44 +27,70 @@ const sendToUsers = async (data, users = []) => {
   );
 };
 
-/*
-const prepareNotificationData = (type, data = {}) => {
-  if (!Object.keys(NOTIFICATION_TYPES).includes(type)) {
-    throw new Error(`Unsoported push notification type ${type}`);
-  }
+const prepareNotificationData = (data = {}) => {
+ 
+  console.log('********************* B');
 
-  const { title, body, category, ...rest } = data;
-  let alert = {};
-  let aps = {};
+  const {
+    category,
+    title,
+    body,
+    conversationId,
+    messageId,
+    target = 'conversation',
+    author,
+    version = 'v1',
+    interruptionLevel,
+    connectionId,
+    mutableContent = 1,
+    sender = 'stream.chat',
+    type= "message.new",
+  } = data;
 
-  if (category) {
-    aps = { category };
-  }
+  console.log('********************* C');
 
-  if (title) {
-    alert = { title };
-  }
-
-  if (body) {
-    alert = { ...alert, body };
-  }
-
-  aps = {
-    ...aps,
-    alert,
-    badge: 1,
+  const aps = {
+    alert: {
+      title,
+      body,
+    },
+    thread_id: conversationId,
+    category,
+    interruption_level: interruptionLevel,
+    mutable_content: mutableContent,
+    connectionId
   };
-
-  return {
+  console.log('********************* D', aps);
+  const dataToReturn = {
+    target,
+    conversation_d: conversationId,
+    messageId,
+    author,
+  };
+  
+  console.log('********************* F', dataToReturn);
+  
+  const stream = {
+    target,
+    sender,
+    type,
+    version,
+    author,
+    id: messageId,
+    cid: conversationId,
+  };
+  console.log('********************* G', stream);
+  const asd =  {
     aps,
-    priority: 10,
-    push_type: 'alert',
-    data: rest,
+    data: dataToReturn,
+    stream,
   };
-};*/
+  console.log('*********************', asd);
+  return asd;
+ }; 
 
-const sendPushNotificationToUsers = async (type, data, users = []) => {
-  const customData = prepareNotificationData(notificationType, data);
+const sendPushNotificationToUsers = async (data, users = []) => {
+  const customData = prepareNotificationData(data);
   return sendToUsers(customData, users);
 };
 
