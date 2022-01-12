@@ -13,12 +13,16 @@ const {
   PUBLIC_SERVER_URL,
   REST_API_KEY,
   PARSE_SERVER_LOG_LEVEL,
-  IOS_PFX_CERTIFICATE,
-  IOS_PASSPHRASE,
-  IOS_PUSH_PRODUCTION = false,
-  IOS_TOPIC = 'com.jibber-inc.Jibber',
+  // IOS_PFX_CERTIFICATE,
+  // IOS_PASSPHRASE,
+  // IOS_PUSH_PRODUCTION = false,
+  // IOS_TOPIC = 'com.jibber-inc.Jibber',
   REDIS_URL,
   S3_BUCKET,
+  IOS_KEY_ID,
+  IOS_TEAM_ID,
+  IOS_BUNDLE_ID,
+  IOS_APN_KEY,
 } = process.env;
 
 // Build parse server instance
@@ -34,11 +38,20 @@ const api = new ParseServer({
   logLevel: PARSE_SERVER_LOG_LEVEL || 'info',
   push: {
     ios: {
-      pfx: IOS_PFX_CERTIFICATE,
-      passphrase: IOS_PASSPHRASE,
-      topic: IOS_TOPIC,
-      production: IOS_PUSH_PRODUCTION,
+      token: {
+        key: IOS_APN_KEY,
+        keyId: IOS_KEY_ID,
+        teamId: IOS_TEAM_ID // The Team ID for your developer account
+      },
+      topic: IOS_BUNDLE_ID, // The bundle identifier associated with your app
+      production: false
     },
+    // ios: {
+    //   pfx: IOS_PFX_CERTIFICATE,
+    //   passphrase: IOS_PASSPHRASE,
+    //   topic: IOS_TOPIC,
+    //   production: IOS_PUSH_PRODUCTION,
+    // },
   },
   liveQuery: {
     // List of classes to support for query subscriptions

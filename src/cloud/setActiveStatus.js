@@ -10,28 +10,23 @@ import ChatService from '../services/ChatService';
 // Load Environment Variables
 const { CREATE_WELCOME_CONVERSATION } = process.env;
 
-class SetActiveStatusError extends ExtendableError {}
+class SetActiveStatusError extends ExtendableError { }
 
 /**
  * Sets the user's status from inactive to active
  * @param {*} request
  */
 const setActiveStatus = async request => {
-  const { params, user } = request;
-  const { givenName, familyName } = params;
-
-  if (!(user instanceof Parse.User)) {
-    throw new SetActiveStatusError('[zIslmc6c] User not found');
-  }
-
-  if (!givenName || !familyName) {
-    throw new SetActiveStatusError('Given name and family name are mandatory.');
-  }
+  const { user } = request;
 
   try {
-    user.set('givenName', givenName);
-    user.set('familyName', familyName);
-    await user.save(null, { useMasterKey: true });
+    if (!(user instanceof Parse.User)) {
+      throw new SetActiveStatusError('User not found');
+    }
+
+    if (!user.get('givenName') && !user.get('familyName')) {
+      throw new SetActiveStatusError('User givenName and familyName not set. Initial conversations not created.');
+    }
 
     const updatedUser = await UserService.setActiveStatus(user);
 

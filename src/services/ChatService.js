@@ -9,7 +9,7 @@ import MessagesUtil from '../utils/messages';
 import { ONBOARDING_ADMIN, MESSAGE } from '../constants/index';
 import UserService from './UserService';
 
-export class ChatServiceError extends ExtendableError {}
+export class ChatServiceError extends ExtendableError { }
 
 const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
 
@@ -217,35 +217,57 @@ const createInitialConversations = async user => {
   }
 };
 
-const getConversationById = async (conversationId) =>{
-  const filter = { id: { $eq: conversationId } };
+/**
+ * 
+ * @param {*} conversationCid 
+ * @returns 
+ */
+const getConversationByCid = async (conversationCid) => {
+  const filter = { cid: { $eq: conversationCid } };
   const sort = [{ last_message_at: -1 }];
   const options = { message_limit: 0, limit: 1, state: true };
-
   const conversationsResponse = await Stream.client.queryConversations(
     filter,
     sort,
     options,
   );
-
   if (!conversationsResponse.length)
     throw new Error("There's no conversation with the given conversation ID");
 
   return conversationsResponse[0];
 };
 
-const addMemberToConversation = async (conversation, members) =>{
-   await conversation.addMembers(members);
+/**
+ * 
+ * @param {*} conversation 
+ * @param {*} members 
+ */
+const addMemberToConversation = async (conversation, members) => {
+  await conversation.addMembers(members);
+};
+
+/**
+ * Deletes an user in Stream
+ * 
+ * @param {*} userId 
+ * @returns 
+ */
+const deleteUser = async (userId) => {
+  const deletedUser = await Stream.client.deleteUser(userId, {
+    mark_messages_deleted: false,
+  });
+  return deletedUser;
 };
 
 export default {
   createConversation,
   deleteTwilioUser,
+  deleteUser,
   deleteUserConversations,
   createMessage,
   getUserConversations,
   createInitialConversations,
   createMessagesForConversation,
   addMemberToConversation,
-  getConversationById
+  getConversationByCid
 };

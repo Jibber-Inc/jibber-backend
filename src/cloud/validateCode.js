@@ -6,15 +6,15 @@ import UserService from '../services/UserService';
 import ReservationService, {
   ReservationServiceError,
 } from '../services/ReservationService';
-import QuePositionsService from '../services/QuePositionsService';
+// import QuePositionsService from '../services/QuePositionsService';
 import ConnectionService from '../services/ConnectionService';
 // Utils
 import testUser from '../utils/testUser';
-import db from '../utils/db';
+// import db from '../utils/db';
 // Providers
 import Stream from '../providers/StreamProvider';
 
-class ValidateCodeError extends ExtendableError {}
+class ValidateCodeError extends ExtendableError { }
 
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
@@ -35,28 +35,29 @@ const setReservations = async user => {
 // Waitlist: users in the Waitlist have to wait until the maxQuePosition is increased, letting more users get full access.
 const setUserStatus = async (user, reservation = null) => {
   // Get the needed que values to calculate the user status
-  const config = await Parse.Config.get({ useMasterKey: true });
+  // const config = await Parse.Config.get({ useMasterKey: true });
   // get maxQuePosition from parse. This variable is manually set depending on the needs
-  const maxQuePosition = config.get('maxQuePosition');
+  // const maxQuePosition = config.get('maxQuePosition');
   // get the last position of the queue + 1. For more information, check db import.
-  let currentQuePosition = user.get('quePosition');
+  // let currentQuePosition = user.get('quePosition');
 
-  if (!currentQuePosition) {
-    currentQuePosition = await db.getValueForNextSequence('unclaimedPosition');
+  // if (!currentQuePosition) {
+  //   currentQuePosition = await db.getValueForNextSequence('unclaimedPosition');
 
-    await QuePositionsService.update('unclaimedPosition', currentQuePosition);
-  }
+  //   await QuePositionsService.update('unclaimedPosition', currentQuePosition);
+  // }
 
   if (user.get('status') && user.get('status') !== 'active') {
     if (reservation) {
       user.set('status', 'inactive');
     } else {
-      user.set('quePosition', currentQuePosition);
-      if (maxQuePosition >= currentQuePosition) {
-        user.set('status', 'inactive');
-      } else {
-        user.set('status', 'waitlist');
-      }
+      // user.set('quePosition', currentQuePosition);
+      // if (maxQuePosition >= currentQuePosition) {
+      //   user.set('status', 'inactive');
+      // } else {
+      //   user.set('status', 'waitlist');
+      // }
+      user.set('status', 'waitlist');
     }
   }
 };

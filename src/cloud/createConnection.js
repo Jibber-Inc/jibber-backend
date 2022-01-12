@@ -87,7 +87,6 @@ const createConnection = async request => {
 
       // Create the push notification
       await PushService.sendPushNotificationToUsers(
-        NOTIFICATION_TYPES.CONNECTION_REQUEST,
         data,
         [toUser],
       );

@@ -11,6 +11,7 @@ const getEventInfo = event => {
 const getParams = body => ({
   ...body,
   conversationId: body.channel_id,
+  conversationCid: body.cid,
 });
 
 export default {
