@@ -79,38 +79,12 @@ const newMessage = async (request, response) => {
         users,
       );
     
-
     return response.status(200).json();
   } catch (error) {
     return response.status(500).json({ error: error.message });
   }
 };
-/*
-{
-  "aps" : {
-  
-      "thread-id": "{{ channel.cid }}",
-      "category": "NEW_MESSAGE",
-      "interruption-level": "{{ message.context }}",
-      "mutable-content": 1
-  },
-  "data": {
-      "target": "conversation",
-      "conversationId": "{{ channel.cid }}",
-      "messageId": "{{ message.id }}",
-      "author": "{{ sender.id }}"
-  },
-  "stream": {
-      "target": "conversation",
-      "sender": "stream.chat",
-      "type": "message.new",
-      "version": "v1",
-      "author": "{{ sender.id }}",
-      "id": "{{ message.id }}",
-      "cid": "{{ channel.cid }}"
-  }
-}
-*/
+
 /**
  *
  * @param {*} request

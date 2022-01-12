@@ -28,8 +28,6 @@ const sendToUsers = async (data, users = []) => {
 };
 
 const prepareNotificationData = (data = {}) => {
- 
-  console.log('********************* BBB');
 
   const {
     category,
@@ -45,22 +43,20 @@ const prepareNotificationData = (data = {}) => {
     threadId,
     mutableContent = 1,
     sender = 'stream.chat',
-    type= "message.new",
+    type = 'message.new',
   } = data;
 
-  console.log('******************** AAA');
-
   const notification = {
-    aps : {
+    aps: {
       alert: {
         title,
         body,
       },
-      'thread-id':threadId,
+      'thread-id': threadId,
       category,
       'interruption-level': interruptionLevel,
       'mutable-content': mutableContent,
-      connectionId
+      connectionId,
     },
     data: {
       target,
@@ -76,14 +72,13 @@ const prepareNotificationData = (data = {}) => {
       author,
       id: messageId,
       cid: conversationCid,
-    }
-    
-  } 
+    },
+  };
 
   console.log(notification);
 
   return notification;
- }; 
+};
 
 const sendPushNotificationToUsers = async (data, users = []) => {
   const customData = prepareNotificationData(data);
