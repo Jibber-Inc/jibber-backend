@@ -3,7 +3,7 @@ import ChatService from './ChatService';
 import UserService from './UserService';
 import Parse from '../providers/ParseProvider';
 
-export class ReservationServiceError extends ExtendableError {}
+export class ReservationServiceError extends ExtendableError { }
 
 /**
  * Create a reservation
@@ -77,11 +77,11 @@ const claimReservation = async (reservationId, user) => {
     reservation.set('isClaimed', true);
     reservation.set('user', user);
     await reservation.save(null, { useMasterKey: true });
-    const conversationCid = reservation.get('conversationId');
+    const conversationId = reservation.get('conversationId');
 
-    if (conversationCid) {
-      const conversation = await ChatService.getConversationByCid(
-        conversationCid,
+    if (conversationId) {
+      const conversation = await ChatService.getConversationById(
+        conversationId,
       );
 
       await UserService.upsertUser({ id: user.id });
