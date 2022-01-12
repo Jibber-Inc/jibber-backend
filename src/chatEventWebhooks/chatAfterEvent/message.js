@@ -25,7 +25,6 @@ const newMessage = async (request, response) => {
     request.body,
   );
   
-  console.log('AA')
   // TODO: Use attributes
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
@@ -34,13 +33,12 @@ const newMessage = async (request, response) => {
 
   try {
     const { context } = message;
-    console.log('BB')
+   
     const usersIdentities = members
       .map(m => m.user_id)
       .filter(u => u !== user.id);
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
-    console.log('CC')
    
       // Set the data for the alert message Notice object
       /* const noticeData = {
@@ -56,9 +54,10 @@ const newMessage = async (request, response) => {
       }; */
       // Create the Notice object
      // await NoticeService.createNotice(noticeData);
-      console.log('DD')
+   
       // Set the data for the alert message push notification
       const fullName = UserUtils.getFullName(fromUser);
+      
       const data = {
         messageId: message.id,
         channelId: conversationId,
@@ -73,7 +72,7 @@ const newMessage = async (request, response) => {
         author: fromUser.id,
         connectionId,
       };
-      console.log('EE')
+   
       // Send the push notification
       await PushService.sendPushNotificationToUsers(
         data,

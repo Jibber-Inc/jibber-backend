@@ -35,41 +35,39 @@ const prepareNotificationData = (data = {}) => {
     category,
     title,
     body,
-    conversationId,
+    conversationCid,
     messageId,
     target = 'conversation',
     author,
     version = 'v1',
     interruptionLevel,
     connectionId,
+    threadId,
     mutableContent = 1,
     sender = 'stream.chat',
     type= "message.new",
   } = data;
 
-  console.log('********************* C');
 
   const aps = {
     alert: {
       title,
       body,
     },
-    thread_id: conversationId,
+    'thread-id':threadId,
     category,
-    interruption_level: interruptionLevel,
-    mutable_content: mutableContent,
+    'interruption-level': interruptionLevel,
+    'mutable-content': mutableContent,
     connectionId
   };
-  console.log('********************* D', aps);
+  
   const dataToReturn = {
     target,
-    conversation_d: conversationId,
+    conversationId: conversationCid,
     messageId,
     author,
   };
-  
-  console.log('********************* F', dataToReturn);
-  
+
   const stream = {
     target,
     sender,
@@ -77,15 +75,15 @@ const prepareNotificationData = (data = {}) => {
     version,
     author,
     id: messageId,
-    cid: conversationId,
+    cid: conversationCid,
   };
-  console.log('********************* G', stream);
+
   const asd =  {
     aps,
     data: dataToReturn,
     stream,
   };
-  console.log('*********************', asd);
+
   return asd;
  }; 
 
