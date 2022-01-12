@@ -104,8 +104,8 @@ dist/
 .vscode
 
 # dev ignores
-*.p8
 *.p12
+*.p8
 
 # PHPStorm Folder
 .idea
