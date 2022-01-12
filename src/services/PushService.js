@@ -28,6 +28,7 @@ const sendToUsers = async (data, users = []) => {
   );
 };
 
+/*
 const prepareNotificationData = (type, data = {}) => {
   if (!Object.keys(NOTIFICATION_TYPES).includes(type)) {
     throw new Error(`Unsoported push notification type ${type}`);
@@ -61,10 +62,10 @@ const prepareNotificationData = (type, data = {}) => {
     push_type: 'alert',
     data: rest,
   };
-};
+};*/
 
 const sendPushNotificationToUsers = async (type, data, users = []) => {
-  const customData = prepareNotificationData(type, data);
+  const customData = prepareNotificationData(notificationType, data);
   return sendToUsers(customData, users);
 };
 
