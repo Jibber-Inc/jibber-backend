@@ -46,7 +46,7 @@ const prepareNotificationData = (data = {}) => {
     type = 'message.new',
   } = data;
 
-  const notification = {
+  const payload = {
     aps: {
       alert: {
         title,
@@ -60,7 +60,7 @@ const prepareNotificationData = (data = {}) => {
     },
     data: {
       target,
-      conversationId: conversationCid,
+      'conversationId': conversationCid,
       messageId,
       author,
     },
@@ -75,9 +75,7 @@ const prepareNotificationData = (data = {}) => {
     },
   };
 
-  console.log(notification);
-
-  return notification;
+  return payload;
 };
 
 const sendPushNotificationToUsers = async (data, users = []) => {
