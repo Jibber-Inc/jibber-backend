@@ -77,11 +77,11 @@ const claimReservation = async (reservationId, user) => {
     reservation.set('isClaimed', true);
     reservation.set('user', user);
     await reservation.save(null, { useMasterKey: true });
-    const conversationId = reservation.get('conversationId');
+    const conversationCid = reservation.get('conversationId');
 
-    if (conversationId) {
-      const conversation = await ChatService.getConversationById(
-        conversationId,
+    if (conversationCid) {
+      const conversation = await ChatService.getConversationByCid(
+        conversationCid,
       );
 
       await UserService.upsertUser({ id: user.id });

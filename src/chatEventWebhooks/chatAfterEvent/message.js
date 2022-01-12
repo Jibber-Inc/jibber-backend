@@ -1,9 +1,24 @@
-// import Parse from '../../providers/ParseProvider';
-// import { NOTIFICATION_TYPES } from '../../constants';
-// import NoticeService from '../../services/NoticeService';
-// import UserUtils from '../../utils/userData';
-// import PushService from '../../services/PushService';
-// import EventWrapper from '../../utils/eventWrapper';
+import Parse from '../../providers/ParseProvider';
+import UserUtils from '../../utils/userData';
+import PushService from '../../services/PushService';
+import EventWrapper from '../../utils/eventWrapper';
+
+/**
+ * Given a context and a focus-status, returns an interruption-level
+ * 
+ * @param {*} context 
+ * @param {*} focusSatus 
+ * @returns 
+ */
+const getInterruptionLevel = (context, focusSatus) => {
+  if (context === 'time-sensitive') {
+    return 'time-sensitive';
+  }
+  if (focusSatus === 'focused') {
+    return 'passive';
+  }
+  return 'active';
+};
 
 /**
  *
@@ -11,57 +26,64 @@
  * @param {*} response
  */
 const newMessage = async (request, response) => {
-  // const {
-  //   conversationId,
-  //   message,
-  //   user,
-  //   members,
-  // } = EventWrapper.getParams(request.body);
-  // // TODO: Use attributes
-  // const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
-  // const pushStatus = {};
+  const { conversationId, conversationCid, message, user, members } = EventWrapper.getParams(
+    request.body,
+  );
+
+  // TODO: Use attributes
+  const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
+
+  const connection = await new Parse.Query('Connection').equalTo('channelSId', conversationCid).find({ useMasterKey: true });
+  const connectionId = connection && connection.length && connection[0].id || null
+
   try {
-    // const { context } = message;
-    // const usersIdentities = members
-    //   .map(m => m.user_id)
-    //   .filter(u => u !== user.id);
-    // const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
+    const { context } = message;
 
-    // if (users.length && context === 'emergency') {
-    //   // Set the data for the alert message Notice object
-    //   const noticeData = {
-    //     type: NOTIFICATION_TYPES.ALERT_MESSAGE,
-    //     body: message.text,
-    //     attributes: {
-    //       channelId: conversationId,
-    //       messageId: message.id,
-    //       author: user.id,
-    //     },
-    //     priority: 1,
-    //     fromUser,
-    //   };
-    //   // Create the Notice object
-    //   await NoticeService.createNotice(noticeData);
+    const usersIdentities = members
+      .map(m => m.user_id)
+      .filter(u => u !== user.id);
 
-    //   // Set the data for the alert message push notification
-    //   const fullName = UserUtils.getFullName(fromUser);
-    //   const data = {
-    //     messageId: message.id,
-    //     channelId: conversationId,
-    //     identifier: message.id + context,
-    //     title: `🚨 ${fullName}`,
-    //     body: message.text,
-    //     target: 'channel',
-    //   };
-    //   // Send the push notification
-    //   pushStatus = await PushService.sendPushNotificationToUsers(
-    //     NOTIFICATION_TYPES.ALERT_MESSAGE,
-    //     data,
-    //     users,
-    //   );
-    // }
+    const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
 
-    // return response.status(200).json(pushStatus);
+    // Set the data for the alert message Notice object
+    /* const noticeData = {
+      type: NOTIFICATION_TYPES.ALERT_MESSAGE,
+      body: message.text,
+      attributes: {
+        channelId: conversationId,
+        messageId: message.id,
+        author: user.id,
+      },
+      priority: 1,
+      fromUser,
+    }; */
+    // Create the Notice object
+    // await NoticeService.createNotice(noticeData);
+
+    // Set the data for the alert message push notification
+    const fullName = UserUtils.getFullName(fromUser);
+
+    const data = {
+      messageId: message.id,
+      channelId: conversationId,
+      conversationCid,
+      identifier: message.id + context,
+      title: `🚨 ${fullName}`,
+      body: message.text,
+      target: 'channel',
+      category: 'message.new',
+      interruptionLevel: getInterruptionLevel(message.context, fromUser.focusSatus),
+      threadId: conversationCid,
+      author: fromUser.id,
+      connectionId,
+    };
+
+    // Send the push notification
+    await PushService.sendPushNotificationToUsers(
+      data,
+      users,
+    );
+
     return response.status(200).json();
   } catch (error) {
     return response.status(500).json({ error: error.message });
@@ -118,7 +140,6 @@ const updated = (request, response) => {
     //     target: 'channel',
     //   };
     //   pushStatus = await PushService.sendPushNotificationToUsers(
-    //     NOTIFICATION_TYPES.MESSAGE_READ,
     //     data,
     //     [author],
     //   );

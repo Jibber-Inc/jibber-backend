@@ -222,7 +222,7 @@ const createInitialConversations = async user => {
  * @param {*} conversationCid 
  * @returns 
  */
-const getConversationById = async (conversationCid) => {
+const getConversationByCid = async (conversationCid) => {
   const filter = { cid: { $eq: conversationCid } };
   const sort = [{ last_message_at: -1 }];
   const options = { message_limit: 0, limit: 1, state: true };
@@ -269,5 +269,5 @@ export default {
   createInitialConversations,
   createMessagesForConversation,
   addMemberToConversation,
-  getConversationById
+  getConversationByCid
 };

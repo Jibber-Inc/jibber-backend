@@ -1,10 +1,12 @@
 import Parse from '../providers/ParseProvider';
-import { NOTIFICATION_TYPES } from '../constants';
 
-const sendToConversation = () => ({
-  result: 'needs to be implemented',
-});
-
+/**
+ * Sends the push notif to the given users
+ * 
+ * @param {*} data 
+ * @param {*} users 
+ * @returns 
+ */
 const sendToUsers = async (data, users = []) => {
   if (!data) throw new Error('Cannot send notificaction. Data is required');
   // Find sessions of the user.
@@ -28,47 +30,74 @@ const sendToUsers = async (data, users = []) => {
   );
 };
 
-const prepareNotificationData = (type, data = {}) => {
-  if (!Object.keys(NOTIFICATION_TYPES).includes(type)) {
-    throw new Error(`Unsoported push notification type ${type}`);
-  }
+/**
+ * Prepares the notification payload
+ * 
+ * @param {*} data 
+ * @returns 
+ */
+const prepareNotificationData = (data = {}) => {
+  const {
+    category,
+    title,
+    body,
+    conversationCid,
+    messageId,
+    target = 'conversation',
+    author,
+    version = 'v1',
+    interruptionLevel,
+    connectionId,
+    threadId,
+    mutableContent = 1,
+    sender = 'stream.chat',
+    type = 'message.new',
+  } = data;
 
-  const { title, body, category, ...rest } = data;
-  let alert = {};
-  let aps = {};
-
-  if (category) {
-    aps = { category };
-  }
-
-  if (title) {
-    alert = { title };
-  }
-
-  if (body) {
-    alert = { ...alert, body };
-  }
-
-  aps = {
-    ...aps,
-    alert,
-    badge: 1,
+  const payload = {
+    aps: {
+      alert: {
+        title,
+        body,
+      },
+      'thread-id': threadId,
+      category,
+      'interruption-level': interruptionLevel,
+      'mutable-content': mutableContent,
+      connectionId,
+    },
+    data: {
+      target,
+      'conversationId': conversationCid,
+      messageId,
+      author,
+    },
+    stream: {
+      target,
+      sender,
+      type,
+      version,
+      author,
+      id: messageId,
+      cid: conversationCid,
+    },
   };
 
-  return {
-    aps,
-    priority: 10,
-    push_type: 'alert',
-    data: rest,
-  };
+  return payload;
 };
 
-const sendPushNotificationToUsers = async (type, data, users = []) => {
-  const customData = prepareNotificationData(type, data);
+/**
+ * Prepares & sends the notification to the given users
+ * 
+ * @param {*} data 
+ * @param {*} users 
+ * @returns 
+ */
+const sendPushNotificationToUsers = async (data, users = []) => {
+  const customData = prepareNotificationData(data);
   return sendToUsers(customData, users);
 };
 
 export default {
-  sendToConversation,
   sendPushNotificationToUsers,
 };
