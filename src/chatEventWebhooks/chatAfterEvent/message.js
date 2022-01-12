@@ -57,11 +57,11 @@ const newMessage = async (request, response) => {
    
       // Set the data for the alert message push notification
       const fullName = UserUtils.getFullName(fromUser);
-      
+
       const data = {
         messageId: message.id,
         channelId: conversationId,
-        conversationId: conversationCid,
+        conversationCid,
         identifier: message.id + context,
         title: `🚨 ${fullName}`,
         body: message.text,
