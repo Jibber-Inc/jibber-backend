@@ -41,7 +41,7 @@ const newMessage = async (request, response) => {
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
     console.log('CC')
-    if (users.length && context === 'emergency') {
+   
       // Set the data for the alert message Notice object
       /* const noticeData = {
         type: NOTIFICATION_TYPES.ALERT_MESSAGE,
@@ -79,7 +79,7 @@ const newMessage = async (request, response) => {
         data,
         users,
       );
-    }
+    
 
     return response.status(200).json();
   } catch (error) {
