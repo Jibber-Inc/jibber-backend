@@ -3,6 +3,7 @@ import Parse from '../providers/ParseProvider';
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
+import UserUtils from '../utils/userData';
 import ReservationService, {
   ReservationServiceError,
 } from '../services/ReservationService';
@@ -115,34 +116,37 @@ const validateCode = async request => {
         throw new ValidateCodeError('[KTN1RYO9] Auth code validation failed');
       }
 
-      console.log('xxxxxxxxxxx');
-
       if (reservationId) {
         const reservation = await ReservationService.claimReservation(reservationId, user);
         const conversationCid = reservation.get('conversationId');
         const conversation = await ChatService.getConversationByCid(
           conversationCid,
-        );
-        const createdBy = conversation.data.created_by.id;
+        );  
+        
+        const fromUser = await new Parse.Query(Parse.User).get(conversation.data.created_by.id);
+        const fullName = UserUtils.getFullName(fromUser);
+        const connection = await new Parse.Query('Connection').equalTo('channelSId', conversationCid).find({ useMasterKey: true });
+
+        const connectionId = connection && connection.length && connection[0].id || null
 
         const data = {
-          messageId: message.id,
-          channelId: conversationId,
+          messageId: null,
           conversationCid,
-          identifier: message.id + context,
-          title: `🚨 ${fullName}`,
-          body: message.text,
+          title: `${fullName} joined your conversation! 🥳`,
+          body:  `${fullName} accepted your invitation and was added to your conversation.`,
           target: 'channel',
-          category: 'message.new',
+          category: 'connection.new',
           interruptionLevel: 'time-sensitive',
           threadId: conversationCid,
           author: fromUser.id,
           connectionId,
-        };
+        };  
+
+       
 
         await PushService.sendPushNotificationToUsers(
           data,
-          createdBy,
+          [fromUser],
         );
 
       }
