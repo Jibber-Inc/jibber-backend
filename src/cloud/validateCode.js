@@ -123,10 +123,7 @@ const validateCode = async request => {
         const conversation = await ChatService.getConversationByCid(
           conversationCid,
         );
-        const createdBy = conversation.data.create_by.id;
-
-        console.log('*****************');
-        console.log(conversation.data.);
+        const createdBy = conversation.data.created_by.id;
 
         const data = {
           messageId: message.id,
