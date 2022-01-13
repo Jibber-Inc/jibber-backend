@@ -24,8 +24,12 @@ const test = async request => {
     // const result = await ChatService.addMemberToConversation(conversation, [memberId]);
     // return result;
 
-    return request.params;
+    // Test get user reservations
+    // const { user } = request;
+    // const result = await ReservationService.resetReservations(user);
+    // return result;
 
+    return request.params;
   } catch (error) {
     throw new TestError(`Error: ${error}`);
   }

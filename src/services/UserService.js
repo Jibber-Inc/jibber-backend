@@ -169,6 +169,29 @@ const deleteReservations = async user => {
 };
 
 /**
+ * 
+ * @param {*} user 
+ * @returns 
+ */
+const resetReservations = async user => {
+  try {
+    const reservations = await new Parse.Query('Reservation')
+      .equalTo('user', user).find({ useMasterKey: true });
+    await Promise.all(
+      reservations.map(res => {
+        res.set('isClaimed', false);
+        res.set('user', null);
+        return res.save(null, { useMasterKey: true });
+      })
+    );
+  } catch (error) {
+    throw new UserServiceError(
+      `Cannot reset associated reservations. Detail: ${error.message}`,
+    );
+  }
+};
+
+/**
  * Creates the handle for the user
  *
  * @param {*} user
@@ -265,6 +288,7 @@ export default {
   deleteUserInstallations,
   deleteConnections,
   deleteReservations,
+  resetReservations,
   setActiveStatus,
   createUserPreference,
   connectUser,
