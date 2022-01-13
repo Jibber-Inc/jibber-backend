@@ -1,9 +1,14 @@
+
 import ExtendableError from 'extendable-error-class';
+// Providers
+import Stream from '../providers/StreamProvider';
 import Parse from '../providers/ParseProvider';
+
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
-import UserUtils from '../utils/userData';
+import ChatService from '../services/ChatService';
+import PushService from '../services/PushService';
 import ReservationService, {
   ReservationServiceError,
 } from '../services/ReservationService';
@@ -11,11 +16,9 @@ import ReservationService, {
 import ConnectionService from '../services/ConnectionService';
 // Utils
 import testUser from '../utils/testUser';
+import MessagesUtil from '../utils/messages';
+import UserUtils from '../utils/userData';
 // import db from '../utils/db';
-// Providers
-import Stream from '../providers/StreamProvider';
-import PushService from '../services/PushService';
-import ChatService from '../services/ChatService';
 
 class ValidateCodeError extends ExtendableError { }
 
@@ -61,6 +64,33 @@ const setUserStatus = async (user, reservation = null) => {
       //   user.set('status', 'waitlist');
       // }
       user.set('status', 'waitlist');
+      await ChatService.createConversation(
+        user,
+        `${user.id}_invitation_conversation_${new Date().getTime()}`,
+        'invitation'
+      );
+      await ChatService.createConversation(
+        user,
+        `${user.id}_waitlist_conversation`,
+        'messaging'
+      );
+      const conversation = await ChatService.getConversationByCid(`messaging:${user.id}_waitlist_conversation`);
+      if (conversation) {
+        const { waitlistMessages } = MessagesUtil;
+        await Promise.all(
+          waitlistMessages.map(message => {
+            const formattedMessage = MessagesUtil.getMessage(message, { givenName: user.get('givenName') });
+            const newMessage = {
+              text: formattedMessage,
+              user_id: user.id
+            }
+            return ChatService.createMessage(
+              newMessage,
+              conversation,
+            );
+          })
+        );
+      }
     }
   }
 };
@@ -121,8 +151,8 @@ const validateCode = async request => {
         const conversationCid = reservation.get('conversationId');
         const conversation = await ChatService.getConversationByCid(
           conversationCid,
-        );  
-        
+        );
+
         const fromUser = await new Parse.Query(Parse.User).get(conversation.data.created_by.id);
         const fullName = UserUtils.getFullName(fromUser);
         const connection = await new Parse.Query('Connection').equalTo('channelSId', conversationCid).find({ useMasterKey: true });
@@ -133,14 +163,14 @@ const validateCode = async request => {
           messageId: null,
           conversationCid,
           title: `${fullName} joined your conversation! 🥳`,
-          body:  `${fullName} accepted your invitation and was added to your conversation.`,
+          body: `${fullName} accepted your invitation and was added to your conversation.`,
           target: 'channel',
           category: 'connection.new',
           interruptionLevel: 'time-sensitive',
           threadId: conversationCid,
           author: fromUser.id,
           connectionId,
-        };  
+        };
 
         await PushService.sendPushNotificationToUsers(
           data,
