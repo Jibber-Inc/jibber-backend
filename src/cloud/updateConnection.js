@@ -6,6 +6,7 @@ import UserService from '../services/UserService';
 import UserUtils from '../utils/userData';
 
 // Constants
+import UserStatus from '../constants/userStatus';
 import {
   STATUS_INVITED,
   STATUS_ACCEPTED,
@@ -60,45 +61,47 @@ const updateConnection = async request => {
   try {
     // If there is an existing connection, update and return it
     if (connection instanceof Connection) {
-      let fromUser;
-      let toUser;
-      let conversation;
-      const conversationId = `conv_${fromUser.id}_${toUser.id}`;
       if (
         connection.get('status') !== STATUS_ACCEPTED &&
         status === STATUS_ACCEPTED
       ) {
-        fromUser = connection.get('from');
-        toUser = connection.get('to');
-        conversation = await ChatService.createConversation(
+        const fromUser = connection.get('from');
+        const toUser = connection.get('to');
+        const conversationId = `conv_${fromUser.id}_${toUser.id}`;
+        const conversation = await ChatService.createConversation(
           fromUser,
+          conversationId,
+          null,
           conversationId,
           [fromUser.id, toUser.id],
         );
+
+        connection.set('status', status);
+        fromUser.set('status', UserStatus.USER_STATUS_ACTIVE);
+
+        // Create Users preferences
+        await Promise.all([
+          connection.save(null, { useMasterKey: true }),
+          fromUser.save(null, { useMasterKey: true }),
+          UserService.createUserPreference(toUser, fromUser),
+          UserService.createUserPreference(fromUser, toUser),
+        ]);
+
+        // Notify that the user accepted the connection
+        const toFullName = UserUtils.getFullName(toUser);
+        const data = {
+          category: 'connectionConfirmed',
+          title: 'Connection confirmed 🙌',
+          body: `You are now connected to ${toFullName}.`,
+          conversationId: conversation.cid,
+          target: 'conversation',
+        };
+
+        await PushService.sendPushNotificationToUsers(
+          data,
+          [fromUser],
+        );
       }
-      connection.set('status', status);
-      await connection.save(null, { useMasterKey: true });
-
-      // Notify that the user accepted the connection
-      const toFullName = UserUtils.getFullName(toUser);
-      const data = {
-        category: 'connectionConfirmed',
-        title: 'Connection confirmed 🙌',
-        body: `You are now connected to ${toFullName}.`,
-        conversationId: conversation.sid,
-        target: 'conversation',
-      };
-
-      await PushService.sendPushNotificationToUsers(
-        data,
-        [fromUser],
-      );
-
-      // Create Users preferences
-      await Promise.all([
-        UserService.createUserPreference(toUser, fromUser),
-        UserService.createUserPreference(fromUser, toUser),
-      ]);
     }
     return connection;
   } catch (error) {
