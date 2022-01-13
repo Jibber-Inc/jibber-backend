@@ -58,6 +58,11 @@ const checkReservation = async reservationId => {
   }
 };
 
+/**
+ * 
+ * @param {*} user 
+ * @returns 
+ */
 const hasReservations = async user => {
   const count = await new Parse.Query('Reservation')
     .equalTo('createdBy', user)
@@ -65,6 +70,11 @@ const hasReservations = async user => {
   return count > 0;
 };
 
+/**
+ * 
+ * @param {*} reservationId 
+ * @param {*} user 
+ */
 const claimReservation = async (reservationId, user) => {
   if (!reservationId) {
     throw new ReservationServiceError(
@@ -99,5 +109,5 @@ export default {
   createReservation,
   checkReservation,
   hasReservations,
-  claimReservation,
+  claimReservation
 };
