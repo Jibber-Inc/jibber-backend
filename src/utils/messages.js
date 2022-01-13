@@ -8,7 +8,8 @@ const getMessage = (message, values) => {
   if (values) {
     let newMessage;
     Object.entries(values).forEach(([key, value]) => {
-      newMessage = message.replace(`%${key}%`, value);
+      const updatedValue = value || '';
+      newMessage = message.replace(`%${key}%`, updatedValue);
     });
     return newMessage;
   }
@@ -26,7 +27,15 @@ const messages = {
   ],
 };
 
+const waitlistMessages = [
+  "Hey 👋 %givenName%, welcome to Jibber!",
+  "My name is Benji, and I'm one of the Co-Founders of Jibber.",
+  "If you ever wanna chat, you can just message me here.",
+  "Wan't off the waitlist? Just invite a few of you friends/family and as soon as one joins, you'll both be able to upgrade."
+];
+
 export default {
   getMessage,
   messages,
+  waitlistMessages,
 };
