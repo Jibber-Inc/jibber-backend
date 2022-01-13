@@ -1,9 +1,14 @@
+
 import ExtendableError from 'extendable-error-class';
+// Providers
+import Stream from '../providers/StreamProvider';
 import Parse from '../providers/ParseProvider';
+
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
 import ChatService from '../services/ChatService';
+import PushService from '../services/PushService';
 import ReservationService, {
   ReservationServiceError,
 } from '../services/ReservationService';
@@ -11,10 +16,9 @@ import ReservationService, {
 import ConnectionService from '../services/ConnectionService';
 // Utils
 import testUser from '../utils/testUser';
-// import db from '../utils/db';
-// Providers
-import Stream from '../providers/StreamProvider';
 import MessagesUtil from '../utils/messages';
+import UserUtils from '../utils/userData';
+// import db from '../utils/db';
 
 class ValidateCodeError extends ExtendableError { }
 
@@ -143,7 +147,35 @@ const validateCode = async request => {
       }
 
       if (reservationId) {
-        await ReservationService.claimReservation(reservationId, user);
+        const reservation = await ReservationService.claimReservation(reservationId, user);
+        const conversationCid = reservation.get('conversationId');
+        const conversation = await ChatService.getConversationByCid(
+          conversationCid,
+        );
+
+        const fromUser = await new Parse.Query(Parse.User).get(conversation.data.created_by.id);
+        const fullName = UserUtils.getFullName(fromUser);
+        const connection = await new Parse.Query('Connection').equalTo('channelSId', conversationCid).find({ useMasterKey: true });
+
+        const connectionId = connection && connection.length && connection[0].id || null
+
+        const data = {
+          messageId: null,
+          conversationCid,
+          title: `${fullName} joined your conversation! 🥳`,
+          body: `${fullName} accepted your invitation and was added to your conversation.`,
+          target: 'channel',
+          category: 'connection.new',
+          interruptionLevel: 'time-sensitive',
+          threadId: conversationCid,
+          author: fromUser.id,
+          connectionId,
+        };
+
+        await PushService.sendPushNotificationToUsers(
+          data,
+          [fromUser],
+        );
       }
 
       if (passId) {
