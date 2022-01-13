@@ -11,7 +11,6 @@ import {
   STATUS_ACCEPTED,
   STATUS_DECLINED,
   STATUS_PENDING,
-  NOTIFICATION_TYPES,
 } from '../constants';
 
 const STATUS_LIST = [
@@ -21,7 +20,7 @@ const STATUS_LIST = [
   STATUS_PENDING,
 ];
 
-class UpdateConnectionError extends ExtendableError {}
+class UpdateConnectionError extends ExtendableError { }
 
 const updateConnection = async request => {
   const { user } = request;
@@ -91,7 +90,6 @@ const updateConnection = async request => {
       };
 
       await PushService.sendPushNotificationToUsers(
-        NOTIFICATION_TYPES.CONNECTION_CONFIRMED,
         data,
         [fromUser],
       );
