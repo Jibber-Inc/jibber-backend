@@ -1,5 +1,6 @@
 import ExtendableError from 'extendable-error-class';
 // Providers
+import { Channel } from 'stream-chat';
 import Parse from '../providers/ParseProvider';
 import Twilio from '../providers/TwilioProvider';
 import Stream from '../providers/StreamProvider';
@@ -8,7 +9,6 @@ import MessagesUtil from '../utils/messages';
 // Constants
 import { ONBOARDING_ADMIN, MESSAGE } from '../constants/index';
 import UserService from './UserService';
-import { Channel } from 'stream-chat';
 
 export class ChatServiceError extends ExtendableError { }
 
@@ -272,7 +272,8 @@ const deleteUser = async (userId) => {
   try {
     const reaction = await conversation.sendReaction(messageId, { 
         type: reactionType,
-        user_id: userId
+        user_id: userId,
+        other: 'ggg'
     }); 
 
     return reaction;
