@@ -3,11 +3,9 @@ FROM node:lts
 WORKDIR /code
 
 # ################################################ #
-# Uncomment all commented lines to run in dev mode
+# Uncomment all commented lines to run in prod mode
 # and comment:
-# - RUN npm ci
-# - RUN npm run build
-# - CMD ["npm", "start"]
+# - CMD ["sh", "-c", "npm run dev:watch"]
 # ################################################ #
 
 COPY package.json .
