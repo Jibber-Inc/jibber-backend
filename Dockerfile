@@ -3,9 +3,11 @@ FROM node:lts
 WORKDIR /code
 
 # ################################################ #
-# Uncomment all commented lines to run in prod mode
+# Uncomment all commented lines to run in dev mode
 # and comment:
-# - CMD ["sh", "-c", "npm run dev:watch"]
+# - RUN npm ci
+# - RUN npm run build
+# - CMD ["npm", "start"]
 # ################################################ #
 
 COPY package.json .
@@ -15,8 +17,8 @@ RUN npm ci
 
 COPY src ./src
 COPY babel.config.js .
-#RUN npm run build
+RUN npm run build
 
 EXPOSE 1337
-#CMD [ "npm", "start" ]
-CMD ["sh", "-c", "npm run dev:watch"]
+CMD [ "npm", "start" ]
+# CMD ["sh", "-c", "npm run dev:watch"]

@@ -11,7 +11,7 @@ services:
         max-file: '10'
     volumes:
       - .:/code/:cached
-      # - /code/node_modules
+      - /code/node_modules
     ports:
       - ${PUBLIC_PORT}:${PORT}
     environment:

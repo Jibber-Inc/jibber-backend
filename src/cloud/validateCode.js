@@ -142,13 +142,10 @@ const validateCode = async request => {
           connectionId,
         };  
 
-       
-
         await PushService.sendPushNotificationToUsers(
           data,
           [fromUser],
         );
-
       }
 
       if (passId) {

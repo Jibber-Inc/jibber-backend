@@ -87,8 +87,6 @@ const claimReservation = async (reservationId, user) => {
       await UserService.upsertUser({ id: user.id });
       await ChatService.addMemberToConversation(conversation, [user.id]);
     }
-
-    return reservation;
   } catch (error) {
     throw new ReservationServiceError(
       `Reservation cannot be claimed. Detail: ${error.message}`,
