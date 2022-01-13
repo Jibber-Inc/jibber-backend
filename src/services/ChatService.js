@@ -8,6 +8,7 @@ import MessagesUtil from '../utils/messages';
 // Constants
 import { ONBOARDING_ADMIN, MESSAGE } from '../constants/index';
 import UserService from './UserService';
+import { Channel } from 'stream-chat';
 
 export class ChatServiceError extends ExtendableError { }
 
@@ -259,6 +260,27 @@ const deleteUser = async (userId) => {
   return deletedUser;
 };
 
+/**
+ * set new reaction to message
+ *
+ * @param {Channel} conversation
+ * @param {String} messageId
+ * @param {String} reactionType
+ * @param {String} userId
+ */
+ const sendReactionToMessage = async (conversation, messageId, reactionType, userId) => {
+  try {
+    const reaction = await conversation.sendReaction(messageId, { 
+        type: reactionType,
+        user_id: userId
+    }); 
+
+    return reaction;
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
 export default {
   createConversation,
   deleteTwilioUser,
@@ -269,5 +291,6 @@ export default {
   createInitialConversations,
   createMessagesForConversation,
   addMemberToConversation,
-  getConversationByCid
+  getConversationByCid,
+  sendReactionToMessage
 };

@@ -22,6 +22,7 @@ import userAfterSave from './webhooks/userAfterSave';
 import userAfterDelete from './webhooks/userAfterDelete';
 import sendSMS from './sendSMS';
 import sendMessage from './sendMessage';
+import addReaction from './addReaction';
 
 // Load Environment variables
 const { JIBBER_SECRET_PASSWORD_TOKEN } = process.env;
@@ -40,6 +41,7 @@ Parse.Cloud.define('setActiveStatus', setActiveStatus);
 // Chat
 Parse.Cloud.define('getChatToken', getChatToken);
 Parse.Cloud.define('sendMessage', sendMessage);
+Parse.Cloud.define('addReaction', addReaction);
 
 // Connection
 Parse.Cloud.define('getConnections', getConnections);

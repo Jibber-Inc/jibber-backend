@@ -8,9 +8,9 @@ const newReaction = (request, response) => response.status(200).json(
   //channelId
   //messageId
 
-  const { conversationId, conversationCid, message, user, members } = EventWrapper.getParams(
+  /*const { conversationId, conversationCid, message, user, members } = EventWrapper.getParams(
     
-  );
+  );*/
 
 
 );
