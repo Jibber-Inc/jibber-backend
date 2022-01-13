@@ -63,30 +63,6 @@ const checkReservation = async reservationId => {
  * @param {*} user 
  * @returns 
  */
-const resetReservations = async user => {
-  try {
-    const reservations = await new Parse.Query('Reservation')
-      .equalTo('user', user).find({ useMasterKey: true });
-    await Promise.all(
-      reservations.map(res => {
-        res.set('isClaimed', false);
-        res.set('user', null);
-        return res.save({ useMasterKey: true });
-      })
-    );
-    return 'done!'
-  } catch (error) {
-    throw new ReservationServiceError(
-      `Cannot reset associated reservations. Detail: ${error.message}`,
-    );
-  }
-};
-
-/**
- * 
- * @param {*} user 
- * @returns 
- */
 const hasReservations = async user => {
   const count = await new Parse.Query('Reservation')
     .equalTo('createdBy', user)
@@ -133,6 +109,5 @@ export default {
   createReservation,
   checkReservation,
   hasReservations,
-  claimReservation,
-  resetReservations
+  claimReservation
 };
