@@ -22,7 +22,7 @@ const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
  * @param {Object} attributes
  * @returns {Promise}
  */
-const createConversation = async (owner, conversationId, members = []) => {
+const createConversation = async (owner, conversationId, type = 'messaging', members = []) => {
   if (!owner) {
     throw new ChatServiceError('[SmQNWk96] owner is required');
   }
@@ -32,18 +32,19 @@ const createConversation = async (owner, conversationId, members = []) => {
   }
 
   if (!members.length) {
-    members.push(owner.id);
+    members.push(owner.id || owner);
   }
 
   try {
     const conversationConfig = Stream.client.conversation(
-      'messaging',
+      type,
       conversationId,
       {
-        name: '',
+        title: 'Benji, Co-Founder',
+        name: 'Benji, Co-Founder',
         description: '',
         members,
-        created_by_id: owner.id,
+        created_by_id: owner.id || owner,
       },
     );
 
