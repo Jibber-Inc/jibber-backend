@@ -3,7 +3,17 @@
  * @param {*} request
  * @param {*} response
  */
-const newReaction = (request, response) => response.status(200).json();
+const newReaction = (request, response) => response.status(200).json(
+
+  //channelId
+  //messageId
+
+  const { conversationId, conversationCid, message, user, members } = EventWrapper.getParams(
+    
+  );
+
+
+);
 
 /**
  *
