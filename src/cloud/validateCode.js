@@ -3,6 +3,7 @@ import Parse from '../providers/ParseProvider';
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
+import ChatService from '../services/ChatService';
 import ReservationService, {
   ReservationServiceError,
 } from '../services/ReservationService';
@@ -13,6 +14,7 @@ import testUser from '../utils/testUser';
 // import db from '../utils/db';
 // Providers
 import Stream from '../providers/StreamProvider';
+import MessagesUtil from '../utils/messages';
 
 class ValidateCodeError extends ExtendableError { }
 
@@ -58,6 +60,33 @@ const setUserStatus = async (user, reservation = null) => {
       //   user.set('status', 'waitlist');
       // }
       user.set('status', 'waitlist');
+      await ChatService.createConversation(
+        user,
+        `${user.id}_invitation_conversation_${new Date().getTime()}`,
+        'invitation'
+      );
+      await ChatService.createConversation(
+        user,
+        `${user.id}_waitlist_conversation`,
+        'messaging'
+      );
+      const conversation = await ChatService.getConversationByCid(`messaging:${user.id}_waitlist_conversation`);
+      if (conversation) {
+        const { waitlistMessages } = MessagesUtil;
+        await Promise.all(
+          waitlistMessages.map(message => {
+            const formattedMessage = MessagesUtil.getMessage(message, { givenName: user.get('givenName') });
+            const newMessage = {
+              text: formattedMessage,
+              user_id: user.id
+            }
+            return ChatService.createMessage(
+              newMessage,
+              conversation,
+            );
+          })
+        );
+      }
     }
   }
 };
