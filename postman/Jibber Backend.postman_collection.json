@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "bd2b84fe-ae88-4cdd-a3bb-757353adab69",
+		"_postman_id": "2e280af2-2624-4404-a912-60165a896ce2",
 		"name": "Jibber Backend",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -8,44 +8,6 @@
 		{
 			"name": "Signup",
 			"item": [
-				{
-					"name": "sendCode",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-Parse-Application-Id",
-								"value": "{{appId}}",
-								"type": "text"
-							},
-							{
-								"key": "X-Parse-Installation-Id",
-								"value": "{{installationId}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{hostname}}/functions/sendCode",
-							"host": [
-								"{{hostname}}"
-							],
-							"path": [
-								"functions",
-								"sendCode"
-							]
-						}
-					},
-					"response": []
-				},
 				{
 					"name": "validateCode",
 					"event": [
@@ -79,7 +41,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\",\n    \"authCode\": \"\"\n}",
+							"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\",\n    \"authCode\": \"3474\",\n    \"reservationId\": \"UJameTUp7L\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -94,6 +56,44 @@
 							"path": [
 								"functions",
 								"validateCode"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sendCode",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Parse-Application-Id",
+								"value": "{{appId}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Parse-Installation-Id",
+								"value": "{{installationId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phoneNumber\": \"{{phoneNumber}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostname}}/functions/sendCode",
+							"host": [
+								"{{hostname}}"
+							],
+							"path": [
+								"functions",
+								"sendCode"
 							]
 						}
 					},
@@ -213,7 +213,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"channelId\": \"feedback_XSW6tHcCoO\",\n    \"message\": {\n        \"text\": \"Test postman 123\"\n    }\n}",
+							"raw": "{\n    \"ownerId\": \"myOwner\",\n    \"conversationId\": \"welcome_6aqCjcCcPj\",\n    \"message\": {\n        \"text\": \"this is the best text!!\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -228,6 +228,49 @@
 							"path": [
 								"functions",
 								"sendMessage"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addReaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Parse-Application-Id",
+								"value": "{{appId}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Parse-Installation-Id",
+								"value": "{{installationId}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Parse-Session-Token",
+								"value": "{{sessionToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"conversationCid\": \"messaging:GpUjenwHua_waitlist_conversation\",\n    \"messageId\": \"0178b85e-8ab7-4121-803a-addea21dc45c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostname}}/functions/addReaction",
+							"host": [
+								"{{hostname}}"
+							],
+							"path": [
+								"functions",
+								"addReaction"
 							]
 						}
 					},
@@ -401,7 +444,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"connectionId\": \"oQ8EjQn2UF\",\n    \"status\": \"accepted\"\n}",
+							"raw": "{\n    \"connectionId\": \"Wdd10FgVUP\",\n    \"status\": \"accepted\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
