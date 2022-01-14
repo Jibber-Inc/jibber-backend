@@ -1,8 +1,5 @@
-// Providers
-import Stream from '../providers/StreamProvider';
 // Services
 import ChatService from '../services/ChatService';
-import UserService from '../services/UserService';
 
 /**
  * Send a Chat message

@@ -1,16 +1,48 @@
+import EventWrapper from '../../utils/eventWrapper';
+import UserUtils from '../../utils/userData';
+import Parse from '../../providers/ParseProvider';
+import PushService from '../../services/PushService';
+
 /**
  *
  * @param {*} request
  * @param {*} response
  */
-const newReaction = (request, response) => {
+const newReaction = async (request, response) => {
 
-  console.log('*******************************************');
-  console.log('*******************************************');
-  console.log('*******************************************');
-  console.log('*******************************************');
-  console.log('*******************************************');
-  console.log('estoy aca ready')
+  const { message, cid } = EventWrapper.getParams(
+    request.body,
+  );
+  
+  console.log('aaaaaaa /*********');
+  const latestReactions = message.latest_reactions;
+  console.log(latestReactions);
+  const reactionsFiltered = latestReactions.filter(reaction => reaction.type === 'read');
+  console.log('bbbbbb /*********', reactionsFiltered);
+  if(reactionsFiltered.lenght){
+    const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
+    const fullName = UserUtils.getFullName(fromUser);
+    console.log('cccccccc /*********');
+    const data = {
+      messageId: null,
+      conversationCid: cid,
+      title: `${fullName} read your message 🤓`,
+      body: `${fullName} read ${message.text} `,
+      target: 'channel',
+      category: 'message.read',
+      interruptionLevel: 'time-sensitive',
+      threadId: cid,
+      author: fromUser.id
+    };
+
+    console.log( 'dasdasdadadad')
+    console.log(data);
+
+    await PushService.sendPushNotificationToUsers(
+      data,
+      [fromUser],
+    )
+  }
 }
 
 /**

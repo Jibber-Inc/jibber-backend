@@ -262,13 +262,11 @@ const deleteUser = async (userId) => {
 
 /**
  * set new reaction to message
- *
  * @param {Channel} conversation
  * @param {String} messageId
  * @param {String} reactionType
  * @param {String} userId
  */
-
  const sendReactionToMessage = async (conversation, messageId, reactionType, userId) => {
   try {
     const reaction = await conversation.sendReaction(messageId, { 
