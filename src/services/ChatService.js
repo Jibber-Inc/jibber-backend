@@ -9,6 +9,7 @@ import MessagesUtil from '../utils/messages';
 // Constants
 import { ONBOARDING_ADMIN, MESSAGE } from '../constants/index';
 import UserService from './UserService';
+import { Channel } from 'stream-chat';
 
 export class ChatServiceError extends ExtendableError { }
 
@@ -263,6 +264,10 @@ const deleteUser = async (userId) => {
 
 /**
  * set new reaction to message
+<<<<<<< HEAD
+=======
+ *
+>>>>>>> 3b208e9 (feat(): add endpoint to send reaction)
  * @param {Channel} conversation
  * @param {String} messageId
  * @param {String} reactionType
@@ -272,8 +277,12 @@ const deleteUser = async (userId) => {
   try {
     const reaction = await conversation.sendReaction(messageId, { 
         type: reactionType,
+<<<<<<< HEAD
         user_id: userId,
         other: 'ggg'
+=======
+        user_id: userId
+>>>>>>> 3b208e9 (feat(): add endpoint to send reaction)
     }); 
 
     return reaction;

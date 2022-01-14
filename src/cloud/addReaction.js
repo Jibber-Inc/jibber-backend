@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 // Services
 import ChatService from '../services/ChatService';
+=======
+// Providers
+import Stream from '../providers/StreamProvider';
+// Services
+import ChatService from '../services/ChatService';
+import UserService from '../services/UserService';
+>>>>>>> 3b208e9 (feat(): add endpoint to send reaction)
 
 /**
  * Send a Chat message
@@ -18,7 +26,11 @@ const addReaction = async request => {
       conversationCid,
     );
     
+<<<<<<< HEAD
     const reactionType = 'read'
+=======
+    const reactionType = 'reaction.new'
+>>>>>>> 3b208e9 (feat(): add endpoint to send reaction)
 
     const reaction = ChatService.sendReactionToMessage(conversation, messageId, reactionType, user.id);
 

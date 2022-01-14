@@ -8,10 +8,21 @@ import PushService from '../../services/PushService';
  * @param {*} request
  * @param {*} response
  */
+<<<<<<< HEAD
 const newReaction = async (request, response) => {
   const { message, conversationCid } = EventWrapper.getParams(
     request.body,
   );
+=======
+const newReaction = (request, response) => response.status(200).json(
+
+  //channelId
+  //messageId
+
+  /*const { conversationId, conversationCid, message, user, members } = EventWrapper.getParams(
+    
+  );*/
+>>>>>>> 3b208e9 (feat(): add endpoint to send reaction)
 
   const latestReactions = message.latest_reactions;
   const reactionsFiltered = latestReactions.filter(reaction => reaction.type === 'read');
