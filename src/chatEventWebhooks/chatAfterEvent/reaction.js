@@ -18,7 +18,7 @@ const newReaction = async (request, response) => {
   
   const latestReactions = message.latest_reactions;
 
-  console.log('BBBBBBB *********', reactionsFiltered);
+  console.log('BBBBBBB *********', latestReactions);
 
   const reactionsFiltered = latestReactions.filter(reaction => reaction.type === 'read');
 
