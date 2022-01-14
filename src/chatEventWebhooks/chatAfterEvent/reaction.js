@@ -32,25 +32,27 @@ const newReaction = (request, response) => response.status(200).json(
   
     if (!fromUser) throw new Error('User not found!');
 
-    const toUser = await new Parse.Query(Parse.User).get(reactionsFiltered[0].user_id);
-    const fullName = UserUtils.getFullName(toUser);
-    
-    const data = {
-      messageId: null,
-      conversationCid,
-      title: `${fullName} read your message 🤓`,
-      body: `${fullName} read ${message.text} `,
-      target: 'channel',
-      category: 'message.read',
-      interruptionLevel: 'time-sensitive',
-      threadId: conversationCid,
-      author: fromUser.id
-    };
-
-    await PushService.sendPushNotificationToUsers(
-      data,
-      [fromUser],
-    )
+    if(reactionsFiltered && reactionsFiltered[0].user_id){
+      const toUser = await new Parse.Query(Parse.User).get(reactionsFiltered[0].user_id);
+      const fullName = UserUtils.getFullName(toUser);
+      
+      const data = {
+        messageId: null,
+        conversationCid,
+        title: `${fullName} read your message 🤓`,
+        body: `${fullName} read ${message.text} `,
+        target: 'channel',
+        category: 'message.read',
+        interruptionLevel: 'time-sensitive',
+        threadId: conversationCid,
+        author: fromUser.id
+      };
+  
+      await PushService.sendPushNotificationToUsers(
+        data,
+        [fromUser],
+      )
+    }
   }
 }
 
