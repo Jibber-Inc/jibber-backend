@@ -272,7 +272,6 @@ const deleteUser = async (userId) => {
     const reaction = await conversation.sendReaction(messageId, { 
         type: reactionType,
         user_id: userId,
-        other: 'ggg'
     }); 
 
     return reaction;
