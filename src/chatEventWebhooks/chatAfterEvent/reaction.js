@@ -14,12 +14,14 @@ const newReaction = async (request, response) => {
     request.body,
   );
   
-  console.log('aaaaaaa /*********');
+
   const latestReactions = message.latest_reactions;
-  console.log(latestReactions);
+
   const reactionsFiltered = latestReactions.filter(reaction => reaction.type === 'read');
-  console.log('bbbbbb /*********', reactionsFiltered);
+  console.log('AAAA /*********', reactionsFiltered);
+  console.log('xxxx  ', reactionsFiltered.lenght)
   if(reactionsFiltered.lenght){
+    console.log('xxxx')
     const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
     const fullName = UserUtils.getFullName(fromUser);
     console.log('cccccccc /*********');
