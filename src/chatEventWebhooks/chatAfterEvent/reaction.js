@@ -14,25 +14,16 @@ const newReaction = async (request, response) => {
     request.body,
   );
 
-  console.log('AAAAAAA *******');
-  
   const latestReactions = message.latest_reactions;
-
-  console.log('BBBBBBB *********', latestReactions);
-
-
   const reactionsFiltered = latestReactions.filter(reaction => reaction.type === 'read');
 
-  console.log('CCCCCCCC ********', reactionsFiltered);
-  console.log('DDDDDD  ',typeof reactionsFiltered);
-  console.log('EEEEE  ', reactionsFiltered.length);
-  console.log('FFFFFF', Object.keys(reactionsFiltered).length)
-
+  console.log('AAAAAAAAAAAAA')
   if(reactionsFiltered.length){
-    console.log('GGGGGGG');
+    console.log('BBBBBBBBB',message.user.id)
     const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
+    console.log('CCCCCCCCC')
     const fullName = UserUtils.getFullName(fromUser);
-    console.log('HHHHHHH *********');
+    console.log('DDDDDDDDD');
     const data = {
       messageId: null,
       conversationCid: cid,
