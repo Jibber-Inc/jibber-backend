@@ -13,22 +13,25 @@ const newReaction = async (request, response) => {
   const { message, cid } = EventWrapper.getParams(
     request.body,
   );
-  
 
+  console.log('AAAAAAA *******');
+  
   const latestReactions = message.latest_reactions;
+
+  console.log('BBBBBBB *********', reactionsFiltered);
 
   const reactionsFiltered = latestReactions.filter(reaction => reaction.type === 'read');
 
-  console.log('AAAA /*********', reactionsFiltered);
-  console.log('xxxx  ',typeof reactionsFiltered)
-  console.log('dddd  ', reactionsFiltered.lenght)
-  console.log('xdsadaa', Object.keys(reactionsFiltered).lenght)
+  console.log('CCCCCCCC ********', reactionsFiltered);
+  console.log('DDDDDD  ',typeof reactionsFiltered)
+  console.log('EEEEE  ', reactionsFiltered.lenght)
+  console.log('FFFFFF', Object.keys(reactionsFiltered).lenght)
 
   if(Object.keys(reactionsFiltered).lenght){
-    console.log('xxxx');
+    console.log('GGGGGGG');
     const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
     const fullName = UserUtils.getFullName(fromUser);
-    console.log('cccccccc /*********');
+    console.log('HHHHHHH *********');
     const data = {
       messageId: null,
       conversationCid: cid,
@@ -41,7 +44,7 @@ const newReaction = async (request, response) => {
       author: fromUser.id
     };
 
-    console.log( 'dasdasdadadad')
+    console.log( '*************************/////////')
     console.log(data);
 
     await PushService.sendPushNotificationToUsers(
