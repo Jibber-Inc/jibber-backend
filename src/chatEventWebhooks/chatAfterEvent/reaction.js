@@ -20,12 +20,13 @@ const newReaction = async (request, response) => {
 
   console.log('BBBBBBB *********', latestReactions);
 
+
   const reactionsFiltered = latestReactions.filter(reaction => reaction.type === 'read');
 
   console.log('CCCCCCCC ********', reactionsFiltered);
-  console.log('DDDDDD  ',typeof reactionsFiltered)
-  console.log('EEEEE  ', reactionsFiltered.lenght)
-  console.log('FFFFFF', Object.keys(reactionsFiltered).lenght)
+  console.log('DDDDDD  ',typeof reactionsFiltered);
+  console.log('EEEEE  ', reactionsFiltered.length);
+  console.log('FFFFFF', Object.keys(reactionsFiltered).length)
 
   if(reactionsFiltered.length){
     console.log('GGGGGGG');
