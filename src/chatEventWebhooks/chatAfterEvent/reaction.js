@@ -27,7 +27,7 @@ const newReaction = async (request, response) => {
   console.log('EEEEE  ', reactionsFiltered.lenght)
   console.log('FFFFFF', Object.keys(reactionsFiltered).lenght)
 
-  if(Object.keys(reactionsFiltered).lenght){
+  if(reactionsFiltered.length){
     console.log('GGGGGGG');
     const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
     const fullName = UserUtils.getFullName(fromUser);
