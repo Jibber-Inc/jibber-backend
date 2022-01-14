@@ -9,30 +9,31 @@ import PushService from '../../services/PushService';
  * @param {*} response
  */
 const newReaction = async (request, response) => {
-
-  const { message, cid } = EventWrapper.getParams(
+  const { message, conversationCid } = EventWrapper.getParams(
     request.body,
   );
 
   const latestReactions = message.latest_reactions;
   const reactionsFiltered = latestReactions.filter(reaction => reaction.type === 'read');
-
-  console.log('AAAAAAAAAAAAA')
+  console.log('AAAAA')
   if(reactionsFiltered.length){
-    console.log('BBBBBBBBB',message.user.id)
-    const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
-    console.log('CCCCCCCCC')
-    const fullName = UserUtils.getFullName(fromUser);
-    console.log('DDDDDDDDD');
+    const fromUser = await new Parse.Query(Parse.User).get('i0qjTwtr24');
+    console.log('BBBB')
+    if (!fromUser) throw new Error('User not found!');
+    console.log('CCCCC')
+    const toUser = await new Parse.Query(Parse.User).get(reactionsFiltered[0].user_id);
+    console.log('DDDDD')
+    const fullName = UserUtils.getFullName(toUser);
+    console.log('EEEEE')
     const data = {
       messageId: null,
-      conversationCid: cid,
+      conversationCid,
       title: `${fullName} read your message 🤓`,
       body: `${fullName} read ${message.text} `,
       target: 'channel',
       category: 'message.read',
       interruptionLevel: 'time-sensitive',
-      threadId: cid,
+      threadId: conversationCid,
       author: fromUser.id
     };
 
