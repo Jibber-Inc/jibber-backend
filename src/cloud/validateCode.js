@@ -19,6 +19,8 @@ import testUser from '../utils/testUser';
 import MessagesUtil from '../utils/messages';
 import UserUtils from '../utils/userData';
 // import db from '../utils/db';
+// Constants
+import { ONBOARDING_ADMIN } from '../constants/index';
 
 class ValidateCodeError extends ExtendableError { }
 
@@ -40,6 +42,7 @@ const setReservations = async user => {
 // Inactive: users that have full access to the application, but they didnt end the onboarding yet
 // Waitlist: users in the Waitlist have to wait until the maxQuePosition is increased, letting more users get full access.
 const setUserStatus = async (user, reservation = null) => {
+  // TODO: Uncomment when we use again the currentQuePosition logic.
   // Get the needed que values to calculate the user status
   // const config = await Parse.Config.get({ useMasterKey: true });
   // get maxQuePosition from parse. This variable is manually set depending on the needs
@@ -57,6 +60,7 @@ const setUserStatus = async (user, reservation = null) => {
     if (reservation) {
       user.set('status', 'inactive');
     } else {
+      // TODO: Uncomment when we use again the currentQuePosition logic.
       // user.set('quePosition', currentQuePosition);
       // if (maxQuePosition >= currentQuePosition) {
       //   user.set('status', 'inactive');
@@ -64,32 +68,45 @@ const setUserStatus = async (user, reservation = null) => {
       //   user.set('status', 'waitlist');
       // }
       user.set('status', 'waitlist');
-      await ChatService.createConversation(
-        user,
-        `${user.id}_invitation_conversation_${new Date().getTime()}`,
-        'invitation'
-      );
-      await ChatService.createConversation(
-        user,
-        `${user.id}_waitlist_conversation`,
-        'messaging'
-      );
-      const conversation = await ChatService.getConversationByCid(`messaging:${user.id}_waitlist_conversation`);
-      if (conversation) {
-        const { waitlistMessages } = MessagesUtil;
-        await Promise.all(
-          waitlistMessages.map(message => {
-            const formattedMessage = MessagesUtil.getMessage(message, { givenName: user.get('givenName') });
-            const newMessage = {
-              text: formattedMessage,
-              user_id: user.id
-            }
-            return ChatService.createMessage(
-              newMessage,
-              conversation,
+      // TODO: Uncomment when the app (frontend) is ready to use it.
+      // await ChatService.createConversation(
+      //   user,
+      //   `${user.id}_invitation_conversation_${new Date().getTime()}`,
+      //   'invitation'
+      // );
+
+      const onboardingRole = await new Parse.Query(Parse.Role)
+        .equalTo('name', ONBOARDING_ADMIN)
+        .first();
+      if (onboardingRole) {
+        // If the role is defined, get the first user with it
+        const admin = await onboardingRole.get('users').query().first();
+        if (admin) {
+          await ChatService.createConversation(
+            user,
+            `${user.id}_waitlist_conversation`,
+            'messaging',
+            'Benji, Co-Founder',
+            [admin.id, user.id]
+          );
+          const conversation = await ChatService.getConversationByCid(`messaging:${user.id}_waitlist_conversation`);
+          if (conversation) {
+            const { waitlistMessages } = MessagesUtil;
+            await Promise.all(
+              waitlistMessages.map(message => {
+                const formattedMessage = MessagesUtil.getMessage(message, { givenName: user.get('givenName') });
+                const newMessage = {
+                  text: formattedMessage,
+                  user_id: admin.id
+                }
+                return ChatService.createMessage(
+                  newMessage,
+                  conversation,
+                );
+              })
             );
-          })
-        );
+          }
+        }
       }
     }
   }
