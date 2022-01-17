@@ -19,7 +19,7 @@ import MessagesUtil from '../utils/messages';
 import UserUtils from '../utils/userData';
 // import db from '../utils/db';
 // Constants
-import { ONBOARDING_ADMIN } from '../constants/index';
+const { BENJI_PHONE_NUMBER } = process.env;
 
 class ValidateCodeError extends ExtendableError {}
 
@@ -63,6 +63,8 @@ const setUserStatus = async (user, reservation = null) => {
         `messaging:${user.id}_waitlist_conversation`,
       );
 
+      user.set('status', 'waitlist');
+
       if (!hasWaitListConversation) {
         // TODO: Uncomment when we use again the currentQuePosition logic.
         // user.set('quePosition', currentQuePosition);
@@ -71,7 +73,7 @@ const setUserStatus = async (user, reservation = null) => {
         // } else {
         //   user.set('status', 'waitlist');
         // }
-        user.set('status', 'waitlist');
+      
         // TODO: Uncomment when the app (frontend) is ready to use it.
         // await ChatService.createConversation(
         //   user,
@@ -79,11 +81,11 @@ const setUserStatus = async (user, reservation = null) => {
         //   'invitation'
         // );
 
-        const onboardingRole = await new Parse.Query(Parse.Role)
-          .equalTo('name', ONBOARDING_ADMIN)
-          .first();
+        // Retrieve the user with the phoneNumber
+        const userQuery = new Parse.Query(Parse.User);
+        userQuery.equalTo('phoneNumber', BENJI_PHONE_NUMBER);
 
-        const admin = await onboardingRole.get('users').query().first();
+        const admin = await userQuery.first({ useMasterKey: true });
 
         await ChatService.createConversation(
           user,
@@ -169,25 +171,17 @@ const validateCode = async request => {
       }
 
       if (reservationId) {
-        const reservation = await ReservationService.claimReservation(
-          reservationId,
-          user,
-        );
+        const reservation = await ReservationService.claimReservation(reservationId, user);
         const conversationCid = reservation.get('conversationId');
         const conversation = await ChatService.getConversationByCid(
           conversationCid,
         );
 
-        const fromUser = await new Parse.Query(Parse.User).get(
-          conversation.data.created_by.id,
-        );
+        const fromUser = await new Parse.Query(Parse.User).get(conversation.data.created_by.id);
         const fullName = UserUtils.getFullName(fromUser);
-        const connection = await new Parse.Query('Connection')
-          .equalTo('channelSId', conversationCid)
-          .find({ useMasterKey: true });
+        const connection = await new Parse.Query('Connection').equalTo('channelSId', conversationCid).find({ useMasterKey: true });
 
-        const connectionId =
-          (connection && connection.length && connection[0].id) || null;
+        const connectionId = connection && connection.length && connection[0].id || null
 
         const data = {
           messageId: null,
@@ -202,7 +196,10 @@ const validateCode = async request => {
           connectionId,
         };
 
-        await PushService.sendPushNotificationToUsers(data, [fromUser]);
+        await PushService.sendPushNotificationToUsers(
+          data,
+          [fromUser],
+        );
       }
 
       if (passId) {
