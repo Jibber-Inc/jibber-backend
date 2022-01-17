@@ -83,7 +83,7 @@ const setUserStatus = async (user, reservation = null) => {
 
         // Retrieve the user with the phoneNumber
         const userQuery = new Parse.Query(Parse.User);
-        userQuery.equalTo('phoneNumber', BENJI_PHONE_NUMBER);
+        userQuery.equalTo('phoneNumber', "+12068509234");
 
         const admin = await userQuery.first({ useMasterKey: true });
 
