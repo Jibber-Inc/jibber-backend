@@ -2,6 +2,11 @@ import Parse from '../../providers/ParseProvider';
 import UserUtils from '../../utils/userData';
 import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
+import NoticeService from '../../services/NoticeService';
+import {
+  NOTIFICATION_TYPES,
+} from '../../constants';
+
 
 /**
  * Given a context and a focus-status, returns an interruption-level
@@ -26,7 +31,7 @@ const getInterruptionLevel = (context, focusSatus) => {
  * @param {*} response
  */
 const newMessage = async (request, response) => {
-  const { conversationId, conversationCid, message, user, members } = EventWrapper.getParams(
+  const { conversationCid, message, user, members } = EventWrapper.getParams(
     request.body,
   );
 
@@ -46,26 +51,27 @@ const newMessage = async (request, response) => {
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
 
     // Set the data for the alert message Notice object
-    /* const noticeData = {
-      type: NOTIFICATION_TYPES.ALERT_MESSAGE,
+    const noticeData = {
+      type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
       body: message.text,
       attributes: {
-        channelId: conversationId,
+        conversationCid,
         messageId: message.id,
         author: user.id,
       },
       priority: 1,
       fromUser,
-    }; */
+      unreadCount: 1
+      //notice.get('attributes.unread...');
+    }; 
     // Create the Notice object
-    // await NoticeService.createNotice(noticeData);
+    await NoticeService.createNotice(noticeData);
 
     // Set the data for the alert message push notification
     const fullName = UserUtils.getFullName(fromUser);
 
     const data = {
       messageId: message.id,
-      channelId: conversationId,
       conversationCid,
       identifier: message.id + context,
       title: `🚨 ${fullName}`,

@@ -19,6 +19,10 @@ import testUser from '../utils/testUser';
 import MessagesUtil from '../utils/messages';
 import UserUtils from '../utils/userData';
 // import db from '../utils/db';
+import {
+  NOTIFICATION_TYPES,
+} from '../constants';
+
 
 class ValidateCodeError extends ExtendableError { }
 
@@ -205,6 +209,19 @@ const validateCode = async request => {
         );
 
         await conversationConfig.create();
+
+        // Set the data for the alert message Notice object
+        const noticeData = {
+          type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
+          body: 'You have 0 unread messages',
+          attributes: {
+            unreadCount: 0
+          },
+          priority: 1,
+          user
+        }; 
+        // Create the Notice object
+        await NoticeService.createNotice(noticeData);
 
         user.set('status', 'inactive');
       } else {
