@@ -1,4 +1,3 @@
-
 import ExtendableError from 'extendable-error-class';
 // Providers
 import Stream from '../providers/StreamProvider';
@@ -22,7 +21,7 @@ import UserUtils from '../utils/userData';
 // Constants
 import { ONBOARDING_ADMIN } from '../constants/index';
 
-class ValidateCodeError extends ExtendableError { }
+class ValidateCodeError extends ExtendableError {}
 
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
@@ -60,52 +59,58 @@ const setUserStatus = async (user, reservation = null) => {
     if (reservation) {
       user.set('status', 'inactive');
     } else {
-      // TODO: Uncomment when we use again the currentQuePosition logic.
-      // user.set('quePosition', currentQuePosition);
-      // if (maxQuePosition >= currentQuePosition) {
-      //   user.set('status', 'inactive');
-      // } else {
-      //   user.set('status', 'waitlist');
-      // }
-      user.set('status', 'waitlist');
-      // TODO: Uncomment when the app (frontend) is ready to use it.
-      // await ChatService.createConversation(
-      //   user,
-      //   `${user.id}_invitation_conversation_${new Date().getTime()}`,
-      //   'invitation'
-      // );
+      const hasWaitListConversation = await ChatService.getConversationByCid(
+        `messaging:${user.id}_waitlist_conversation`,
+      );
 
-      const onboardingRole = await new Parse.Query(Parse.Role)
-        .equalTo('name', ONBOARDING_ADMIN)
-        .first();
-      if (onboardingRole) {
-        // If the role is defined, get the first user with it
+      if (!hasWaitListConversation) {
+        // TODO: Uncomment when we use again the currentQuePosition logic.
+        // user.set('quePosition', currentQuePosition);
+        // if (maxQuePosition >= currentQuePosition) {
+        //   user.set('status', 'inactive');
+        // } else {
+        //   user.set('status', 'waitlist');
+        // }
+        user.set('status', 'waitlist');
+        // TODO: Uncomment when the app (frontend) is ready to use it.
+        // await ChatService.createConversation(
+        //   user,
+        //   `${user.id}_invitation_conversation_${new Date().getTime()}`,
+        //   'invitation'
+        // );
+
+        const onboardingRole = await new Parse.Query(Parse.Role)
+          .equalTo('name', ONBOARDING_ADMIN)
+          .first();
+
         const admin = await onboardingRole.get('users').query().first();
-        if (admin) {
-          await ChatService.createConversation(
-            user,
-            `${user.id}_waitlist_conversation`,
-            'messaging',
-            'Benji, Co-Founder',
-            [admin.id, user.id]
+
+        await ChatService.createConversation(
+          user,
+          `${user.id}_waitlist_conversation`,
+          'messaging',
+          'Benji, Co-Founder',
+          [admin.id, user.id],
+        );
+
+        const conversation = await ChatService.getConversationByCid(
+          `messaging:${user.id}_waitlist_conversation`,
+        );
+
+        if (conversation) {
+          const { waitlistMessages } = MessagesUtil;
+          await Promise.all(
+            waitlistMessages.map(message => {
+              const formattedMessage = MessagesUtil.getMessage(message, {
+                givenName: user.get('givenName'),
+              });
+              const newMessage = {
+                text: formattedMessage,
+                user_id: admin.id,
+              };
+              return ChatService.createMessage(newMessage, conversation);
+            }),
           );
-          const conversation = await ChatService.getConversationByCid(`messaging:${user.id}_waitlist_conversation`);
-          if (conversation) {
-            const { waitlistMessages } = MessagesUtil;
-            await Promise.all(
-              waitlistMessages.map(message => {
-                const formattedMessage = MessagesUtil.getMessage(message, { givenName: user.get('givenName') });
-                const newMessage = {
-                  text: formattedMessage,
-                  user_id: admin.id
-                }
-                return ChatService.createMessage(
-                  newMessage,
-                  conversation,
-                );
-              })
-            );
-          }
         }
       }
     }
@@ -164,17 +169,25 @@ const validateCode = async request => {
       }
 
       if (reservationId) {
-        const reservation = await ReservationService.claimReservation(reservationId, user);
+        const reservation = await ReservationService.claimReservation(
+          reservationId,
+          user,
+        );
         const conversationCid = reservation.get('conversationId');
         const conversation = await ChatService.getConversationByCid(
           conversationCid,
         );
 
-        const fromUser = await new Parse.Query(Parse.User).get(conversation.data.created_by.id);
+        const fromUser = await new Parse.Query(Parse.User).get(
+          conversation.data.created_by.id,
+        );
         const fullName = UserUtils.getFullName(fromUser);
-        const connection = await new Parse.Query('Connection').equalTo('channelSId', conversationCid).find({ useMasterKey: true });
+        const connection = await new Parse.Query('Connection')
+          .equalTo('channelSId', conversationCid)
+          .find({ useMasterKey: true });
 
-        const connectionId = connection && connection.length && connection[0].id || null
+        const connectionId =
+          (connection && connection.length && connection[0].id) || null;
 
         const data = {
           messageId: null,
@@ -189,10 +202,7 @@ const validateCode = async request => {
           connectionId,
         };
 
-        await PushService.sendPushNotificationToUsers(
-          data,
-          [fromUser],
-        );
+        await PushService.sendPushNotificationToUsers(data, [fromUser]);
       }
 
       if (passId) {
