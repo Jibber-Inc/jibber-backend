@@ -28,10 +28,9 @@ const messages = {
 };
 
 const waitlistMessages = [
-  "Hey 👋 %givenName%, welcome to Jibber!",
+  "Hey 👋, welcome to Jibber!",
   "My name is Benji, and I'm one of the Co-Founders of Jibber.",
-  "If you ever wanna chat, you can just message me here.",
-  "Wan't off the waitlist? Just invite a few of you friends/family and as soon as one joins, you'll both be able to upgrade."
+  "If you ever wanna chat, you can just message me here."
 ];
 
 export default {
