@@ -1,7 +1,9 @@
 import ExtendableError from 'extendable-error-class';
 import ChatService from './ChatService';
 import UserService from './UserService';
+import PushService from './PushService';
 import Parse from '../providers/ParseProvider';
+import UserUtils from '../utils/userData';
 
 export class ReservationServiceError extends ExtendableError { }
 
@@ -87,7 +89,7 @@ const claimReservation = async (reservationId, user) => {
     reservation.set('isClaimed', true);
     reservation.set('user', user);
     await reservation.save(null, { useMasterKey: true });
-    const conversationCid = reservation.get('conversationId');
+    const conversationCid = reservation.get('conversationCid');
 
     if (conversationCid) {
       const conversation = await ChatService.getConversationByCid(
@@ -104,10 +106,39 @@ const claimReservation = async (reservationId, user) => {
   }
 };
 
+const handleReservation = async (reservationId, user) => {
+  const reservation = await claimReservation(reservationId, user);
+  const conversationCid = reservation.get('conversationCid');
+  const conversation = await ChatService.getConversationByCid(
+    conversationCid,
+  );
+
+  const fromUser = await new Parse.Query(Parse.User).get(conversation.data.created_by.id);
+  const fullName = UserUtils.getFullName(fromUser);
+
+  const data = {
+    messageId: null,
+    conversationCid,
+    title: `${fullName} joined your conversation! 🥳`,
+    body: `${fullName} accepted your invitation and was added to your conversation.`,
+    target: 'channel',
+    category: 'connection.new',
+    interruptionLevel: 'time-sensitive',
+    threadId: conversationCid,
+    author: fromUser.id
+  };
+
+  await PushService.sendPushNotificationToUsers(
+    data,
+    [fromUser],
+  );
+};
+
 export default {
   createReservations,
   createReservation,
   checkReservation,
   hasReservations,
-  claimReservation
+  claimReservation,
+  handleReservation
 };
