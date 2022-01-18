@@ -240,6 +240,24 @@ const getConversationByCid = async (conversationCid) => {
 
 /**
  * 
+ * @param {*} conversationCid 
+ * @returns 
+ */
+ const existsConversationByCid = async (conversationCid) => {
+  const filter = { cid: { $eq: conversationCid } };
+  const sort = [{ last_message_at: -1 }];
+  const options = { message_limit: 0, limit: 1, state: true };
+  const conversationsResponse = await Stream.client.queryConversations(
+    filter,
+    sort,
+    options,
+  );
+  
+  return conversationsResponse;
+};
+
+/**
+ * 
  * @param {*} conversation 
  * @param {*} members 
  */
@@ -292,5 +310,6 @@ export default {
   createMessagesForConversation,
   addMemberToConversation,
   getConversationByCid,
-  sendReactionToMessage
+  sendReactionToMessage,
+  existsConversationByCid
 };
