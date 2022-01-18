@@ -107,7 +107,6 @@ const setUserStatus = async (user, reservation = null) => {
           await Promise.all(
             
             waitlistMessages.map(message => {
-              console.log('KKKKKK');
               /* const formattedMessage = MessagesUtil.getMessage(message, {
                 givenName: user.get('givenName'),
               }); */
