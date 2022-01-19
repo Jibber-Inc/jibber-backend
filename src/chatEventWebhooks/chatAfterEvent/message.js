@@ -8,13 +8,12 @@ import db from '../../utils/db';
   NOTIFICATION_TYPES,
 } from '../../constants'; */
 
-
 /**
  * Given a context and a focus-status, returns an interruption-level
- * 
- * @param {*} context 
- * @param {*} focusSatus 
- * @returns 
+ *
+ * @param {*} context
+ * @param {*} focusSatus
+ * @returns
  */
 const getInterruptionLevel = (context, focusSatus) => {
   if (context === 'time-sensitive') {
@@ -39,12 +38,15 @@ const newMessage = async (request, response) => {
   // TODO: Use attributes
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
-  const connection = await new Parse.Query('Connection').equalTo('channelSId', conversationCid).find({ useMasterKey: true });
-  const connectionId = connection && connection.length && connection[0].id || null
+  const connection = await new Parse.Query('Connection')
+    .equalTo('channelSId', conversationCid)
+    .find({ useMasterKey: true });
+  const connectionId =
+    (connection && connection.length && connection[0].id) || null;
 
   try {
     const { context } = message;
-    
+
     const usersIdentities = members
       .map(m => m.user_id)
       .filter(u => u !== user.id);
@@ -52,12 +54,20 @@ const newMessage = async (request, response) => {
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
 
     const notice = await NoticeService.getNoticeByOwner(fromUser);
-  
-    const currentUnreadCount = await db.getValueForNextSequence(`notice_${notice.id}`);
 
-    console.log(currentUnreadCount)
+    const currentUnreadCount = await db.getValueForNextSequence(
+      `notice_${notice.id}`,
+    );
 
-    notice.set('attributes.unreadCount', currentUnreadCount);
+    console.log('este es mi value:', currentUnreadCount);
+
+    const attributes = notice.get('attributes');
+
+    notice.set('attributes', {
+      ...attributes,
+      unreadCount: currentUnreadCount,
+    });
+    
     notice.save(null, { useMasterKey: true });
 
     // Set the data for the alert message push notification
@@ -71,17 +81,17 @@ const newMessage = async (request, response) => {
       body: message.text,
       target: 'channel',
       category: 'message.new',
-      interruptionLevel: getInterruptionLevel(message.context, fromUser.focusSatus),
+      interruptionLevel: getInterruptionLevel(
+        message.context,
+        fromUser.focusSatus,
+      ),
       threadId: conversationCid,
       author: fromUser.id,
       connectionId,
     };
 
     // Send the push notification
-    await PushService.sendPushNotificationToUsers(
-      data,
-      users,
-    );
+    await PushService.sendPushNotificationToUsers(data, users);
 
     return response.status(200).json();
   } catch (error) {
