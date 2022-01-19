@@ -22,9 +22,9 @@ const createNotice = data => {
 };
 
 const getNoticeByACL = async (user) => {
-  console.log('******** uuuuuuuUSER ID***')
+  console.log('******** XXXXXXXX ID***')
  
-  const notice = await new Parse.Query('Notice').equalTo('ACL', user.id).first();
+  const notice = await new Parse.Query('Notice').find({'ACL': user.id});
   console.log('******** NOTICE ', notice)
   return notice;
 };
