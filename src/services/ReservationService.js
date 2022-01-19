@@ -114,13 +114,13 @@ const handleReservation = async (reservationId, user) => {
   );
 
   const fromUser = await new Parse.Query(Parse.User).get(conversation.data.created_by.id);
-  const fullName = UserUtils.getFullName(fromUser);
+  const toFullName = UserUtils.getFullName(user);
 
   const data = {
     messageId: null,
     conversationCid,
-    title: `${fullName} joined your conversation! 🥳`,
-    body: `${fullName} accepted your invitation and was added to your conversation.`,
+    title: `${toFullName} joined your conversation! 🥳`,
+    body: `${toFullName} accepted your invitation and was added to your conversation.`,
     target: 'channel',
     category: 'connection.new',
     interruptionLevel: 'time-sensitive',
