@@ -315,10 +315,7 @@ const createWaitlistConversation = async (user) => {
     `messaging:${user.id}_waitlist_conversation`,
   );
 
-  console.log('WAITLIST CONVERSATION', hasWaitListConversation)
   if (!hasWaitListConversation.length) {
-    console.log('WE DONT HAVE WAITLIST CONVERSATION')
-
     // TODO: Uncomment when the app (frontend) is ready to use it.
     // await ChatService.createConversation(
     //   user,
@@ -344,13 +341,11 @@ const createWaitlistConversation = async (user) => {
     );
     if (conversation) {
       const { waitlistMessages } = MessagesUtil;
-      console.log('WAIT LIST MESSAGES ------------------', waitlistMessages)
       await Promise.all(
         waitlistMessages.map(message => {
           const formattedMessage = MessagesUtil.getMessage(message, {
             givenName: user.get('givenName'),
           });
-          console.log('formattedMessageformattedMessage ------------------', formattedMessage)
           const newMessage = {
             text: formattedMessage,
             user_id: admin.id,
