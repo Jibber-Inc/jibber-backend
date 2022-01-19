@@ -2,7 +2,7 @@ import Parse from '../../providers/ParseProvider';
 import UserUtils from '../../utils/userData';
 import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
-// import NoticeService from '../../services/NoticeService';
+import NoticeService from '../../services/NoticeService';
 /* import {
   NOTIFICATION_TYPES,
 } from '../../constants'; */
@@ -50,18 +50,15 @@ const newMessage = async (request, response) => {
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
 
-    console.log('AAAAAAAAAAA ******** FROMMMM ID', fromUser.id);
+   
 
-    const a = await new Parse.Query('Notice').equalTo('owner', fromUser).first({ useMasterKey: true });
-    const b = await new Parse.Query('Notice').equalTo('owner', fromUser.id).first({ useMasterKey: true });
-
-    // const notice = await NoticeService.getNoticeByACL(fromUser);
-
-    console.log('------------', a)
-    console.log('--*******--', b)
+    const notice = await NoticeService.getNoticeByOwner(fromUser)
 
 
 
+
+
+    
     // Set the data for the alert message Notice object
    /* const noticeData = {
       type: NOTIFICATION_TYPES.UNREAD_MESSAGES,

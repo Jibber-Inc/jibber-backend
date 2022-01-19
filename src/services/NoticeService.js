@@ -22,15 +22,14 @@ const createNotice = data => {
   return notice;
 };
 
-const getNoticeByACL = async (user) => {
-  console.log('******** USER ID***')
- 
-  const notice = await new Parse.Query('Notice').equalTo('ACL', new Parse.ACL(user)).first();
-  console.log('******** NOTICE ', notice)
+const getNoticeByOwner = async (user) => {
+  console.log('IIIIIII')
+  const notice =  await new Parse.Query('Notice').equalTo('owner', user).first({ useMasterKey: true });
+  console.log('PPPPPP', notice)
   return notice;
 };
 
 export default {
   createNotice,
-  getNoticeByACL
+  getNoticeByOwner
 };
