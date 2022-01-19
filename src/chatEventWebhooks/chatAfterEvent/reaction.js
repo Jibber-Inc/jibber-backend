@@ -35,21 +35,13 @@ const newReaction = async (request, response) => {
     let currentUnreadCount = await db.getPreviousValueForSequence(
       `notice_${notice.id}`,
     );
-
-    console.log('CURRENT COUNT: ' ,currentUnreadCount);
-
-    if(currentUnreadCount < 0 ){
-      currentUnreadCount = 0;
-    }
-
+    
     const attributes = notice.get('attributes');
 
     notice.set('attributes', {
       ...attributes,
-      unreadCount: currentUnreadCount,
+      unreadMessageIds: attributes.unreadMessageIds.push(message.id) ,
     });
-
-    notice.save(null, { useMasterKey: true });
   }
 
   if (reactionsFiltered.length && reactionsFiltered[0].user_id) {
