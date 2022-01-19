@@ -2,7 +2,7 @@ import Parse from '../../providers/ParseProvider';
 import UserUtils from '../../utils/userData';
 import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
-import NoticeService from '../../services/NoticeService';
+// import NoticeService from '../../services/NoticeService';
 /* import {
   NOTIFICATION_TYPES,
 } from '../../constants'; */
@@ -52,9 +52,12 @@ const newMessage = async (request, response) => {
 
     console.log('AAAAAAAAAAA ******** FROMMMM ID', fromUser.id);
 
-    const notice = await NoticeService.getNoticeByACL(fromUser);
+    const n = await new Parse.Query('Notice').equalTo('owner', fromUser.id).find({ useMasterKey: true });
 
-    console.log('------------', notice)
+    // const notice = await NoticeService.getNoticeByACL(fromUser);
+
+    console.log('------------', n)
+
 
     // Set the data for the alert message Notice object
    /* const noticeData = {

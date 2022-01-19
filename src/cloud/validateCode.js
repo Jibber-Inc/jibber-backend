@@ -225,10 +225,10 @@ const validateCode = async request => {
         priority: 1,
         user
       }; 
-   
+    
       // Create the Notice object
       await NoticeService.createNotice(noticeData);
-     
+  
       user.set('smsVerificationStatus', status);
       await user.save(null, { useMasterKey: true });
 

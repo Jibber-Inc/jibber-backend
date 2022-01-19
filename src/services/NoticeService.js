@@ -16,15 +16,16 @@ const createNotice = data => {
   notice.set('attributes', attributes);
   notice.set('priority', priority);
   notice.setACL(new Parse.ACL(user));
+  notice.set('owner', user);
 
   notice.save(null, { useMasterKey: true });
   return notice;
 };
 
 const getNoticeByACL = async (user) => {
-  console.log('******** XXXXXXXX ID***', user.id)
+  console.log('******** USER ID***')
  
-  const notice = await new Parse.Query('Notice').first({'ACL': user.id});
+  const notice = await new Parse.Query('Notice').equalTo('ACL', new Parse.ACL(user)).first();
   console.log('******** NOTICE ', notice)
   return notice;
 };
