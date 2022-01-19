@@ -26,15 +26,20 @@ const newReaction = async (request, response) => {
     reaction => reaction.type === 'read',
   );
 
-  console.log('aaaaaaa', newReaction.type)
+  console.log('TYPE: ', newReaction.type)
 
   if (newReaction.type === 'read') {
-    console.log('entro')
     const notice = await NoticeService.getNoticeByOwner(fromUser);
 
-    const currentUnreadCount = await db.getPreviousValueForSequence(
+    let currentUnreadCount = await db.getPreviousValueForSequence(
       `notice_${notice.id}`,
     );
+
+    console.log('CURRENT COUNT: ' ,currentUnreadCount);
+
+    if(currentUnreadCount < 0 ){
+      currentUnreadCount = 0;
+    }
 
     const attributes = notice.get('attributes');
 
