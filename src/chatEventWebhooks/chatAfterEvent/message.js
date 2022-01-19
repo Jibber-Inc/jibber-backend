@@ -3,6 +3,7 @@ import UserUtils from '../../utils/userData';
 import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
 import NoticeService from '../../services/NoticeService';
+import db from '../../utils/db';
 /* import {
   NOTIFICATION_TYPES,
 } from '../../constants'; */
@@ -34,47 +35,28 @@ const newMessage = async (request, response) => {
   const { conversationCid, message, user, members } = EventWrapper.getParams(
     request.body,
   );
-  console.log('AAAAAAAAAAAAAAAAAA')
+
   // TODO: Use attributes
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
-  console.log('BBBBBBBBBBBBBB')
+
   const connection = await new Parse.Query('Connection').equalTo('channelSId', conversationCid).find({ useMasterKey: true });
   const connectionId = connection && connection.length && connection[0].id || null
-  console.log('CCCCCCCCCCCCCCCCCCC')
+
   try {
     const { context } = message;
-    console.log('DDDDDDDDDDDDDDDD')
+    
     const usersIdentities = members
       .map(m => m.user_id)
       .filter(u => u !== user.id);
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
 
-   
+    const notice = await NoticeService.getNoticeByOwner(fromUser);
+  
+    const currentUnreadCount = db.getValueForNextSequence(`notice_${notice.id}`);
 
-    const notice = await NoticeService.getNoticeByOwner(fromUser)
-
-
-
-
-
-    
-    // Set the data for the alert message Notice object
-   /* const noticeData = {
-      type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
-      body: message.text,
-      attributes: {
-        conversationCid,
-        messageId: message.id,
-        author: user.id,
-      },
-      priority: 1,
-      fromUser,
-      unreadCount: 1
-      // notice.get('attributes.unread...');
-    }; */
-    // Create the Notice object
-   
+    notice.set('attributes.unreadCount', currentUnreadCount);
+    notice.save(null, { useMasterKey: true });
 
     // Set the data for the alert message push notification
     const fullName = UserUtils.getFullName(fromUser);

@@ -1,3 +1,4 @@
+import { NOTIFICATION_TYPES } from '../constants';
 import Parse from '../providers/ParseProvider';
 
 /**
@@ -22,14 +23,15 @@ const createNotice = data => {
   return notice;
 };
 
-const getNoticeByOwner = async (user) => {
-  console.log('IIIIIII')
-  const notice =  await new Parse.Query('Notice').equalTo('owner', user).first({ useMasterKey: true });
-  console.log('PPPPPP', notice)
+const getNoticeByOwner = async user => {
+  const notice = await new Parse.Query('Notice')
+    .equalTo('owner', user)
+    .equalTo('type', NOTIFICATION_TYPES.UNREAD_MESSAGES)
+    .first({ useMasterKey: true });
   return notice;
 };
 
 export default {
   createNotice,
-  getNoticeByOwner
+  getNoticeByOwner,
 };
