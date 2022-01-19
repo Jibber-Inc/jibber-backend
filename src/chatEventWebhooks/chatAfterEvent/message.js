@@ -53,7 +53,9 @@ const newMessage = async (request, response) => {
 
     const notice = await NoticeService.getNoticeByOwner(fromUser);
   
-    const currentUnreadCount = db.getValueForNextSequence(`notice_${notice.id}`);
+    const currentUnreadCount = await db.getValueForNextSequence(`notice_${notice.id}`);
+
+    console.log(currentUnreadCount)
 
     notice.set('attributes.unreadCount', currentUnreadCount);
     notice.save(null, { useMasterKey: true });
