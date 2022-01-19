@@ -2,7 +2,7 @@ import Parse from '../../providers/ParseProvider';
 import UserUtils from '../../utils/userData';
 import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
-// import NoticeService from '../../services/NoticeService';
+import NoticeService from '../../services/NoticeService';
 /* import {
   NOTIFICATION_TYPES,
 } from '../../constants'; */
@@ -50,11 +50,11 @@ const newMessage = async (request, response) => {
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
 
-    console.log('AAAAAAAAAAA ******** USER ID', user.id);
-    console.log('AAAAAAAAAAA ******** FROM ID', fromUser);
+    console.log('AAAAAAAAAAA ******** FROM ID', fromUser.id);
 
+    const notice = await NoticeService.getNoticeByACL(fromUser.id);
 
-   // await NoticeService.getNoticeByACL(noticeData);
+    console.log('------------', notice)
 
     // Set the data for the alert message Notice object
    /* const noticeData = {
