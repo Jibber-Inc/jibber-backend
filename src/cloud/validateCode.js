@@ -9,6 +9,7 @@ import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
 import ChatService from '../services/ChatService';
 import PushService from '../services/PushService';
+import NoticeService from '../services/NoticeService';
 import ReservationService, {
   ReservationServiceError,
 } from '../services/ReservationService';
@@ -22,7 +23,6 @@ import UserUtils from '../utils/userData';
 import {
   NOTIFICATION_TYPES,
 } from '../constants';
-
 
 class ValidateCodeError extends ExtendableError { }
 
@@ -210,24 +210,25 @@ const validateCode = async request => {
 
         await conversationConfig.create();
 
-        // Set the data for the alert message Notice object
-        const noticeData = {
-          type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
-          body: 'You have 0 unread messages',
-          attributes: {
-            unreadCount: 0
-          },
-          priority: 1,
-          user
-        }; 
-        // Create the Notice object
-        await NoticeService.createNotice(noticeData);
-
         user.set('status', 'inactive');
       } else {
         await setUserStatus(user, reservationId);
       }
-
+      
+       // Set the data for the alert message Notice object
+       const noticeData = {
+        type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
+        body: 'You have 0 unread messages',
+        attributes: {
+          unreadCount: 0
+        },
+        priority: 1,
+        user
+      }; 
+   
+      // Create the Notice object
+      await NoticeService.createNotice(noticeData);
+     
       user.set('smsVerificationStatus', status);
       await user.save(null, { useMasterKey: true });
 
