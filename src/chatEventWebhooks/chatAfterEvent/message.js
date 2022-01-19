@@ -50,9 +50,9 @@ const newMessage = async (request, response) => {
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
 
-    console.log('AAAAAAAAAAA ******** FROM ID', fromUser.id);
+    console.log('AAAAAAAAAAA ******** FROMMMM ID', fromUser.id);
 
-    const notice = await NoticeService.getNoticeByACL(fromUser.id);
+    const notice = await NoticeService.getNoticeByACL(fromUser);
 
     console.log('------------', notice)
 
