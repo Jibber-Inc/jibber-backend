@@ -3,7 +3,6 @@ import UserUtils from '../../utils/userData';
 import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
 import NoticeService from '../../services/NoticeService';
-import db from '../../utils/db';
 /* import {
   NOTIFICATION_TYPES,
 } from '../../constants'; */
@@ -52,18 +51,14 @@ const newMessage = async (request, response) => {
       .filter(u => u !== user.id);
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
-
+   
     const notice = await NoticeService.getNoticeByOwner(fromUser);
-
-    const currentUnreadCount = await db.getValueForNextSequence(
-      `notice_${notice.id}`,
-    );
     
     const attributes = notice.get('attributes');
 
     notice.set('attributes', {
       ...attributes,
-      unreadCount: currentUnreadCount,
+      unreadMessageIds: attributes.unreadMessageIds.push(message.id) ,
     });
 
     notice.save(null, { useMasterKey: true });

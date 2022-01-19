@@ -252,7 +252,7 @@ const validateCode = async request => {
         type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
         body: 'You have 0 unread messages',
         attributes: {
-          unreadCount: 0
+          unreadMessageIds: []
         },
         priority: 1,
         user
