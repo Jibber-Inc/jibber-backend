@@ -22,7 +22,7 @@ const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
  * @param {Object} attributes
  * @returns {Promise}
  */
-const createConversation = async (owner, conversationId, type = 'messaging', title = 'Benji, Co-Founder', members = []) => {
+const createConversation = async (owner, conversationId, type = 'messaging', title = '', members = []) => {
   if (!owner) {
     throw new ChatServiceError('[SmQNWk96] owner is required');
   }
@@ -240,6 +240,24 @@ const getConversationByCid = async (conversationCid) => {
 
 /**
  * 
+ * @param {*} conversationCid 
+ * @returns 
+ */
+ const existsConversationByCid = async (conversationCid) => {
+  const filter = { cid: { $eq: conversationCid } };
+  const sort = [{ last_message_at: -1 }];
+  const options = { message_limit: 0, limit: 1, state: true };
+  const conversationsResponse = await Stream.client.queryConversations(
+    filter,
+    sort,
+    options,
+  );
+  
+  return conversationsResponse;
+};
+
+/**
+ * 
  * @param {*} conversation 
  * @param {*} members 
  */
@@ -260,6 +278,27 @@ const deleteUser = async (userId) => {
   return deletedUser;
 };
 
+/**
+ * set new reaction to message
+ * @param {Channel} conversation
+ * @param {String} messageId
+ * @param {String} reactionType
+ * @param {String} userId
+ */
+ const sendReactionToMessage = async (conversation, messageId, reactionType, userId) => {
+  try {
+    const reaction = await conversation.sendReaction(messageId, { 
+        type: reactionType,
+        user_id: userId,
+    }); 
+
+    return reaction;
+  } catch (error) {
+    throw new ChatServiceError(error.message);
+  }
+};
+
+
 export default {
   createConversation,
   deleteTwilioUser,
@@ -270,5 +309,7 @@ export default {
   createInitialConversations,
   createMessagesForConversation,
   addMemberToConversation,
-  getConversationByCid
+  getConversationByCid,
+  sendReactionToMessage,
+  existsConversationByCid
 };

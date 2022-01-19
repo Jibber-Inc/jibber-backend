@@ -12,6 +12,7 @@ import setActiveStatus from './setActiveStatus';
 import updateReservation from './updateReservation';
 import createConnection from './createConnection';
 import createConversation from './createConversation';
+import addReaction from './addReaction';
 
 // Test functions
 import test from './test';
@@ -42,6 +43,7 @@ Parse.Cloud.define('setActiveStatus', setActiveStatus);
 Parse.Cloud.define('getChatToken', getChatToken);
 Parse.Cloud.define('createConversation', createConversation);
 Parse.Cloud.define('sendMessage', sendMessage);
+Parse.Cloud.define('addReaction', addReaction);
 
 // Connection
 Parse.Cloud.define('getConnections', getConnections);
