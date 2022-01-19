@@ -29,6 +29,7 @@ const newReaction = async (request, response) => {
   console.log('TYPE: ', newReaction.type)
 
   if (newReaction.type === 'read') {
+    console.log('USER ', fromUser.id)
     const notice = await NoticeService.getNoticeByOwner(fromUser);
 
     let currentUnreadCount = await db.getPreviousValueForSequence(
