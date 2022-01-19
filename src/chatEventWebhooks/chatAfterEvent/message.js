@@ -58,16 +58,14 @@ const newMessage = async (request, response) => {
     const currentUnreadCount = await db.getValueForNextSequence(
       `notice_${notice.id}`,
     );
-
-    console.log('este es mi value:', currentUnreadCount);
-
+    
     const attributes = notice.get('attributes');
 
     notice.set('attributes', {
       ...attributes,
       unreadCount: currentUnreadCount,
     });
-    
+
     notice.save(null, { useMasterKey: true });
 
     // Set the data for the alert message push notification
