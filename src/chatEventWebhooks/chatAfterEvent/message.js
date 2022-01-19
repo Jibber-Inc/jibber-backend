@@ -52,14 +52,14 @@ const newMessage = async (request, response) => {
 
     console.log('AAAAAAAAAAA ******** FROMMMM ID', fromUser.id);
 
-
-    const a = await new Parse.Query('Notice').equalTo('owner', fromUser).first();
-    const b = await new Parse.Query('Notice').equalTo('owner', fromUser.id).first();
+    const a = await new Parse.Query('Notice').equalTo('owner', fromUser).first({ useMasterKey: true });
+    const b = await new Parse.Query('Notice').equalTo('owner', fromUser.id).first({ useMasterKey: true });
 
     // const notice = await NoticeService.getNoticeByACL(fromUser);
 
     console.log('------------', a)
-    console.log('-***********-', b)
+    console.log('--*******--', b)
+
 
 
     // Set the data for the alert message Notice object
