@@ -28,7 +28,7 @@ const userAfterDelete = async request => {
       UserService.resetReservations(user),
       ChatService.deleteUser(user.id),
       NoticeService.deleteNotice(user),
-      ChatService.deleteWaitlistConversation(user)
+      // ChatService.deleteWaitlistConversation(user)
     ]);
   } catch (error) {
     console.warn(error);

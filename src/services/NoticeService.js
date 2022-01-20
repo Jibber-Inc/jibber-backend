@@ -1,5 +1,8 @@
+import ExtendableError from 'extendable-error-class';
 import { NOTIFICATION_TYPES } from '../constants';
 import Parse from '../providers/ParseProvider';
+
+class NoticeServiceError extends ExtendableError { }
 
 /**
  * Creates a Notice object with the given data
@@ -31,7 +34,25 @@ const getNoticeByOwner = async user => {
   return notice;
 };
 
+/**
+ * Delete all user reservations
+ *
+ * @param {Parse.User} user
+ */
+ const deleteNotice = async user => {
+  try {
+    const query = new Parse.Query('Notice').equalTo('owner', user).equalTo('type', NOTIFICATION_TYPES.UNREAD_MESSAGES);
+    const result = await query.first({ useMasterKey: true });
+    if (result) {
+      result.destroy({ useMasterKey: true })
+    }
+  } catch (error) {
+    throw new NoticeServiceError(error.message);
+  }
+};
+
 export default {
   createNotice,
   getNoticeByOwner,
+  deleteNotice
 };
