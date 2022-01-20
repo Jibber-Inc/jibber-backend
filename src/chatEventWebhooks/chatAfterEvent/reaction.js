@@ -34,7 +34,10 @@ const newReaction = async (request, response) => {
     console.log('***********');
     console.log(filteredAttributes);
 
-    notice.set('attributes', filteredAttributes);
+    notice.set('attributes', {
+      ...attributes,
+      unreadMessageIds: filteredAttributes
+    });
   }
 
   if (reactionsFiltered.length && reactionsFiltered[0].user_id) {
