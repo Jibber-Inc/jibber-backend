@@ -58,7 +58,7 @@ const newMessage = async (request, response) => {
     
     console.log(' unread messages ', conversationCid)
 
-    console.log('ATRIBUTOS VIEJOS ');
+    console.log('ATRIBUTOS NUEVOS ');
     console.log(attributes.unreadMessageIds);
 
 
@@ -67,10 +67,7 @@ const newMessage = async (request, response) => {
     console.log('ATRIBUTOS NUEVOS ');
     console.log(attributes.unreadMessageIds);
 
-    notice.set('attributes', {
-      ...attributes,
-      unreadMessageIds: attributes.unreadMessageIds.push(conversationCid) ,
-    });
+    notice.set('attributes', attributes);
 
     notice.save(null, { useMasterKey: true });
 
