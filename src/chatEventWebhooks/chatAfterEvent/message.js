@@ -51,21 +51,12 @@ const newMessage = async (request, response) => {
       .filter(u => u !== user.id);
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
-    console.log('ACA ******')
+
     const notice = await NoticeService.getNoticeByOwner(fromUser);
     
     const attributes = notice.get('attributes');
-    
-    console.log(' unread messages ', conversationCid)
 
-    console.log('ATRIBUTOS NUEVOS ');
-    console.log(attributes.unreadMessageIds);
-
-
-    attributes.unreadMessageIds.push(conversationCid);
-
-    console.log('ATRIBUTOS NUEVOS ');
-    console.log(attributes.unreadMessageIds);
+    attributes.unreadMessageIds.push(message.id);
 
     notice.set('attributes', attributes);
 
