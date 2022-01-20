@@ -56,7 +56,16 @@ const newMessage = async (request, response) => {
     
     const attributes = notice.get('attributes');
     
-    console.log(' unread messages')
+    console.log(' unread messages ', conversationCid)
+
+    console.log('ATRIBUTOS VIEJOS ');
+    console.log(attributes.unreadMessageIds);
+
+
+    attributes.unreadMessageIds.push(conversationCid);
+
+    console.log('ATRIBUTOS NUEVOS ');
+    console.log(attributes.unreadMessageIds);
 
     notice.set('attributes', {
       ...attributes,
