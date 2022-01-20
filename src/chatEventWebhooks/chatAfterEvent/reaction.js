@@ -29,15 +29,12 @@ const newReaction = async (request, response) => {
     
     const attributes = notice.get('attributes');
 
-    const filteredAttributes = attributes.filter(attr => attr !== conversationCid);
+    const filteredAttributes = attributes.unreadMessageIds.filter(messageId => messageId !== message.id);
     
     console.log('***********');
     console.log(filteredAttributes);
 
-    notice.set('attributes', {
-      ...attributes,
-      unreadMessageIds: filteredAttributes
-    });
+    notice.set('attributes', filteredAttributes);
   }
 
   if (reactionsFiltered.length && reactionsFiltered[0].user_id) {
