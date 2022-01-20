@@ -19,16 +19,18 @@ const userAfterDelete = async request => {
     );
   }
 
+  console.log('****************** ENTRO EN AFTER DELETE')
+
   try {
     await Promise.all([
-      UserService.deleteConnections(user),
+     /* UserService.deleteConnections(user),
       UserService.deleteReservations(user),
       UserService.deleteUserInstallations(user),
       UserService.clearUserSessions(user),
-      UserService.resetReservations(user),
+      UserService.resetReservations(user), */
+      ChatService.deleteWaitlistConversation(user),
       ChatService.deleteUser(user.id),
-      NoticeService.deleteNotice(user),
-      ChatService.deleteWaitlistConversation(user)
+      NoticeService.deleteNotice(user)
     ]);
   } catch (error) {
     console.warn(error);
