@@ -279,6 +279,21 @@ const deleteUser = async (userId) => {
 };
 
 /**
+ * Deletes an user in Stream
+ * 
+ * @param {*} userId 
+ * @returns 
+ */
+ const deleteWaitlistConversation = async (userId) => {
+  const conversationCid = `messaging:${userId}_waitlist_conversation`
+  const conversation = await getConversationByCid(conversationCid)
+
+  const deletedConversation = await conversation.delete();
+
+  return deletedConversation;
+};
+
+/**
  * set new reaction to message
  * @param {Channel} conversation
  * @param {String} messageId
@@ -311,5 +326,6 @@ export default {
   addMemberToConversation,
   getConversationByCid,
   sendReactionToMessage,
-  existsConversationByCid
+  existsConversationByCid,
+  deleteWaitlistConversation
 };
