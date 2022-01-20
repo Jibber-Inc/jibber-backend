@@ -32,11 +32,15 @@ const newReaction = async (request, response) => {
     const filteredAttributes = attributes.unreadMessageIds.filter(messageId => messageId !== message.id);
     
     console.log('***********');
-    console.log(filteredAttributes); 
-    console.log('----------');
-    console.log(notice.id);
+    console.log(filteredAttributes);
 
-    notice.set('attributes', []);
+    notice.set('attributes', {
+      ...attributes,
+      unreadMessageIds: filteredAttributes
+    });
+
+    notice.save(null, { useMasterKey: true });
+
   }
 
   if (reactionsFiltered.length && reactionsFiltered[0].user_id) {
