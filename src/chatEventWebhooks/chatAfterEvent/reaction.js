@@ -32,12 +32,11 @@ const newReaction = async (request, response) => {
     const filteredAttributes = attributes.unreadMessageIds.filter(messageId => messageId !== message.id);
     
     console.log('***********');
-    console.log(filteredAttributes);
+    console.log(filteredAttributes); 
+    console.log('----------');
+    console.log(notice.id);
 
-    notice.set('attributes', {
-      ...attributes,
-      unreadMessageIds: filteredAttributes
-    });
+    notice.set('attributes', []);
   }
 
   if (reactionsFiltered.length && reactionsFiltered[0].user_id) {
