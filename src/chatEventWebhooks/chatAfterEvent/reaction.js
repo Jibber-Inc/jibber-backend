@@ -24,15 +24,9 @@ const newReaction = async (request, response) => {
   console.log('TYPE: ', incomingReaction.type)
 
   if (incomingReaction.type === 'read') {
-    console.log('******************* USER ', fromUser.id)
     const notice = await NoticeService.getNoticeByOwner(fromUser);
-    
     const attributes = notice.get('attributes');
-
     const filteredAttributes = attributes.unreadMessageIds.filter(messageId => messageId !== message.id);
-    
-    console.log('***********');
-    console.log(filteredAttributes);
 
     notice.set('attributes', {
       ...attributes,
@@ -40,7 +34,6 @@ const newReaction = async (request, response) => {
     });
 
     notice.save(null, { useMasterKey: true });
-
   }
 
   if (reactionsFiltered.length && reactionsFiltered[0].user_id) {
