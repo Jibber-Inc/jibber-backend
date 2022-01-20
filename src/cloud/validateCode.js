@@ -73,20 +73,6 @@ const validateCode = async request => {
         throw new ValidateCodeError('[KTN1RYO9] Auth code validation failed');
       }
 
-      // Set the data for the alert message Notice object
-     /* const noticeData = {
-        type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
-        body: 'You have 0 unread messages',
-        attributes: {
-          unreadMessageIds: []
-        },
-        priority: 1,
-        user
-      }; 
-    
-      // Create the Notice object
-      await NoticeService.createNotice(noticeData); */
-
       user.set('smsVerificationStatus', status);
       await user.save(null, { useMasterKey: true });
 

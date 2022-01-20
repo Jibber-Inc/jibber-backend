@@ -8,13 +8,14 @@ import UserStatus from '../constants/userStatus';
 import ChatService from '../services/ChatService';
 import PassService from '../services/PassService';
 import ReservationService, { ReservationServiceError } from '../services/ReservationService';
+import NoticeService from '../services/NoticeService';
+// Notifications
+import { NOTIFICATION_TYPES } from '../constants';
 
 // Load Environment Variables
 const { CREATE_WELCOME_CONVERSATION } = process.env;
 
 class FinalizeUserOnboardingError extends ExtendableError { }
-
-
 
 // Users that come with a reservation has full access
 // Users without a reservation are placed in a queue.
@@ -106,6 +107,19 @@ const finalizeUserOnboarding = async request => {
     } else {
       user.set('status', 'waitlist');
     }
+
+    const noticeData = {
+      type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
+      body: 'You have 0 unread messages',
+      attributes: {
+        unreadMessageIds: []
+      },
+      priority: 1,
+      user
+    }; 
+  
+    // Create the Notice object
+    await NoticeService.createNotice(noticeData); 
 
     let updatedUser;
     let currentUserStatus = user.get('status');
