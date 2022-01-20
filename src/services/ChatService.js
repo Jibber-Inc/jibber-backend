@@ -272,7 +272,6 @@ const addMemberToConversation = async (conversation, members) => {
  * @returns 
  */
 const deleteUser = async (userId) => {
-  console.log('************ DELETE USER')
   const deletedUser = await Stream.client.deleteUser(userId, {
     mark_messages_deleted: false,
   });
@@ -286,10 +285,8 @@ const deleteUser = async (userId) => {
  * @returns 
  */
  const deleteWaitlistConversation = async (userId) => {
-  console.log('************ WAIT LIST')
-  const conversationCid = `messaging:${userId}_waitlist_conversation`
+  const conversationCid = `messaging:${userId}_waitlist_conversation`;
   const conversation = await getConversationByCid(conversationCid)
-
   const deletedConversation = await conversation.delete();
 
   return deletedConversation;

@@ -24,7 +24,6 @@ import userAfterSave from './webhooks/userAfterSave';
 import userAfterDelete from './webhooks/userAfterDelete';
 import sendSMS from './sendSMS';
 import sendMessage from './sendMessage';
-import deleteUser from './deleteUser';
 
 // Load Environment variables
 const { JIBBER_SECRET_PASSWORD_TOKEN } = process.env;
@@ -39,7 +38,6 @@ if (!JIBBER_SECRET_PASSWORD_TOKEN) {
 Parse.Cloud.define('sendCode', sendCode);
 Parse.Cloud.define('validateCode', validateCode);
 Parse.Cloud.define('setActiveStatus', setActiveStatus);
-Parse.Cloud.define('deleteUser', deleteUser);
 
 // Chat
 Parse.Cloud.define('getChatToken', getChatToken);
