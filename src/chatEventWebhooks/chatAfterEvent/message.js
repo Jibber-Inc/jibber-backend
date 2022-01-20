@@ -51,11 +51,11 @@ const newMessage = async (request, response) => {
       .filter(u => u !== user.id);
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
-   
+    console.log('asdadads')
     const notice = await NoticeService.getNoticeByOwner(fromUser);
     
     const attributes = notice.get('attributes');
-
+    console.log('attributesadad')
     notice.set('attributes', {
       ...attributes,
       unreadMessageIds: attributes.unreadMessageIds.push(message.id) ,

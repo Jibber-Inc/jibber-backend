@@ -3,7 +3,6 @@ import UserUtils from '../../utils/userData';
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import NoticeService from '../../services/NoticeService';
-import db from '../../utils/db';
 
 /**
  *
@@ -11,11 +10,7 @@ import db from '../../utils/db';
  * @param {*} response
  */
 const newReaction = async (request, response) => {
-  const {
-    message,
-    conversationCid,
-    reaction: newReaction,
-  } = EventWrapper.getParams(request.body);
+  const {  message,  conversationCid,  reaction:incomingReaction } = EventWrapper.getParams(request.body);
 
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
@@ -26,21 +21,22 @@ const newReaction = async (request, response) => {
     reaction => reaction.type === 'read',
   );
 
-  console.log('TYPE: ', newReaction.type)
+  console.log('TYPE: ', incomingReaction.type)
 
-  if (newReaction.type === 'read') {
-    console.log('USER ', fromUser.id)
+  if (incomingReaction.type === 'read') {
+    console.log('******************* USER ', fromUser.id)
     const notice = await NoticeService.getNoticeByOwner(fromUser);
-
-    let currentUnreadCount = await db.getPreviousValueForSequence(
-      `notice_${notice.id}`,
-    );
     
     const attributes = notice.get('attributes');
 
+    const filteredAttributes = attributes.filter(attr => attr !== conversationCid);
+    
+    console.log('***********');
+    console.log(filteredAttributes);
+
     notice.set('attributes', {
       ...attributes,
-      unreadMessageIds: attributes.unreadMessageIds.push(message.id) ,
+      unreadMessageIds: filteredAttributes
     });
   }
 
