@@ -3,11 +3,14 @@ import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 import Twilio from '../providers/TwilioProvider';
 import Stream from '../providers/StreamProvider';
-// Utils
-import MessagesUtil from '../utils/messages';
 // Constants
 import { ONBOARDING_ADMIN, MESSAGE } from '../constants/index';
 import UserService from './UserService';
+// Utils
+import MessagesUtil from '../utils/messages';
+
+// Load Environment Variables
+const { BENJI_PHONE_NUMBER } = process.env;
 
 export class ChatServiceError extends ExtendableError { }
 
@@ -243,7 +246,7 @@ const getConversationByCid = async (conversationCid) => {
  * @param {*} conversationCid 
  * @returns 
  */
- const existsConversationByCid = async (conversationCid) => {
+const existsConversationByCid = async (conversationCid) => {
   const filter = { cid: { $eq: conversationCid } };
   const sort = [{ last_message_at: -1 }];
   const options = { message_limit: 0, limit: 1, state: true };
@@ -252,7 +255,6 @@ const getConversationByCid = async (conversationCid) => {
     sort,
     options,
   );
-  
   return conversationsResponse;
 };
 
@@ -299,12 +301,12 @@ const deleteUser = async (userId) => {
  * @param {String} reactionType
  * @param {String} userId
  */
- const sendReactionToMessage = async (conversation, messageId, reactionType, userId) => {
+const sendReactionToMessage = async (conversation, messageId, reactionType, userId) => {
   try {
-    const reaction = await conversation.sendReaction(messageId, { 
-        type: reactionType,
-        user_id: userId,
-    }); 
+    const reaction = await conversation.sendReaction(messageId, {
+      type: reactionType,
+      user_id: userId,
+    });
 
     return reaction;
   } catch (error) {
@@ -312,6 +314,61 @@ const deleteUser = async (userId) => {
   }
 };
 
+
+/**
+ * Creates the waitlist conversation for the given user
+ * 
+ * @param {*} user 
+ */
+const createWaitlistConversation = async (user) => {
+
+  await UserService.connectUser(user);
+
+  const hasWaitListConversation = await existsConversationByCid(
+    `messaging:${user.id}_waitlist_conversation`,
+  );
+
+  if (!hasWaitListConversation.length) {
+    // TODO: Uncomment when the app (frontend) is ready to use it.
+    // await ChatService.createConversation(
+    //   user,
+    //   `${user.id}_invitation_conversation_${new Date().getTime()}`,
+    //   'invitation'
+    // );
+
+    // Retrieve the user with the phoneNumber
+    const userQuery = new Parse.Query(Parse.User);
+    userQuery.equalTo('phoneNumber', BENJI_PHONE_NUMBER);
+
+    const admin = await userQuery.first({ useMasterKey: true });
+
+    await createConversation(
+      user,
+      `${user.id}_waitlist_conversation`,
+      'messaging',
+      'Benji, Co-Founder',
+      [admin.id, user.id],
+    );
+    const conversation = await getConversationByCid(
+      `messaging:${user.id}_waitlist_conversation`,
+    );
+    if (conversation) {
+      const { waitlistMessages } = MessagesUtil;
+      await Promise.all(
+        waitlistMessages.map(message => {
+          const formattedMessage = MessagesUtil.getMessage(message, {
+            givenName: user.get('givenName'),
+          });
+          const newMessage = {
+            text: formattedMessage,
+            user_id: admin.id,
+          };
+          return createMessage(newMessage, conversation);
+        }),
+      );
+    }
+  }
+};
 
 export default {
   createConversation,
@@ -326,5 +383,6 @@ export default {
   getConversationByCid,
   sendReactionToMessage,
   existsConversationByCid,
-  deleteWaitlistConversation
+  deleteWaitlistConversation,
+  createWaitlistConversation
 };

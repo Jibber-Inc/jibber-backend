@@ -9,7 +9,7 @@ import NoticeService from '../../services/NoticeService';
  * @param {*} request
  * @param {*} response
  */
-const newReaction = async (request, response) => {
+const newReaction = async (request) => {
   const {  message,  conversationCid,  reaction:incomingReaction } = EventWrapper.getParams(request.body);
 
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
@@ -20,8 +20,6 @@ const newReaction = async (request, response) => {
   const reactionsFiltered = latestReactions.filter(
     reaction => reaction.type === 'read',
   );
-
-  console.log('TYPE: ', incomingReaction.type)
 
   if (incomingReaction.type === 'read') {
     const notice = await NoticeService.getNoticeByOwner(fromUser);

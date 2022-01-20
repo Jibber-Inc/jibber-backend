@@ -25,7 +25,7 @@ class CreateConnectionError extends ExtendableError { }
 
 const createConnection = async request => {
   const { user } = request;
-  const { to, status } = request.params;
+  const { to, status, reservationId } = request.params;
 
   if (!to) {
     throw new CreateConnectionError('[t3K7GMD6] Expected to"');
@@ -58,6 +58,7 @@ const createConnection = async request => {
       user,
       toUser,
       status,
+      reservationId
     );
 
     // Notify the user about the connection request

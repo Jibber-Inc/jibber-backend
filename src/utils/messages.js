@@ -28,7 +28,7 @@ const messages = {
 };
 
 const waitlistMessages = [
-  "Hey 👋, welcome to Jibber!",
+  "Hey %givenName% 👋, welcome to Jibber!",
   "My name is Benji, and I'm one of the Co-Founders of Jibber.",
   "If you ever wanna chat, you can just message me here."
 ];

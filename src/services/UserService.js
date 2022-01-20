@@ -199,12 +199,12 @@ const resetReservations = async user => {
  */
 const createUserHandle = async (user, claimedPosition, maxQuePosition) => {
   // If the user has a quePosition already, use it. Else, get a new quePosition
-  const handlePositioN = claimedPosition / maxQuePosition;
+  const handlePosition = claimedPosition / maxQuePosition;
   // Generate the user handler
   const name = `${user.get('givenName')}${user
     .get('familyName')
     .substring(0, 1)}`;
-  const userHandle = `@${name.toLowerCase()}_${handlePositioN}`;
+  const userHandle = `@${name.toLowerCase()}_${handlePosition}`;
 
   return userHandle.replace('.', '');
 };
