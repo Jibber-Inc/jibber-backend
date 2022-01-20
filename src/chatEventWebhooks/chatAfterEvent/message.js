@@ -51,14 +51,16 @@ const newMessage = async (request, response) => {
       .filter(u => u !== user.id);
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
-    console.log('asdadads')
+    console.log('ACA ******')
     const notice = await NoticeService.getNoticeByOwner(fromUser);
     
     const attributes = notice.get('attributes');
-    console.log('attributesadad')
+    
+    console.log(' unread messages')
+
     notice.set('attributes', {
       ...attributes,
-      unreadMessageIds: attributes.unreadMessageIds.push(message.id) ,
+      unreadMessageIds: attributes.unreadMessageIds.push(conversationCid) ,
     });
 
     notice.save(null, { useMasterKey: true });
