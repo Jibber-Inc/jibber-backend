@@ -40,10 +40,10 @@ const setUserStatus = async (user, reservation = null) => {
   //   await QuePositionsService.update('unclaimedPosition', currentQuePosition);
   // }
 
-  if (user.get('status') && user.get('status') !== 'active') {
+  if (user.get('status') && user.get('status') !== UserStatus.USER_STATUS_INACTIVE) {
 
     if (reservation) {
-      user.set('status', 'inactive');
+      user.set('status', UserStatus.USER_STATUS_INACTIVE);
     } else {
       // TODO: Uncomment when we use again the currentQuePosition logic.
       // user.set('quePosition', currentQuePosition);
@@ -52,7 +52,7 @@ const setUserStatus = async (user, reservation = null) => {
       // } else {
       //   user.set('status', 'waitlist');
       // }
-      user.set('status', 'waitlist');
+      user.set('status', UserStatus.USER_STATUS_WAITLIST);
     }
   }
 };
@@ -100,13 +100,13 @@ const finalizeUserOnboarding = async request => {
     }
 
     if (reservationId) {
-      user.set('status', 'inactive');
+      user.set('status', UserStatus.USER_STATUS_INACTIVE);
       await ReservationService.handleReservation(reservationId, user);
     } else if (passId) {
-      user.set('status', 'inactive');
+      user.set('status', UserStatus.USER_STATUS_INACTIVE);
       await PassService.handlePass(passId, user);
     } else {
-      user.set('status', 'waitlist');
+      user.set('status', UserStatus.USER_STATUS_WAITLIST);
     }
 
     const noticeData = {
