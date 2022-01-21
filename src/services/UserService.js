@@ -280,12 +280,19 @@ const connectUser = async user => {
  *
  * @param {ParseUser} user
  */
- const disconnectUser = async () => {
+const disconnectUser = async () => {
   await Stream.client.disconnectUser();
 };
 
+/**
+ * Creates/updates the a Stream user server-side
+ * 
+ * @param {*} user 
+ * @returns 
+ */
 const upsertUser = async user => {
-  await Stream.client.upsertUser(user);
+  const newUser = await Stream.client.upsertUser(user);
+  return newUser;
 };
 
 export default {

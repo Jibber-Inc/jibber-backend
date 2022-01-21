@@ -61,9 +61,9 @@ const setUserStatus = async (user, reservation = null) => {
 const createInitialConversations = async (user, status) => {
   // At this point, if the user hasn't 'active' status, he/she is in the waitlist
   // So default chat channels won't be created for the user yet.
-  
+
   // Here we create the user in Stream
-  const createdUser = await UserService.upsertUser({id: user.id});
+  const createdUser = await UserService.upsertUser({ id: user.id });
 
   switch (status) {
     case UserStatus.USER_STATUS_ACTIVE:
@@ -100,7 +100,7 @@ const finalizeUserOnboarding = async request => {
     if (!user.get('givenName') && !user.get('familyName')) {
       throw new FinalizeUserOnboardingError('User givenName and familyName not set. Initial conversations not created.');
     }
-   
+
     if (reservationId) {
       user.set('status', 'inactive');
       await ReservationService.handleReservation(reservationId, user);
@@ -110,7 +110,7 @@ const finalizeUserOnboarding = async request => {
     } else {
       user.set('status', 'waitlist');
     }
-   
+
     const noticeData = {
       type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
       body: 'You have 0 unread messages',
@@ -119,11 +119,11 @@ const finalizeUserOnboarding = async request => {
       },
       priority: 1,
       user
-    }; 
-  
+    };
+
     // Create the Notice object
     await NoticeService.createNotice(noticeData);
-  
+
     let updatedUser;
     let currentUserStatus = user.get('status');
     switch (currentUserStatus) {
@@ -143,7 +143,7 @@ const finalizeUserOnboarding = async request => {
       default:
         throw new FinalizeUserOnboardingError('');
     }
- 
+
     return updatedUser;
   } catch (error) {
     if (error instanceof ReservationServiceError) {
