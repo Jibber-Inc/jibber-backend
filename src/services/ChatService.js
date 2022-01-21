@@ -3,11 +3,11 @@ import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 import Twilio from '../providers/TwilioProvider';
 import Stream from '../providers/StreamProvider';
-// Utils
-import MessagesUtil from '../utils/messages';
 // Constants
 import { ONBOARDING_ADMIN, MESSAGE } from '../constants/index';
 import UserService from './UserService';
+// Utils
+import MessagesUtil from '../utils/messages';
 
 // Load Environment Variables
 const { BENJI_PHONE_NUMBER } = process.env;
@@ -215,8 +215,6 @@ const createInitialConversations = async user => {
           givenName: user.get('givenName'),
         },
       );
-
-      await Stream.client.disconnectUser();
     }
   }
 };
@@ -255,7 +253,6 @@ const existsConversationByCid = async (conversationCid) => {
     sort,
     options,
   );
-
   return conversationsResponse;
 };
 
@@ -279,6 +276,20 @@ const deleteUser = async (userId) => {
     mark_messages_deleted: false,
   });
   return deletedUser;
+};
+
+/**
+ * Deletes an user in Stream
+ * 
+ * @param {*} userId 
+ * @returns 
+ */
+ const deleteWaitlistConversation = async (userId) => {
+  const conversationCid = `messaging:${userId}_waitlist_conversation`;
+  const conversation = await getConversationByCid(conversationCid)
+  const deletedConversation = await conversation.delete();
+
+  return deletedConversation;
 };
 
 /**
@@ -309,8 +320,6 @@ const sendReactionToMessage = async (conversation, messageId, reactionType, user
  */
 const createWaitlistConversation = async (user) => {
 
-  await UserService.connectUser(user);
-
   const hasWaitListConversation = await existsConversationByCid(
     `messaging:${user.id}_waitlist_conversation`,
   );
@@ -339,8 +348,10 @@ const createWaitlistConversation = async (user) => {
     const conversation = await getConversationByCid(
       `messaging:${user.id}_waitlist_conversation`,
     );
+
     if (conversation) {
       const { waitlistMessages } = MessagesUtil;
+
       await Promise.all(
         waitlistMessages.map(message => {
           const formattedMessage = MessagesUtil.getMessage(message, {
@@ -348,8 +359,8 @@ const createWaitlistConversation = async (user) => {
           });
           const newMessage = {
             text: formattedMessage,
-            user_id: admin.id,
-          };
+            user_id: admin.id
+          };  
           return createMessage(newMessage, conversation);
         }),
       );
@@ -370,5 +381,6 @@ export default {
   getConversationByCid,
   sendReactionToMessage,
   existsConversationByCid,
+  deleteWaitlistConversation,
   createWaitlistConversation
 };

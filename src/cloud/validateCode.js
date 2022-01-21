@@ -6,12 +6,13 @@ import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
 import ReservationService from '../services/ReservationService';
+
 // import QuePositionsService from '../services/QuePositionsService';
 // Utils
 import testUser from '../utils/testUser';
 // import db from '../utils/db';
 
-class ValidateCodeError extends ExtendableError { }
+class ValidateCodeError extends ExtendableError {}
 
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
@@ -49,7 +50,7 @@ const validateCode = async request => {
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
   const user = await userQuery.first({ useMasterKey: true });
-
+  
   if (!(user instanceof Parse.User)) {
     throw new ValidateCodeError('[zIslmc6c] User not found');
   }

@@ -229,7 +229,6 @@ const setActiveStatus = async user => {
     user.set('handle', handle);
     user.set('status', UserStatus.USER_STATUS_ACTIVE);
 
-    await user.save(null, { useMasterKey: true });
     await QuePositionsService.update('claimedPosition', claimedPosition);
   }
 
@@ -265,7 +264,7 @@ const createUserPreference = async (fromUser, toUser) => {
  * @param {ParseUser} user
  */
 const connectUser = async user => {
-  await Stream.client.disconnectUser();
+  // await Stream.client.disconnectUser();
   const result = await Stream.client.connectUser(
     {
       id: user.id,
@@ -276,8 +275,23 @@ const connectUser = async user => {
   return result;
 };
 
+/**
+ *
+ * @param {ParseUser} user
+ */
+const disconnectUser = async () => {
+  await Stream.client.disconnectUser();
+};
+
+/**
+ * Creates/updates the a Stream user server-side
+ * 
+ * @param {*} user 
+ * @returns 
+ */
 const upsertUser = async user => {
-  await Stream.client.upsertUser(user);
+  const newUser = await Stream.client.upsertUser(user);
+  return newUser;
 };
 
 export default {
@@ -292,5 +306,6 @@ export default {
   setActiveStatus,
   createUserPreference,
   connectUser,
-  upsertUser
+  upsertUser,
+  disconnectUser
 };

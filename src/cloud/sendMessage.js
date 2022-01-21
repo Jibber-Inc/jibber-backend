@@ -46,7 +46,8 @@ const sendMessage = async request => {
       message,
       conversation,
     );
-    Stream.client.disconnectUser();
+
+    await UserService.disconnectUser();
 
     return messageCreated;
   } catch (error) {

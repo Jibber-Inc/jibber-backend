@@ -69,6 +69,7 @@ const sendCode = async request => {
       status = result.status;
     }
     if (!user) {
+      // CREATE USER IN PARSE
       user = await UserService.createUser(e164Number, installationId);
       user.set('status', 'needsVerification');
     }

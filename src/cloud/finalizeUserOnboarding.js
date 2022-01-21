@@ -8,13 +8,14 @@ import UserStatus from '../constants/userStatus';
 import ChatService from '../services/ChatService';
 import PassService from '../services/PassService';
 import ReservationService, { ReservationServiceError } from '../services/ReservationService';
+import NoticeService from '../services/NoticeService';
+// Notifications
+import { NOTIFICATION_TYPES } from '../constants';
 
 // Load Environment Variables
 const { CREATE_WELCOME_CONVERSATION } = process.env;
 
 class FinalizeUserOnboardingError extends ExtendableError { }
-
-
 
 // Users that come with a reservation has full access
 // Users without a reservation are placed in a queue.
@@ -62,7 +63,7 @@ const createInitialConversations = async (user, status) => {
   // So default chat channels won't be created for the user yet.
 
   // Here we create the user in Stream
-  await UserService.connectUser(user);
+  const createdUser = await UserService.upsertUser({ id: user.id });
 
   switch (status) {
     case UserStatus.USER_STATUS_ACTIVE:
@@ -78,6 +79,7 @@ const createInitialConversations = async (user, status) => {
     default:
       break;
   }
+  return createdUser
 };
 
 /**
@@ -107,7 +109,19 @@ const finalizeUserOnboarding = async request => {
       user.set('status', 'waitlist');
     }
 
-    let updatedUser;
+    const noticeData = {
+      type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
+      body: 'You have 0 unread messages',
+      attributes: {
+        unreadMessageIds: []
+      },
+      priority: 1,
+      user
+    };
+
+    // Create the Notice object
+    await NoticeService.createNotice(noticeData);
+
     let currentUserStatus = user.get('status');
     switch (currentUserStatus) {
       case UserStatus.USER_STATUS_ACTIVE:
@@ -116,8 +130,8 @@ const finalizeUserOnboarding = async request => {
         break;
 
       case UserStatus.USER_STATUS_INACTIVE:
-        updatedUser = await UserService.setActiveStatus(user);
-        currentUserStatus = updatedUser.get('status');
+        await UserService.setActiveStatus(user);
+        currentUserStatus = user.get('status');
         await createInitialConversations(user, currentUserStatus);
         break;
 
@@ -125,7 +139,9 @@ const finalizeUserOnboarding = async request => {
         throw new FinalizeUserOnboardingError('');
     }
 
-    return updatedUser;
+    user.save(null, { useMasterKey: true });
+
+    return user;
   } catch (error) {
     if (error instanceof ReservationServiceError) {
       setUserStatus(user);
