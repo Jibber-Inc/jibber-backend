@@ -79,8 +79,6 @@ const createInitialConversations = async (user, status) => {
     default:
       break;
   }
-
-  console.log('BEFORE RETURN IN INITIAL CONV *********', createdUser)
   return createdUser
 };
 
@@ -124,19 +122,16 @@ const finalizeUserOnboarding = async request => {
     // Create the Notice object
     await NoticeService.createNotice(noticeData);
 
-    let updatedUser;
     let currentUserStatus = user.get('status');
     switch (currentUserStatus) {
       case UserStatus.USER_STATUS_ACTIVE:
       case UserStatus.USER_STATUS_WAITLIST:
-        console.log('BEFORE CREATE INITIAL CONVERSATION *********')
-        updatedUser = await createInitialConversations(user, currentUserStatus);
-        console.log('AFTER CREATE INITIAL  *********', updatedUser)
+        await createInitialConversations(user, currentUserStatus);
         break;
 
       case UserStatus.USER_STATUS_INACTIVE:
-        updatedUser = await UserService.setActiveStatus(user);
-        currentUserStatus = updatedUser.get('status');
+        await UserService.setActiveStatus(user);
+        currentUserStatus = user.get('status');
         await createInitialConversations(user, currentUserStatus);
         break;
 
@@ -144,7 +139,9 @@ const finalizeUserOnboarding = async request => {
         throw new FinalizeUserOnboardingError('');
     }
 
-    return updatedUser;
+    user.save(null, { useMasterKey: true });
+
+    return user;
   } catch (error) {
     if (error instanceof ReservationServiceError) {
       setUserStatus(user);

@@ -229,7 +229,6 @@ const setActiveStatus = async user => {
     user.set('handle', handle);
     user.set('status', UserStatus.USER_STATUS_ACTIVE);
 
-    await user.save(null, { useMasterKey: true });
     await QuePositionsService.update('claimedPosition', claimedPosition);
   }
 

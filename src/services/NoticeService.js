@@ -2,7 +2,7 @@ import ExtendableError from 'extendable-error-class';
 import { NOTIFICATION_TYPES } from '../constants';
 import Parse from '../providers/ParseProvider';
 
-class NoticeServiceError extends ExtendableError {}
+class NoticeServiceError extends ExtendableError { }
 
 /**
  * Creates a Notice object with the given data
@@ -10,7 +10,7 @@ class NoticeServiceError extends ExtendableError {}
  * @param {*} data
  * @returns
  */
-const createNotice = data => {
+const createNotice = async data => {
   const { type, body, attributes, priority, user } = data;
 
   const notice = new Parse.Object('Notice');
@@ -22,7 +22,7 @@ const createNotice = data => {
   notice.setACL(new Parse.ACL(user));
   notice.set('owner', user);
 
-  notice.save(null, { useMasterKey: true });
+  await notice.save(null, { useMasterKey: true });
   return notice;
 };
 
