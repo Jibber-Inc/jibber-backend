@@ -61,9 +61,9 @@ const setUserStatus = async (user, reservation = null) => {
 const createInitialConversations = async (user, status) => {
   // At this point, if the user hasn't 'active' status, he/she is in the waitlist
   // So default chat channels won't be created for the user yet.
-
+  
   // Here we create the user in Stream
-  await UserService.connectUser(user);
+  const createdUser = await UserService.upsertUser({id: user.id});
 
   switch (status) {
     case UserStatus.USER_STATUS_ACTIVE:
@@ -79,6 +79,9 @@ const createInitialConversations = async (user, status) => {
     default:
       break;
   }
+
+  console.log('BEFORE RETURN IN INITIAL CONV *********', createdUser)
+  return createdUser
 };
 
 /**
@@ -97,7 +100,7 @@ const finalizeUserOnboarding = async request => {
     if (!user.get('givenName') && !user.get('familyName')) {
       throw new FinalizeUserOnboardingError('User givenName and familyName not set. Initial conversations not created.');
     }
-
+   
     if (reservationId) {
       user.set('status', 'inactive');
       await ReservationService.handleReservation(reservationId, user);
@@ -107,7 +110,7 @@ const finalizeUserOnboarding = async request => {
     } else {
       user.set('status', 'waitlist');
     }
-
+   
     const noticeData = {
       type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
       body: 'You have 0 unread messages',
@@ -119,14 +122,16 @@ const finalizeUserOnboarding = async request => {
     }; 
   
     // Create the Notice object
-    await NoticeService.createNotice(noticeData); 
-
+    await NoticeService.createNotice(noticeData);
+  
     let updatedUser;
     let currentUserStatus = user.get('status');
     switch (currentUserStatus) {
       case UserStatus.USER_STATUS_ACTIVE:
       case UserStatus.USER_STATUS_WAITLIST:
-        await createInitialConversations(user, currentUserStatus);
+        console.log('BEFORE CREATE INITIAL CONVERSATION *********')
+        updatedUser = await createInitialConversations(user, currentUserStatus);
+        console.log('AFTER CREATE INITIAL  *********', updatedUser)
         break;
 
       case UserStatus.USER_STATUS_INACTIVE:
@@ -138,7 +143,7 @@ const finalizeUserOnboarding = async request => {
       default:
         throw new FinalizeUserOnboardingError('');
     }
-
+ 
     return updatedUser;
   } catch (error) {
     if (error instanceof ReservationServiceError) {

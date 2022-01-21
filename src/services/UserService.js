@@ -265,7 +265,7 @@ const createUserPreference = async (fromUser, toUser) => {
  * @param {ParseUser} user
  */
 const connectUser = async user => {
-  await Stream.client.disconnectUser();
+  // await Stream.client.disconnectUser();
   const result = await Stream.client.connectUser(
     {
       id: user.id,
@@ -274,6 +274,14 @@ const connectUser = async user => {
     createChatTokenService(user.id),
   );
   return result;
+};
+
+/**
+ *
+ * @param {ParseUser} user
+ */
+ const disconnectUser = async () => {
+  await Stream.client.disconnectUser();
 };
 
 const upsertUser = async user => {
@@ -292,5 +300,6 @@ export default {
   setActiveStatus,
   createUserPreference,
   connectUser,
-  upsertUser
+  upsertUser,
+  disconnectUser
 };

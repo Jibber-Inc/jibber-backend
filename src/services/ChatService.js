@@ -215,8 +215,6 @@ const createInitialConversations = async user => {
           givenName: user.get('givenName'),
         },
       );
-
-      await Stream.client.disconnectUser();
     }
   }
 };
@@ -322,8 +320,6 @@ const sendReactionToMessage = async (conversation, messageId, reactionType, user
  */
 const createWaitlistConversation = async (user) => {
 
-  await UserService.connectUser(user);
-
   const hasWaitListConversation = await existsConversationByCid(
     `messaging:${user.id}_waitlist_conversation`,
   );
@@ -352,8 +348,10 @@ const createWaitlistConversation = async (user) => {
     const conversation = await getConversationByCid(
       `messaging:${user.id}_waitlist_conversation`,
     );
+
     if (conversation) {
       const { waitlistMessages } = MessagesUtil;
+
       await Promise.all(
         waitlistMessages.map(message => {
           const formattedMessage = MessagesUtil.getMessage(message, {
@@ -361,8 +359,8 @@ const createWaitlistConversation = async (user) => {
           });
           const newMessage = {
             text: formattedMessage,
-            user_id: admin.id,
-          };
+            user_id: admin.id
+          };  
           return createMessage(newMessage, conversation);
         }),
       );
