@@ -7,6 +7,9 @@ import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
 import ReservationService from '../services/ReservationService';
 
+// Constants
+import UserStatus from '../constants/userStatus';
+
 // import QuePositionsService from '../services/QuePositionsService';
 // Utils
 import testUser from '../utils/testUser';
@@ -74,8 +77,8 @@ const validateCode = async request => {
       }
 
       user.set('smsVerificationStatus', status);
-      user.set('status', 'inactive');
-      
+      user.set('status', UserStatus.USER_STATUS_INACTIVE);
+
       await user.save(null, { useMasterKey: true });
 
       setReservations(user);
