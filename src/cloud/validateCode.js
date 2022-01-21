@@ -74,6 +74,8 @@ const validateCode = async request => {
       }
 
       user.set('smsVerificationStatus', status);
+      user.set('status', 'inactive');
+      
       await user.save(null, { useMasterKey: true });
 
       setReservations(user);
