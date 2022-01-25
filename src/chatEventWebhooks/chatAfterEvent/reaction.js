@@ -17,7 +17,7 @@ const newReaction = async (request) => {
 
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
   console.info('************************')
-  console.info('**********FROM USER**************')
+  console.info('**********FROM USER**************', fromUser)
   if (!fromUser) throw new Error('User not found!');
 
   const latestReactions = message.latest_reactions;
