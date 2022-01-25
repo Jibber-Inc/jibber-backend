@@ -13,6 +13,7 @@ const added = async (request, response) => {
     conversationId,
     user,
   } = EventWrapper.getParams(request.body);
+
   try {
     const conversation = await ChatService.getConversationById(conversationId);
     const fullName = UserUtils.getFullName(user);
@@ -25,7 +26,9 @@ const added = async (request, response) => {
         context: 'casual',
       })
     };
+
     const messageCreated = await ChatService.createMessage(message, conversation);
+
     return response.status(200).json(messageCreated);
   } catch (error) {
     console.warn('Error - member.added', error);

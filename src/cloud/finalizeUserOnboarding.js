@@ -102,7 +102,9 @@ const finalizeUserOnboarding = async request => {
     if (reservationId) {
       user.set('status', UserStatus.USER_STATUS_INACTIVE);
       await ReservationService.handleReservation(reservationId, user);
+     
     } else if (passId) {
+    
       user.set('status', UserStatus.USER_STATUS_INACTIVE);
       await PassService.handlePass(passId, user);
     } else {
@@ -130,6 +132,7 @@ const finalizeUserOnboarding = async request => {
         break;
 
       case UserStatus.USER_STATUS_INACTIVE:
+
         await UserService.setActiveStatus(user);
         currentUserStatus = user.get('status');
         await createInitialConversations(user, currentUserStatus);

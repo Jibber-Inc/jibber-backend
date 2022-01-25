@@ -3,6 +3,7 @@ import UserUtils from '../../utils/userData';
 import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
 import NoticeService from '../../services/NoticeService';
+import { NOTIFICATION_TYPES } from '../../constants';
 /* import {
   NOTIFICATION_TYPES,
 } from '../../constants'; */
@@ -49,19 +50,18 @@ const newMessage = async (request, response) => {
     const usersIdentities = members
       .map(m => m.user_id)
       .filter(u => u !== user.id);
-
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
-
-    const notice = await NoticeService.getNoticeByOwner(fromUser);
+    const notice = await NoticeService.getNoticeByOwner(fromUser, NOTIFICATION_TYPES.UNREAD_MESSAGES);
     
-    const attributes = notice.get('attributes');
+    if(notice){
+      const attributes = notice.get('attributes');
 
-    attributes.unreadMessageIds.push(message.id);
-
-    notice.set('attributes', attributes);
-
-    notice.save(null, { useMasterKey: true });
-
+      attributes.unreadMessageIds.push(message.id);
+  
+      notice.set('attributes', attributes);
+      notice.save(null, { useMasterKey: true });
+    }
+    
     // Set the data for the alert message push notification
     const fullName = UserUtils.getFullName(fromUser);
 

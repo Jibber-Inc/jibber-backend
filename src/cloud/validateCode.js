@@ -90,6 +90,7 @@ const validateCode = async request => {
     );
     // If no session token present login the user.
     if (!sessionToken) {
+
       const logged = await Parse.User.logIn(
         user.getUsername(),
         generatePassword(user.get('hashcode')),
