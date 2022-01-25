@@ -20,6 +20,8 @@ class ValidateCodeError extends ExtendableError {}
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
   if (!hasReservations) {
+    console.info('*****************************');
+        console.info('CREATE RESERVATION');
     // creates 3 reservations for the new user.
     // TODO: set this number as an app configuration.
     await ReservationService.createReservations(user, 3);
@@ -29,6 +31,9 @@ const setReservations = async user => {
 const validateCode = async request => {
   const { params, installationId } = request;
   const { phoneNumber, authCode } = params;
+
+  console.info('*****************************');
+  console.info('ACCESS TO VALIDATE CODE');
 
   // Phone number is required in request body
   if (!phoneNumber) {
@@ -64,6 +69,9 @@ const validateCode = async request => {
       if (testUser.isTestUser(phoneNumber)) {
         status = testUser.validate(authCode);
       } else {
+        console.info('*****************************');
+        console.info('TWO FA SERVICE');
+      
         const result = await TwoFAService.verifyCode(
           user.get('phoneNumber'),
           authCode,
@@ -79,17 +87,23 @@ const validateCode = async request => {
       user.set('smsVerificationStatus', status);
       user.set('status', UserStatus.USER_STATUS_INACTIVE);
 
+      console.info('*****************************');
+      console.info('SAVING USER');
       await user.save(null, { useMasterKey: true });
 
       setReservations(user);
     }
 
+    console.info('*****************************');
+    console.info('GETTING SESSION TOKEN');
     const sessionToken = await UserService.getLastSessionToken(
       user,
       installationId,
     );
     // If no session token present login the user.
     if (!sessionToken) {
+      console.info('*****************************');
+      console.info('LOGIN USER');
       const logged = await Parse.User.logIn(
         user.getUsername(),
         generatePassword(user.get('hashcode')),
