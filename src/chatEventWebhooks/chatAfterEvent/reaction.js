@@ -10,10 +10,13 @@ import NoticeService from '../../services/NoticeService';
  * @param {*} response
  */
 const newReaction = async (request) => {
+  console.info('************************')
+  console.info('**********NEW REACTION*************')
   const {  message,  conversationCid,  reaction:incomingReaction } = EventWrapper.getParams(request.body);
 
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
-
+  console.info('************************')
+  console.info('**********FROM USER**************')
   if (!fromUser) throw new Error('User not found!');
 
   const latestReactions = message.latest_reactions;
@@ -21,20 +24,29 @@ const newReaction = async (request) => {
     reaction => reaction.type === 'read',
   );
 
+  console.info('************************')
+    console.info('**********LATEST REACTIONS**************')
   if (incomingReaction.type === 'read') {
+    console.info('************************')
+    console.info('**********GETTING NOTICE **************')
     const notice = await NoticeService.getNoticeByOwner(fromUser);
     const attributes = notice.get('attributes');
+    console.info('************************')
+    console.info('**********SETTING ATTRS**************')
     const filteredAttributes = attributes.unreadMessageIds.filter(messageId => messageId !== message.id);
 
     notice.set('attributes', {
       ...attributes,
       unreadMessageIds: filteredAttributes
     });
-
+    console.info('************************')
+    console.info('**********NOTICE SAVE**************')
     notice.save(null, { useMasterKey: true });
   }
 
   if (reactionsFiltered.length && reactionsFiltered[0].user_id) {
+    console.info('************************')
+    console.info('**********IF**************')
     const toUser = await new Parse.Query(Parse.User).get(
       reactionsFiltered[0].user_id,
     );
@@ -54,8 +66,11 @@ const newReaction = async (request) => {
       threadId: conversationCid,
       author: fromUser.id,
     };
-
+    console.info('************************')
+    console.info('**********PUSH NOTIFICATION**************')
     await PushService.sendPushNotificationToUsers(data, [fromUser]);
+    console.info('************************')
+    console.info('**********AFTER PUSH NOTIF**************')
   }
 };
 

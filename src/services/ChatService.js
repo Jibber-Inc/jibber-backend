@@ -181,7 +181,7 @@ const createInitialConversations = async user => {
   // If the desired role exists, add to conversation members the admin with that role
   // Get parse role
   console.info('*****************************');
-  console.info('ONBOARDING ROLE');
+  console.info('ONRBoarding');
   const onboardingRole = await new Parse.Query(Parse.Role)
     .equalTo('name', ONBOARDING_ADMIN)
     .first();
@@ -189,15 +189,12 @@ const createInitialConversations = async user => {
   if (onboardingRole) {
     // If the role is defined, get the first user with it
     admin = await onboardingRole.get('users').query().first();
-    console.info('*****************************');
-    console.info('ADMIN');
     // If we have users with the desired role, add them to the members
     if (admin) {
       members.push(admin.id);
 
       await UserService.connectUser(admin);
-      console.info('*****************************');
-      console.info('CONNECTING USER');
+
       const welcomeConversationConfig = Stream.client.channel(
         'messaging',
         `welcome_${user.id}`,
@@ -210,8 +207,7 @@ const createInitialConversations = async user => {
       );
 
       const welcomeConversationInstance = await welcomeConversationConfig.create();
-      console.info('*****************************');
-      console.info('CREATE MESSAGES FOR CONVERSATION');
+
       // Send the welcome messages
       await createMessagesForConversation(
         welcomeConversationInstance,
