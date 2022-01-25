@@ -30,11 +30,17 @@ const newReaction = async (request) => {
     console.info('************************')
     console.info('**********GETTING NOTICE **************')
     const notice = await NoticeService.getNoticeByOwner(fromUser);
+    console.info('************************')
+    console.info('**********NOTICE **************')
+    console.info(notice)
     const attributes = notice.get('attributes');
     console.info('************************')
     console.info('**********SETTING ATTRS**************')
+    console.info(attributes)
+   
     const filteredAttributes = attributes.unreadMessageIds.filter(messageId => messageId !== message.id);
-
+    console.info('**********FILTERED ATTRS**************')
+    console.info(filteredAttributes)
     notice.set('attributes', {
       ...attributes,
       unreadMessageIds: filteredAttributes
