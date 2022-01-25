@@ -26,10 +26,10 @@ const createNotice = async data => {
   return notice;
 };
 
-const getNoticeByOwner = async user => {
+const getNoticeByOwner = async (user,type) => {
   const notice = await new Parse.Query('Notice')
     .equalTo('owner', user)
-    .equalTo('type', NOTIFICATION_TYPES.UNREAD_MESSAGES)
+    .equalTo('type', type)
     .first({ useMasterKey: true });
   return notice;
 };

@@ -3,6 +3,7 @@ import UserUtils from '../../utils/userData';
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import NoticeService from '../../services/NoticeService';
+import { NOTIFICATION_TYPES } from '../../constants';
 
 /**
  *
@@ -25,29 +26,28 @@ const newReaction = async (request) => {
   );
 
   console.info('************************')
-    console.info('**********LATEST REACTIONS**************')
+  console.info('**********LATEST REACTIONS**************')
+
   if (incomingReaction.type === 'read') {
-    console.info('************************')
-    console.info('**********GETTING NOTICE **************')
-    const notice = await NoticeService.getNoticeByOwner(fromUser);
-    console.info('************************')
-    console.info('**********NOTICE **************')
-    console.info(notice)
-    const attributes = notice.get('attributes');
-    console.info('************************')
-    console.info('**********SETTING ATTRS**************')
-    console.info(attributes)
+  
+    const notice = await NoticeService.getNoticeByOwner(fromUser, NOTIFICATION_TYPES.UNREAD_MESSAGES);
    
-    const filteredAttributes = attributes.unreadMessageIds.filter(messageId => messageId !== message.id);
-    console.info('**********FILTERED ATTRS**************')
-    console.info(filteredAttributes)
-    notice.set('attributes', {
-      ...attributes,
-      unreadMessageIds: filteredAttributes
-    });
-    console.info('************************')
-    console.info('**********NOTICE SAVE**************')
-    notice.save(null, { useMasterKey: true });
+    if(notice){
+      console.info('**********has notice type read**************')
+      const attributes = notice.get('attributes');
+   
+      const filteredAttributes = attributes.unreadMessageIds.filter(messageId => messageId !== message.id);
+  
+      notice.set('attributes', {
+        ...attributes,
+        unreadMessageIds: filteredAttributes
+      });
+      console.info('************************')
+      console.info('**********NOTICE SAVE**************')
+      notice.save(null, { useMasterKey: true });
+    }
+  }else{
+    console.info('**********NOPEEE**************')
   }
 
   if (reactionsFiltered.length && reactionsFiltered[0].user_id) {
