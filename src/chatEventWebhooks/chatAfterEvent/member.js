@@ -14,7 +14,6 @@ const added = async (request, response) => {
     user,
   } = EventWrapper.getParams(request.body);
 
-
   try {
     const conversation = await ChatService.getConversationById(conversationId);
     const fullName = UserUtils.getFullName(user);
