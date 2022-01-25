@@ -68,15 +68,11 @@ const createInitialConversations = async (user, status) => {
   switch (status) {
     case UserStatus.USER_STATUS_ACTIVE:
       if (CREATE_WELCOME_CONVERSATION) {
-        console.info('*****************************');
-        console.info('CREATE INITIAL CONVERSTAION');
         await ChatService.createInitialConversations(user);
       }
       break;
 
     case UserStatus.USER_STATUS_WAITLIST:
-      console.info('*****************************');
-        console.info('CREATE WAITLIST CONVESATION');
       await ChatService.createWaitlistConversation(user);
       break;
 
@@ -93,8 +89,7 @@ const createInitialConversations = async (user, status) => {
 const finalizeUserOnboarding = async request => {
   const { user, params } = request;
   const { reservationId, passId } = params;
-  console.info('*****************************');
-  console.info('FINALIZE USER ONBOARDING');
+
   try {
     if (!(user instanceof Parse.User)) {
       throw new FinalizeUserOnboardingError('User not found');
@@ -105,22 +100,14 @@ const finalizeUserOnboarding = async request => {
     }
 
     if (reservationId) {
-      console.info('*****************************');
-      console.info('RESERVATION ID');
       user.set('status', UserStatus.USER_STATUS_INACTIVE);
       await ReservationService.handleReservation(reservationId, user);
-      console.info('*****************************');
-      console.info('AFTER HANDLE RESERVATION');
+     
     } else if (passId) {
-      console.info('*****************************');
-      console.info('PASS ID');
+    
       user.set('status', UserStatus.USER_STATUS_INACTIVE);
       await PassService.handlePass(passId, user);
-      console.info('*****************************');
-        console.info('AFTER HANDLE PASS');
     } else {
-      console.info('*****************************');
-      console.info('WAITLIST STATUS');
       user.set('status', UserStatus.USER_STATUS_WAITLIST);
     }
 
@@ -134,8 +121,6 @@ const finalizeUserOnboarding = async request => {
       user
     };
 
-    console.info('*****************************');
-        console.info('CREATE NOTICE');
     // Create the Notice object
     await NoticeService.createNotice(noticeData);
 
@@ -143,14 +128,11 @@ const finalizeUserOnboarding = async request => {
     switch (currentUserStatus) {
       case UserStatus.USER_STATUS_ACTIVE:
       case UserStatus.USER_STATUS_WAITLIST:
-        console.info('*****************************');
-        console.info('WAITLIST STATUS');
         await createInitialConversations(user, currentUserStatus);
         break;
 
       case UserStatus.USER_STATUS_INACTIVE:
-        console.info('*****************************');
-        console.info('SET ACTIVE STATUS');
+
         await UserService.setActiveStatus(user);
         currentUserStatus = user.get('status');
         await createInitialConversations(user, currentUserStatus);

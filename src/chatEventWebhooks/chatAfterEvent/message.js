@@ -31,16 +31,13 @@ const getInterruptionLevel = (context, focusSatus) => {
  * @param {*} response
  */
 const newMessage = async (request, response) => {
-  console.info('************************')
-    console.info('**********NEW MESSAGE **************')
   const { conversationCid, message, user, members } = EventWrapper.getParams(
     request.body,
   );
 
   // TODO: Use attributes
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
-  console.info('************************')
-  console.info('**********FROM USER**************', fromUser)
+
   const connection = await new Parse.Query('Connection')
     .equalTo('channelSId', conversationCid)
     .find({ useMasterKey: true });
@@ -54,25 +51,15 @@ const newMessage = async (request, response) => {
       .map(m => m.user_id)
       .filter(u => u !== user.id);
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
-
-    console.info('************************')
-    console.info('**********GETTING NOTICE**************')
     const notice = await NoticeService.getNoticeByOwner(fromUser, NOTIFICATION_TYPES.UNREAD_MESSAGES);
     
     if(notice){
-      console.info('************************')
-      console.info('**********existee**************')
       const attributes = notice.get('attributes');
 
       attributes.unreadMessageIds.push(message.id);
   
       notice.set('attributes', attributes);
-      console.info('************************')
-      console.info('**********SAVING NOTICE**************')
       notice.save(null, { useMasterKey: true });
-    }else{
-      console.info('************************')
-      console.info('**********nope**************')
     }
     
     // Set the data for the alert message push notification
@@ -94,12 +81,10 @@ const newMessage = async (request, response) => {
       author: fromUser.id,
       connectionId,
     };
-    console.info('************************')
-    console.info('**********PUSH NOTIFICATION**************')
+
     // Send the push notification
     await PushService.sendPushNotificationToUsers(data, users);
-    console.info('************************')
-    console.info('**********FINISH PUSH NOT**************')
+
     return response.status(200).json();
   } catch (error) {
     return response.status(500).json({ error: error.message });

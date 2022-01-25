@@ -180,8 +180,6 @@ const createInitialConversations = async user => {
 
   // If the desired role exists, add to conversation members the admin with that role
   // Get parse role
-  console.info('*****************************');
-  console.info('ONRBoarding');
   const onboardingRole = await new Parse.Query(Parse.Role)
     .equalTo('name', ONBOARDING_ADMIN)
     .first();
@@ -325,8 +323,7 @@ const createWaitlistConversation = async (user) => {
   const hasWaitListConversation = await existsConversationByCid(
     `messaging:${user.id}_waitlist_conversation`,
   );
-  console.info('*****************************');
-  console.info('WAITLIST');
+
   if (!hasWaitListConversation.length) {
     // TODO: Uncomment when the app (frontend) is ready to use it.
     // await ChatService.createConversation(
@@ -340,8 +337,7 @@ const createWaitlistConversation = async (user) => {
     userQuery.equalTo('phoneNumber', BENJI_PHONE_NUMBER);
 
     const admin = await userQuery.first({ useMasterKey: true });
-    console.info('*****************************');
-    console.info('CREATE CONVERSTAION');
+
     await createConversation(
       user,
       `${user.id}_waitlist_conversation`,
@@ -355,8 +351,7 @@ const createWaitlistConversation = async (user) => {
 
     if (conversation) {
       const { waitlistMessages } = MessagesUtil;
-      console.info('*****************************');
-      console.info('CREATING MESSAGES');
+
       await Promise.all(
         waitlistMessages.map(message => {
           const formattedMessage = MessagesUtil.getMessage(message, {

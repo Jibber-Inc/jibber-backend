@@ -14,8 +14,7 @@ const added = async (request, response) => {
     user,
   } = EventWrapper.getParams(request.body);
 
-  console.info('************************')
-  console.info('**********MEMBER ADD **************')
+
   try {
     const conversation = await ChatService.getConversationById(conversationId);
     const fullName = UserUtils.getFullName(user);
@@ -28,11 +27,9 @@ const added = async (request, response) => {
         context: 'casual',
       })
     };
-    console.info('************************')
-    console.info('**********CREATE MESSAGE **************')
+
     const messageCreated = await ChatService.createMessage(message, conversation);
-    console.info('************************')
-    console.info('**********FINISH CREATING MESSAGE**************')
+
     return response.status(200).json(messageCreated);
   } catch (error) {
     console.warn('Error - member.added', error);
