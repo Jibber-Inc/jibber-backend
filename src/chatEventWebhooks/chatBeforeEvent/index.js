@@ -19,7 +19,18 @@ const chatBeforeEvent = async (request, response) => {
     message,
   };
 
+  console.log('************************************')
+  console.log('************CHAT BEFORE EVENT ******************')
+
   const eventLog = new Parse.Object('EventLog');
+
+  console.log('************************************')
+  console.log('************ EVENT LOG ******************')
+  console.log(eventLog)
+
+  console.log('************************************')
+  console.log('************ BODY  ******************')
+  console.log(request.body)
 
   try {
     
@@ -29,7 +40,11 @@ const chatBeforeEvent = async (request, response) => {
     eventLog.set('payload', request.body);
 
     await eventLog.save(null, { useMasterKey: true });
-
+    console.log('************************************')
+    console.log(handlers)
+    console.log('************ HANDLERS  ******************')
+    console.log(currentHandler)
+    console.log(eventType)
     return handlers[currentHandler][eventType](request, response);
   } catch (error) {
     const msg = `No handler found for ${type}`;
