@@ -34,7 +34,8 @@ const newMessage = async (request, response) => {
   const { conversationCid, message, user, members } = EventWrapper.getParams(
     request.body,
   );
-
+  console.log('**********************************')
+    console.log('********NEW MESSAGE*********')
   // TODO: Use attributes
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
@@ -82,8 +83,14 @@ const newMessage = async (request, response) => {
       connectionId,
     };
 
+    console.log('**********************************')
+    console.log('********BEFORE SEND NOTIFICATION*********', data)
+
     // Send the push notification
-    await PushService.sendPushNotificationToUsers(data, users);
+    const a = await PushService.sendPushNotificationToUsers(data, users);
+
+    console.log('**********************************')
+    console.log('******* AFTER PUSH NOTIFICATION *********', a)
 
     return response.status(200).json();
   } catch (error) {
