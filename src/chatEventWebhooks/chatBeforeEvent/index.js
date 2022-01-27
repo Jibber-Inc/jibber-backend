@@ -8,6 +8,7 @@ import message from './message';
  * @returns {Response}
  */
 const chatBeforeEvent = async (request, response) => {
+  console.log('***************AAAAAAAAA*******************')
   const { type } = request.body;
   const [currentHandler, eventType] = type && type.split('.');
 
