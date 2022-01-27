@@ -9,8 +9,12 @@ import message from './message';
  */
 const chatBeforeEvent = async (request, response) => {
   console.log('***************AAAAAAAAA*******************')
+  console.log(request.body)
   const { type } = request.body;
+  console.log(type)
   const [currentHandler, eventType] = type && type.split('.');
+  console.log('***************xxxxxxxxxxxxxx*******************')
+  console.log(currentHandler,'----', eventType)
 
   if (!currentHandler || !eventType) {
     return response.status(500).json({ error: 'Webhook type is missing.' });
