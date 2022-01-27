@@ -32,7 +32,6 @@ app.get('/', async (request, response) =>
 );
 
 // Stream Pre/Post Even Webhooks
-console.log('******* SERVER ******************')
 app.post('/stream/chatBeforeEvent', chatBeforeEvent);
 app.post('/stream/chatAfterEvent', chatAfterEvent);
 
