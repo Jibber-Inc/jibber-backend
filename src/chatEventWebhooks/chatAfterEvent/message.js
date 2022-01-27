@@ -4,9 +4,6 @@ import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
 import NoticeService from '../../services/NoticeService';
 import { NOTIFICATION_TYPES } from '../../constants';
-/* import {
-  NOTIFICATION_TYPES,
-} from '../../constants'; */
 
 /**
  * Given a context and a focus-status, returns an interruption-level
@@ -34,7 +31,7 @@ const newMessage = async (request, response) => {
   const { conversationCid, message, user, members } = EventWrapper.getParams(
     request.body,
   );
-
+ 
   // TODO: Use attributes
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
@@ -71,7 +68,7 @@ const newMessage = async (request, response) => {
       identifier: message.id + context,
       title: `🚨 ${fullName}`,
       body: message.text,
-      target: 'channel',
+      target: 'conversation',
       category: 'message.new',
       interruptionLevel: getInterruptionLevel(
         message.context,

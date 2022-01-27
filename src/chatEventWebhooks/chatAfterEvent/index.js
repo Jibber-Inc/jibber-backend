@@ -14,7 +14,11 @@ import EventWrapper from '../../utils/eventWrapper';
  * @returns {Response}
  */
 const chatAfterEvent = async (request, response) => {
+  console.log('*****************************************')
+  console.log('*************** CHAT AFTER EVENT*******************')
   const { type } = request.body;
+  console.log('*****************************************')
+  console.log('*************** TYPE *******************', type)
   const [currentHandler, eventType] = EventWrapper.getEventInfo(type);
 
   if (!currentHandler || !eventType) {
@@ -22,7 +26,8 @@ const chatAfterEvent = async (request, response) => {
       .status(500)
       .json({ error: `Webhook type is missing.Type: ${type}` });
   }
-
+  console.log('*****************************************')
+  console.log('*************** HANDLERS *******************')
   const handlers = {
     message,
     reaction,
@@ -38,9 +43,11 @@ const chatAfterEvent = async (request, response) => {
     eventLog.set('provider', 'Stream');
     eventLog.set('eventType', type);
     eventLog.set('payload', request.body);
-
+    console.log('*****************************************')
+    console.log('*************** EVENTOLOG SAVE *******************', type)
     await eventLog.save(null, { useMasterKey: true });
-
+    console.log('*****************************************')
+     console.log('*************** RETURN *******************', type) 
     return handlers[currentHandler][eventType](request, response);
   } catch (error) {
     const msg = `No handler found for ${type}`;
