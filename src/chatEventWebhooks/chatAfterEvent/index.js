@@ -14,10 +14,7 @@ import EventWrapper from '../../utils/eventWrapper';
  * @returns {Response}
  */
 const chatAfterEvent = async (request, response) => {
-  console.log('BBBBBBBBBBBBBBBBBBBBBB')
-  console.log(request.body)
   const { type } = request.body;
-  console.log(type)
   const [currentHandler, eventType] = EventWrapper.getEventInfo(type);
 
   if (!currentHandler || !eventType) {
@@ -43,7 +40,7 @@ const chatAfterEvent = async (request, response) => {
     eventLog.set('payload', request.body);
 
     await eventLog.save(null, { useMasterKey: true });
-
+    console.log('GGGGGGGG', handlers[currentHandler][eventType])
     return handlers[currentHandler][eventType](request, response);
   } catch (error) {
     const msg = `No handler found for ${type}`;
