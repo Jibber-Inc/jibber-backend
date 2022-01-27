@@ -72,7 +72,7 @@ const newMessage = async (request, response) => {
       identifier: message.id + context,
       title: `🚨 ${fullName}`,
       body: message.text,
-      target: 'channel',
+      target: 'conversation',
       category: 'message.new',
       interruptionLevel: getInterruptionLevel(
         message.context,

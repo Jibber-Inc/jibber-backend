@@ -25,8 +25,8 @@ const chatBeforeEvent = async (request, response) => {
   const eventLog = new Parse.Object('EventLog');
 
   console.log('************************************')
-  console.log('************ EVENT LOG ******************')
-  console.log(eventLog)
+  console.log('************ EVENT LOG TYPE ******************')
+  console.log(type)
 
   console.log('************************************')
   console.log('************ BODY  ******************')
