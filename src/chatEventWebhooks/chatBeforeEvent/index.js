@@ -39,7 +39,7 @@ const chatBeforeEvent = async (request, response) => {
     eventLog.set('eventType', type);
     eventLog.set('payload', request.body);
 
-    await eventLog.save(null, { useMasterKey: true });
+    // await eventLog.save(null, { useMasterKey: true });
     console.log('************************************')
     console.log(handlers)
     console.log('************ HANDLERS  ******************')
