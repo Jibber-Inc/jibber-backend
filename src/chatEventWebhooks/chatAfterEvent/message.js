@@ -4,9 +4,6 @@ import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
 import NoticeService from '../../services/NoticeService';
 import { NOTIFICATION_TYPES } from '../../constants';
-/* import {
-  NOTIFICATION_TYPES,
-} from '../../constants'; */
 
 /**
  * Given a context and a focus-status, returns an interruption-level
@@ -34,8 +31,7 @@ const newMessage = async (request, response) => {
   const { conversationCid, message, user, members } = EventWrapper.getParams(
     request.body,
   );
-  console.log('**********************************')
-    console.log('********NEW MESSAGE*********')
+ 
   // TODO: Use attributes
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
@@ -83,14 +79,8 @@ const newMessage = async (request, response) => {
       connectionId,
     };
 
-    console.log('**********************************')
-    console.log('********BEFORE SEND NOTIFICATION*********', data)
-
     // Send the push notification
-    const a = await PushService.sendPushNotificationToUsers(data, users);
-
-    console.log('**********************************')
-    console.log('******* AFTER PUSH NOTIFICATION *********', a)
+    await PushService.sendPushNotificationToUsers(data, users);
 
     return response.status(200).json();
   } catch (error) {

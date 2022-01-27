@@ -7,7 +7,6 @@ import { createServer } from 'http';
 import api from './api';
 
 // Stream Webhooks
-import chatBeforeEvent from './chatEventWebhooks/chatBeforeEvent';
 import chatAfterEvent from './chatEventWebhooks/chatAfterEvent';
 
 // Load Environment Variables
@@ -32,7 +31,6 @@ app.get('/', async (request, response) =>
 );
 
 // Stream Pre/Post Even Webhooks
-// app.post('/stream/chatBeforeEvent', chatBeforeEvent);
 app.post('/stream/chatAfterEvent', chatAfterEvent);
 
 export default createServer(app);

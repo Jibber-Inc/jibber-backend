@@ -4,9 +4,8 @@
  * @param {Response} response
  * @returns {Response}
  */
-const chatBeforeEvent = async (request, response) => {
+const chatBeforeEvent = async () => {
   /*
-  
   TYPE IS UNDEFINED BUT WE DON'T HAVE 
   IMPLEMENTED THE MESSAGES HOOKS FOR CHAT BEFORE EVENT
 

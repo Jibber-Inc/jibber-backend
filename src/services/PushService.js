@@ -95,8 +95,6 @@ const prepareNotificationData = (data = {}) => {
  */
 const sendPushNotificationToUsers = async (data, users = []) => {
   const customData = prepareNotificationData(data);
-  console.log('**********************************')
-  console.log('********PREPARE NOTIFICATION*********', customData)
   return sendToUsers(customData, users);
 };
 

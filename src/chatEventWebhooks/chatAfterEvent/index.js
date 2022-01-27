@@ -40,7 +40,7 @@ const chatAfterEvent = async (request, response) => {
     eventLog.set('payload', request.body);
 
     await eventLog.save(null, { useMasterKey: true });
-    console.log('GGGGGGGG', handlers[currentHandler][eventType])
+   
     return handlers[currentHandler][eventType](request, response);
   } catch (error) {
     const msg = `No handler found for ${type}`;
