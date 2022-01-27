@@ -14,7 +14,10 @@ import EventWrapper from '../../utils/eventWrapper';
  * @returns {Response}
  */
 const chatAfterEvent = async (request, response) => {
+  console.log('BBBBBBBBBBBBBBBBBBBBBB')
+  console.log(request.body)
   const { type } = request.body;
+  console.log(type)
   const [currentHandler, eventType] = EventWrapper.getEventInfo(type);
 
   if (!currentHandler || !eventType) {

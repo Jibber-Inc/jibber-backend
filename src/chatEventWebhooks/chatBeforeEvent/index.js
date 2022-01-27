@@ -1,6 +1,3 @@
-import Parse from '../../providers/ParseProvider';
-import message from './message';
-
 /**
  *
  * @param {Request} request
@@ -8,54 +5,35 @@ import message from './message';
  * @returns {Response}
  */
 const chatBeforeEvent = async (request, response) => {
-  console.log('***************AAAAAAAAA*******************')
-  console.log(request.body)
-  const { type } = request.body;
-  console.log('type: ', type)
+  /*
+  
+  TYPE IS UNDEFINED BUT WE DON'T HAVE 
+  IMPLEMENTED THE MESSAGES HOOKS FOR CHAT BEFORE EVENT
+
+  */
+  // const { type } = request.body; //
+ 
   // const [currentHandler, eventType] = type && type.split('.');
  
- /* if (!currentHandler || !eventType) {
+  /* if (!currentHandler || !eventType) {
     return response.status(500).json({ error: 'Webhook type is missing.' });
   } */
 
-  const handlers = {
+  /* const handlers = {
     message,
-  };
+  }; */
 
-  console.log('************************************')
-  console.log(handlers)
-  console.log('************ HANDLERS  ******************')
-
-  console.log('************************************')
-  console.log('************CHAT BEFORE EVENT ******************')
-
-  const eventLog = new Parse.Object('EventLog');
-
-  console.log('************************************')
-  console.log('************ EVENT LOG TYPE ******************')
-  console.log(type)
-
-  console.log('************************************')
-  console.log('************ BODY  ******************')
-  console.log(request.body)
-
-  try {
-    
-    // Log Stream event in Parse
-    eventLog.set('provider', 'Stream');
-    eventLog.set('eventType', type);
-    eventLog.set('payload', request.body);
-
+  // const eventLog = new Parse.Object('EventLog');
+  // try {
     // await eventLog.save(null, { useMasterKey: true });
-   
-  
-   // return handlers[currentHandler][eventType](request, response);
-  } catch (error) {
-    const msg = `No handler found for ${type}`;
-    eventLog.set('error', msg);
-    await eventLog.save(null, { useMasterKey: true });
-    return response.status(500).json({ error: msg });
-  }
+
+  // return handlers[currentHandler][eventType](request, response);
+  // } catch (error) {
+  /*  const msg = `No handler found for ${type}`;
+      eventLog.set('error', msg);
+      await eventLog.save(null, { useMasterKey: true });
+      return response.status(500).json({ error: msg }); */
+   // }
 };
 
 export default chatBeforeEvent;
