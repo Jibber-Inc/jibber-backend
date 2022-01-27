@@ -32,7 +32,7 @@ app.get('/', async (request, response) =>
 );
 
 // Stream Pre/Post Even Webhooks
-app.post('/stream/chatBeforeEvent', chatBeforeEvent);
-app.post('/stream/chatAfterEvent', chatAfterEvent);
+// app.post('/stream/chatBeforeEvent', chatBeforeEvent);
+// app.post('/stream/chatAfterEvent', chatAfterEvent);
 
 export default createServer(app);
