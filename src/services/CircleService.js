@@ -15,7 +15,7 @@ const createCircle = async user => {
   circle.set('invitedContacts', []);
   circle.setACL(new Parse.ACL(user));
   circle.set('owner', user);
-  circle.set('limit', 10);
+  circle.set('limit', 9);
 
   await circle.save(null, { useMasterKey: true });
   
