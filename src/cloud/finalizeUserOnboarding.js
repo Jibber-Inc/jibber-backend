@@ -11,6 +11,7 @@ import ReservationService, { ReservationServiceError } from '../services/Reserva
 import NoticeService from '../services/NoticeService';
 // Notifications
 import { NOTIFICATION_TYPES } from '../constants';
+import CircleService from '../services/CircleService';
 
 // Load Environment Variables
 const { CREATE_WELCOME_CONVERSATION } = process.env;
@@ -123,7 +124,9 @@ const finalizeUserOnboarding = async request => {
 
     // Create the Notice object
     await NoticeService.createNotice(noticeData);
-
+  
+    await CircleService.createCircle(user);
+  
     let currentUserStatus = user.get('status');
     switch (currentUserStatus) {
       case UserStatus.USER_STATUS_ACTIVE:
