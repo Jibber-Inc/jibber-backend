@@ -20,9 +20,9 @@ class ValidateCodeError extends ExtendableError {}
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
   if (!hasReservations) {
-    // creates 3 reservations for the new user.
+    // creates 9 reservations for the new user.
     // TODO: set this number as an app configuration.
-    await ReservationService.createReservations(user, 3);
+    await ReservationService.createReservations(user, 9);
   }
 };
 
