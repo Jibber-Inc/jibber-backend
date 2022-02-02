@@ -125,7 +125,7 @@ const finalizeUserOnboarding = async request => {
     // Create the Notice object
     await NoticeService.createNotice(noticeData);
   
-    await CircleService.createCircle(user);
+    // await CircleService.createCircle(user);
   
     let currentUserStatus = user.get('status');
     switch (currentUserStatus) {
