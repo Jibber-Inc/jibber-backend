@@ -11,10 +11,7 @@ import ReservationService, { ReservationServiceError } from '../services/Reserva
 import NoticeService from '../services/NoticeService';
 // Notifications
 import { NOTIFICATION_TYPES } from '../constants';
-import CircleService from '../services/CircleService';
-
-// Load Environment Variables
-const { CREATE_WELCOME_CONVERSATION } = process.env;
+// import CircleService from '../services/CircleService';
 
 class FinalizeUserOnboardingError extends ExtendableError { }
 
@@ -59,27 +56,10 @@ const setUserStatus = async (user, reservation = null) => {
 };
 
 
-const createInitialConversations = async (user, status) => {
-  // At this point, if the user hasn't 'active' status, he/she is in the waitlist
-  // So default chat channels won't be created for the user yet.
-
+const createInitialConversations = async (user) => {
   // Here we create the user in Stream
   const createdUser = await UserService.upsertUser({ id: user.id });
-
-  switch (status) {
-    case UserStatus.USER_STATUS_ACTIVE:
-      if (CREATE_WELCOME_CONVERSATION) {
-        await ChatService.createInitialConversations(user);
-      }
-      break;
-
-    case UserStatus.USER_STATUS_WAITLIST:
-      await ChatService.createWaitlistConversation(user);
-      break;
-
-    default:
-      break;
-  }
+  await ChatService.createWaitlistConversation(user);
   return createdUser
 };
 
@@ -103,9 +83,9 @@ const finalizeUserOnboarding = async request => {
     if (reservationId) {
       user.set('status', UserStatus.USER_STATUS_INACTIVE);
       await ReservationService.handleReservation(reservationId, user);
-     
+
     } else if (passId) {
-    
+
       user.set('status', UserStatus.USER_STATUS_INACTIVE);
       await PassService.handlePass(passId, user);
     } else {
@@ -124,21 +104,18 @@ const finalizeUserOnboarding = async request => {
 
     // Create the Notice object
     await NoticeService.createNotice(noticeData);
-  
+
+    // Hold on with this functionality
     // await CircleService.createCircle(user);
-  
-    let currentUserStatus = user.get('status');
+
+    const currentUserStatus = user.get('status');
     switch (currentUserStatus) {
-      case UserStatus.USER_STATUS_ACTIVE:
       case UserStatus.USER_STATUS_WAITLIST:
         await createInitialConversations(user, currentUserStatus);
         break;
 
       case UserStatus.USER_STATUS_INACTIVE:
-
         await UserService.setActiveStatus(user);
-        currentUserStatus = user.get('status');
-        await createInitialConversations(user, currentUserStatus);
         break;
 
       default:
