@@ -10,10 +10,10 @@ import UserService from '../services/UserService';
  * @param {Object} request
  */
 const sendMessage = async request => {
-  const { params, user } = request;
+  const { params } = request;
   const { ownerId, conversationId, message } = params;
 
-  if (!user || !ownerId) throw new Error('A logged user is required');
+  if (!ownerId) throw new Error('A logged user is required');
 
   if (!conversationId) throw new Error('A conversationId is required');
 
