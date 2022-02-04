@@ -8,12 +8,18 @@
  * @returns {Response}
  */
 const typeFormEvent = async (request, response) => {
-  console.log('*****************************************')
-  console.log('*************** BODY *******************')
-  console.log( request.body);
-  console.log('*****************************************')
-  console.log('*************** ANSWERS *******************')
-  console.log( request.body.form_response.answers);
+  console.log('***** ENTRO *****')
+  if('body' in response){
+    console.log('***** BODY *****')
+    const {form_response} = response.body;
+
+    if(form_response){
+      console.log('***** ANSWERS *****')
+      const {answers} = form_response;
+
+      console.log(answers[0]);
+    }
+  }
 };
 
 export default typeFormEvent;
