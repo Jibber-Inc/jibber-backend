@@ -1,5 +1,3 @@
-
-
 /**
  * Post-Event Webhooks fire after any action taken on a Chat Service.
  *
@@ -8,17 +6,14 @@
  * @returns {Response}
  */
 const typeFormEvent = async (request, response) => {
-  console.log('***** ENTRO *****')
-  if('body' in response){
-    console.log('***** BODY *****')
-    const {form_response} = response.body;
+  console.log('***** ENTRO *****');
 
-    if(form_response){
-      console.log('***** ANSWERS *****')
-      const {answers} = form_response;
+  const { form_response } = response.body;
+  if (form_response) {
+    console.log('***** ANSWERS *****');
+    const { answers } = form_response;
 
-      console.log(answers[0]);
-    }
+    console.log(answers[0]);
   }
 };
 
