@@ -6,20 +6,19 @@
  * @returns {Response}
  */
 const typeFormEvent = async (request, response) => {
-  console.log('********** ENTRO ***********');
-
-  console.log(request.body);
-  console.log('--------------------');
-
   const { form_response } = request.body;
-
-  console.log('***** XXXXXXXX *****');
-  console.log(form_response);
-
-  if(form_response && form_response.answers){
+  console.log('AAAA')
+  if (form_response && form_response.answers) {
     const { answers } = form_response;
+    console.log('BBBB')
+    if (answers) {
+      const phoneNumber = answers[2].phone_number;
+      const name = answers[0].text;
 
-    console.log('GGGG',answers[0])
+      const message = `${name} tap the link below to get access to the Jibber private alpha. https://testflight.apple.com/join/YnJTwvSL`
+      
+      console.log(message, phoneNumber);
+    }
   }
 };
 
