@@ -1,3 +1,5 @@
+import MessaginService from '../../services/MessagingService';
+
 /**
  * Post-Event Webhooks fire after any action taken on a Chat Service.
  *
@@ -7,17 +9,18 @@
  */
 const typeFormEvent = async (request, response) => {
   const { form_response } = request.body;
-  console.log('AAAA')
+  console.log('AAAA');
   if (form_response && form_response.answers) {
     const { answers } = form_response;
-    console.log('BBBB')
+    console.log('BBBB');
     if (answers) {
       const phoneNumber = answers[2].phone_number;
       const name = answers[0].text;
 
-      const message = `${name} tap the link below to get access to the Jibber private alpha. https://testflight.apple.com/join/YnJTwvSL`
-      
-      console.log(message, phoneNumber);
+      const message = `${name} tap the link below to get access to the Jibber private alpha. https://testflight.apple.com/join/YnJTwvSL`;
+      console.log('SENDING.......')
+      await MessaginService.createMessage(phoneNumber, message);
+      console.log('SENT');
     }
   }
 };

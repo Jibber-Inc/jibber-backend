@@ -17,7 +17,7 @@ const createMessage = async (phoneNumber, message) => {
   if (!message || typeof message !== 'string') {
     throw new MessagingServiceError('[ITLA8RgD] message is required');
   }
-
+  console.log('-------*****************')
   try {
     const messageResult = await new Twilio().client.messages.create({
       from: '+12012560616',
@@ -25,6 +25,8 @@ const createMessage = async (phoneNumber, message) => {
       body: message,
     });
     const { sid, status, errorCode, errorMessage } = messageResult;
+    console.log('-------*STATUUUSS***********', status)
+
     return { sid, status, errorCode, errorMessage };
   } catch (error) {
     throw new MessagingServiceError(error.message);
