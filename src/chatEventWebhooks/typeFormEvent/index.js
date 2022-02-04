@@ -12,8 +12,8 @@ const typeFormEvent = async (request, response) => {
   console.log('*************** BODY *******************')
   console.log( request.body);
   console.log('*****************************************')
-  console.log('*************** REQUEST *******************')
-  console.log( request);
+  console.log('*************** ANSWERS *******************')
+  console.log( request.body.answers);
 };
 
 export default typeFormEvent;
