@@ -7,7 +7,11 @@
  */
 const typeFormEvent = async (request, response) => {
   console.log('***** ENTRO *****');
-  
+
+  const { body } = response;
+
+  console.log('***** xxxxxxx *****');
+  console.log(body);
 };
 
 export default typeFormEvent;
