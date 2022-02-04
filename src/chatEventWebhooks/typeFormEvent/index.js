@@ -9,8 +9,11 @@
  */
 const typeFormEvent = async (request, response) => {
   console.log('*****************************************')
-  console.log('*************** TYPE FORM EVENT *******************')
+  console.log('*************** BODY *******************')
   console.log( request.body);
+  console.log('*****************************************')
+  console.log('*************** REQUEST *******************')
+  console.log( request);
 };
 
 export default typeFormEvent;
