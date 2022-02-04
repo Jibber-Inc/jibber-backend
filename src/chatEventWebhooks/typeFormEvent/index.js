@@ -13,7 +13,7 @@ const typeFormEvent = async (request, response) => {
   console.log( request.body);
   console.log('*****************************************')
   console.log('*************** ANSWERS *******************')
-  console.log( request.body.answers);
+  console.log( request.body.form_response.answers);
 };
 
 export default typeFormEvent;
