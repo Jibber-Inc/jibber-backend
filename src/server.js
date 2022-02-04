@@ -33,6 +33,6 @@ app.get('/', async (request, response) =>
 
 // Stream Pre/Post Even Webhooks
 app.post('/stream/chatAfterEvent', chatAfterEvent);
-app.post('https://joinjibber.com/webiste-lead-gen ', typeFormEvent);
+app.post('/typeForm/typeFormEvent', typeFormEvent);
 
 export default createServer(app);
