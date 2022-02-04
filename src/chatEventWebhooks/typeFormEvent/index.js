@@ -6,15 +6,13 @@
  * @returns {Response}
  */
 const typeFormEvent = async (request, response) => {
-  console.log('***** ENTRO *****');
-
-  console.log(response.body);
+  console.log('********** ENTRO ***********');
   console.log('--------------------');
 
-  const { body } = response;
+  const { form_request } = request.body;
 
-  console.log('***** xxxxxxx *****');
-  console.log(body);
+  console.log('***** XXXXXXXX *****');
+  console.log(form_request);
 };
 
 export default typeFormEvent;
