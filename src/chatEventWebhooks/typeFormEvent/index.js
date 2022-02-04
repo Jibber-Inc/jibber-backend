@@ -11,11 +11,16 @@ const typeFormEvent = async (request, response) => {
   console.log(request.body);
   console.log('--------------------');
 
-  const { form_request } = request.body;
-  const { formRequest } = request.body;
+  const { form_response } = request.body;
 
   console.log('***** XXXXXXXX *****');
-  console.log(form_request, formRequest);
+  console.log(form_response);
+
+  if(form_response && form_response.answers){
+    const { answers } = form_response;
+
+    console.log('GGGG',answers[0])
+  }
 };
 
 export default typeFormEvent;
