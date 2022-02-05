@@ -18,7 +18,7 @@ const typeFormEvent = async (request, response) => {
       const name = answers[0].text;
       const message = `${name} tap the link below to get access to the Jibber private alpha. https://testflight.apple.com/join/YnJTwvSL`;
     
-      await MessaginService.createMessage(phoneNumber, message);
+      // await MessaginService.createMessage(phoneNumber, message);
     }
   }
 };
