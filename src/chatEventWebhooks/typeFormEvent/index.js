@@ -9,15 +9,7 @@ import MessaginService from '../../services/MessagingService';
  */
 const typeFormEvent = async (request, response) => {
   const { form_response, event_type } = request.body;
-  
-  console.log('******** HEADER *****************')
-  console.log(request.headers['user-agent']);
-  console.log('*****************************')
-  console.log(request.headers);
-  console.log('*****************************')
-  console.log(request.body);
 
-  console.log('RESPONSE TYPE FORM EVENT ')
   if(request.headers['user-agent'] === 'Typeform Webhooks'){
     if (form_response && event_type && form_response.answers && event_type === 'form_response') {
       const { answers } = form_response;
@@ -30,15 +22,13 @@ const typeFormEvent = async (request, response) => {
         const phoneNumber = answers[2].phone_number;
         const name = answers[0].text;
         const message = `${name} tap the link below to get access to the Jibber private alpha. https://testflight.apple.com/join/YnJTwvSL`;
-        console.log('PHONE TO SENT', phoneNumber)
+       
         await MessaginService.createMessage(phoneNumber, message);
-        console.log('SENT')
-
       }
     }
-    console.log('ACA FINALIZA')
-    response.status(200).end();
   }
+
+  return response.status(200).end();
 };
 
 export default typeFormEvent;

@@ -82,7 +82,7 @@ const newMessage = async (request, response) => {
     // Send the push notification
     await PushService.sendPushNotificationToUsers(data, users);
 
-    return response.status(200).json();
+    return response.status(200).end();
   } catch (error) {
     return response.status(500).json({ error: error.message });
   }

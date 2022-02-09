@@ -10,7 +10,7 @@ import { NOTIFICATION_TYPES } from '../../constants';
  * @param {*} request
  * @param {*} response
  */
-const newReaction = async (request) => {
+const newReaction = async (request, response) => {
   const {  message,  conversationCid,  reaction:incomingReaction } = EventWrapper.getParams(request.body);
 
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
@@ -61,6 +61,8 @@ const newReaction = async (request) => {
 
     await PushService.sendPushNotificationToUsers(data, [fromUser]);
   }
+
+  return response.status(200).end();
 };
 
 /**
