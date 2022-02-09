@@ -19,12 +19,14 @@ const createMessage = async (phoneNumber, message) => {
   }
 
   try {
+    
     const messageResult = await new Twilio().client.messages.create({
       from: '+12012560616',
       to: phoneNumber,
       body: message,
     });
     const { sid, status, errorCode, errorMessage } = messageResult;
+    
     return { sid, status, errorCode, errorMessage };
   } catch (error) {
     throw new MessagingServiceError(error.message);
