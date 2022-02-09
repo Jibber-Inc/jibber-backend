@@ -17,8 +17,9 @@ const createMessage = async (phoneNumber, message) => {
   if (!message || typeof message !== 'string') {
     throw new MessagingServiceError('[ITLA8RgD] message is required');
   }
-
+  console.log('PHONE TO SENttttT', phoneNumber)
   try {
+    
     const messageResult = await new Twilio().client.messages.create({
       from: '+12012560616',
       to: phoneNumber,
