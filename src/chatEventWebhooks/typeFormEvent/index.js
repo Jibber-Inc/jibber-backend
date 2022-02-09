@@ -10,6 +10,11 @@ import MessaginService from '../../services/MessagingService';
 const typeFormEvent = async (request, response) => {
   const { form_response, event_type } = request.body;
   console.log('*****************************')
+  console.log(request.headers);
+  console.log('*****************************')
+  console.log(request.body);
+
+
 
   console.log('RESPONSE TYPE FORM EVENT ')
   if (form_response && event_type && form_response.answers && event_type === 'form_response') {
