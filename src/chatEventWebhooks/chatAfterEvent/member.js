@@ -27,9 +27,9 @@ const added = async (request, response) => {
       })
     };
 
-    const messageCreated = await ChatService.createMessage(message, conversation);
+    await ChatService.createMessage(message, conversation);
     
-    return response.status(200).json(messageCreated);
+    return response.status(200).end();
   } catch (error) {
     console.warn('Error - member.added', error);
     return response.status(500).json(error)
