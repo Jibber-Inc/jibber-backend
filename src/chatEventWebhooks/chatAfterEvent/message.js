@@ -84,6 +84,7 @@ const newMessage = async (request, response) => {
 
     return response.status(200).end();
   } catch (error) {
+    console.warn('Error - message.newMessage', error);
     return response.status(500).json({ error: error.message });
   }
 };

@@ -22,10 +22,11 @@ const typeFormEvent = async (request, response) => {
         await MessaginService.createMessage(phoneNumber, message);
       }
     }
-    
+
     return response.status(200).end();
   } catch (error) {
-    return response.status(400).json(error.message).end();
+    console.warn('Error - typeForm.typeFormEvent', error);
+    return response.status(400).json({ error: error.message }).end();
   }
 };
 
