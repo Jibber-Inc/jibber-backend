@@ -10,7 +10,6 @@ import api from './api';
 import chatAfterEvent from './chatEventWebhooks/chatAfterEvent';
 import typeFormEvent from './chatEventWebhooks/typeFormEvent';
 
-
 // Load Environment Variables
 const { PARSE_MOUNT } = process.env;
 
