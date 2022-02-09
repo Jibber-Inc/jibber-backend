@@ -36,6 +36,8 @@ const typeFormEvent = async (request, response) => {
 
       }
     }
+    console.log('ACA FINALIZA')
+    response.status(200).end();
   }
 };
 
