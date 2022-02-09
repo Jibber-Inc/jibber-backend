@@ -48,15 +48,15 @@ const newReaction = async (request, response) => {
     const fullName = UserUtils.getFullName(toUser);
 
     const data = {
-      messageId: null,
+      messageId: message.id,
       conversationCid,
       title: `${fullName} read your message 🤓`,
       body: `${fullName} read ${message.text} `,
-      target: 'channel',
-      category: 'message.read',
-      interruptionLevel: 'time-sensitive',
+      target: 'conversation',
+      category: 'stream.chat',
+      interruptionLevel: 'passive',
       threadId: conversationCid,
-      author: fromUser.id,
+      author: toUser.id,
     };
 
     await PushService.sendPushNotificationToUsers(data, [fromUser]);
