@@ -60,9 +60,6 @@ const newMessage = async (request, response) => {
     // Set the data for the alert message push notification
     const fullName = UserUtils.getFullName(fromUser);
 
-    console.log(' CONTEXT MESSAGE *******************')
-    console.log(message.context)
-
     const data = {
       messageId: message.id,
       conversationCid,
