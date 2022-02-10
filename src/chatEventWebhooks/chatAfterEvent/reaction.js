@@ -38,32 +38,29 @@ const newReaction = async (request, response) => {
     }
   }
 
-  // Commenting out the Read Push until Stream fixes an issue with sending multiple events for the same reaction. 
+  if (reactionsFiltered.length && reactionsFiltered[0].user_id) {
+     const toUser = await new Parse.Query(Parse.User).get(
+     reactionsFiltered[0].user_id,
+  );
 
+  if (!toUser) throw new Error('No destination user found!');
 
-  // if (reactionsFiltered.length && reactionsFiltered[0].user_id) {
-  //   const toUser = await new Parse.Query(Parse.User).get(
-  //     reactionsFiltered[0].user_id,
-  //   );
+  const fullName = UserUtils.getFullName(toUser);
+  
+  const data = {
+    messageId: message.id,
+    conversationCid,
+    title: `${fullName} read your message 🤓`,
+    body: `${fullName} read ${message.text} `,
+    target: 'conversation',
+    category: 'stream.chat',
+    interruptionLevel: 'passive',
+    threadId: conversationCid,
+    author: toUser.id,
+  };
 
-  //   if (!toUser) throw new Error('No destination user found!');
-
-  //   const fullName = UserUtils.getFullName(toUser);
-
-  //   const data = {
-  //     messageId: message.id,
-  //     conversationCid,
-  //     title: `${fullName} read your message 🤓`,
-  //     body: `${fullName} read ${message.text} `,
-  //     target: 'conversation',
-  //     category: 'stream.chat',
-  //     interruptionLevel: 'passive',
-  //     threadId: conversationCid,
-  //     author: toUser.id,
-  //   };
-
-  //   await PushService.sendPushNotificationToUsers(data, [fromUser]);
-  // }
+    await PushService.sendPushNotificationToUsers(data, [fromUser]);
+  }
 
   return response.status(200).end();
 };
