@@ -46,9 +46,11 @@ const newReaction = async (request, response) => {
     }
   }
 
-  const {context} = JSON.parse(message.attributes);
-  console.log(context);
-  if (reactionsFiltered.length && reactionsFiltered[0].user_id && context === 'time-sensitive') {
+
+  console.log('****** reaction *****');
+  console.log(message.context);
+
+  if (reactionsFiltered.length && reactionsFiltered[0].user_id && message.context && message.context === 'time-sensitive') {
     const toUser = await new Parse.Query(Parse.User).get(
       reactionsFiltered[0].user_id,
     );

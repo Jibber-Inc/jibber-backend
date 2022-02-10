@@ -65,7 +65,6 @@ const newMessage = async (request, response) => {
     console.log(message.context)
     console.log(message.attributes)
 
-
     const data = {
       messageId: message.id,
       conversationCid,
