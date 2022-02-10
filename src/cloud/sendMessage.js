@@ -38,9 +38,6 @@ const sendMessage = async request => {
     const conversation = queryConversationsResponse[0];
 
     message.user_id = owner.id;
-    message.attributes = JSON.stringify({
-      context: 'casual',
-    });
 
     const messageCreated = await ChatService.createMessage(
       message,

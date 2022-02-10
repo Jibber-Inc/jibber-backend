@@ -12,13 +12,11 @@ import { NOTIFICATION_TYPES } from '../../constants';
  * @param {*} focusSatus
  * @returns
  */
-const getInterruptionLevel = (context, focusSatus) => {
+ const getInterruptionLevel = (context) => {
   if (context === 'time-sensitive') {
     return 'time-sensitive';
   }
-  if (focusSatus === 'focused') {
-    return 'passive';
-  }
+
   return 'active';
 };
 
@@ -70,7 +68,7 @@ const newMessage = async (request, response) => {
       body: message.text,
       target: 'conversation',
       category: 'MESSAGE_NEW',
-      interruptionLevel: 'passive',
+      interruptionLevel: getInterruptionLevel(message.context),
       threadId: conversationCid,
       author: fromUser.id,
       connectionId,
