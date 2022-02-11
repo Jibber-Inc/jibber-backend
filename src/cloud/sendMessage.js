@@ -41,7 +41,7 @@ const sendMessage = async request => {
     message.user_id = owner.id;
 
     if(!message.context){
-      message.context = ''
+      message.context = 'respectful'
     }
 
     const messageCreated = await ChatService.createMessage(
