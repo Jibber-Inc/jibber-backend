@@ -32,12 +32,17 @@ const sendMessage = async request => {
       options,
     );
 
-    if (!queryConversationsResponse.length)
+    if (!queryConversationsResponse.length){
       throw new Error("There's no conversation with the given conversation ID");
-
+    }
+    
     const conversation = queryConversationsResponse[0];
 
     message.user_id = owner.id;
+
+    if(!message.context){
+      message.context = 'respectful'
+    }
 
     const messageCreated = await ChatService.createMessage(
       message,
