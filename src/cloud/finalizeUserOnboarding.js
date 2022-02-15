@@ -11,6 +11,7 @@ import ReservationService, { ReservationServiceError } from '../services/Reserva
 import NoticeService from '../services/NoticeService';
 // Notifications
 import { NOTIFICATION_TYPES } from '../constants';
+import TransactionService from '../services/TransactionService';
 // import CircleService from '../services/CircleService';
 
 class FinalizeUserOnboardingError extends ExtendableError { }
@@ -121,6 +122,8 @@ const finalizeUserOnboarding = async request => {
       default:
         throw new FinalizeUserOnboardingError('');
     }
+
+    await TransactionService.createInitialTransaction(user);
 
     user.save(null, { useMasterKey: true });
 
