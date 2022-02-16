@@ -4,6 +4,8 @@ import UserService from './UserService';
 import PushService from './PushService';
 import Parse from '../providers/ParseProvider';
 import UserUtils from '../utils/userData';
+import { INTERRUPTION_LEVEL_TYPES } from '../constants';
+
 
 export class ReservationServiceError extends ExtendableError { }
 
@@ -125,7 +127,7 @@ const handleReservation = async (reservationId, user) => {
     body: `${toFullName} accepted your invitation and was added to your conversation.`,
     target: 'channel',
     category: 'connection.new',
-    interruptionLevel: 'time-sensitive',
+    interruptionLevel: INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE,
     threadId: conversationCid,
     author: fromUser.id
   };

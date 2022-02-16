@@ -3,7 +3,7 @@ import UserUtils from '../../utils/userData';
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import NoticeService from '../../services/NoticeService';
-import { NOTIFICATION_TYPES } from '../../constants';
+import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES, REACTION_TYPES, MESSAGE} from '../../constants';
 
 /**
  *
@@ -22,10 +22,10 @@ const newReaction = async (request, response) => {
 
   const latestReactions = message.latest_reactions;
   const reactionsFiltered = latestReactions.filter(
-    reaction => reaction.type === 'read',
+    reaction => reaction.type === REACTION_TYPES.READ,
   );
 
-  if (incomingReaction.type === 'read') {
+  if (incomingReaction.type === REACTION_TYPES.READ) {
     const notice = await NoticeService.getNoticeByOwner(
       fromUser,
       NOTIFICATION_TYPES.UNREAD_MESSAGES,
@@ -46,7 +46,7 @@ const newReaction = async (request, response) => {
     }
   }
 
-  if (reactionsFiltered.length && reactionsFiltered[0].user_id && message.context && message.context === 'time-sensitive') {
+  if (reactionsFiltered.length && reactionsFiltered[0].user_id && message.context && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
     const toUser = await new Parse.Query(Parse.User).get(
       reactionsFiltered[0].user_id,
     );
@@ -62,7 +62,7 @@ const newReaction = async (request, response) => {
       body: `${fullName} read ${message.text} `,
       target: 'conversation',
       category: 'stream.chat',
-      interruptionLevel: 'passive',
+      interruptionLevel: INTERRUPTION_LEVEL_TYPES.PASIVE,
       threadId: conversationCid,
       author: toUser.id,
     };
