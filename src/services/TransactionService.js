@@ -2,12 +2,7 @@
 import ExtendableError from 'extendable-error-class';
 // Providers
 import Parse from '../providers/ParseProvider';
-// Utils
-import UserUtils from '../utils/userData';
-// Services
-import QuePositionsService from './QuePositionsService';
-// Constants
-import UserStatus from '../constants/userStatus';
+import PushService from './PushService';
 // Load Environment Variables
 const { BENJI_PHONE_NUMBER } = process.env;
 
@@ -33,6 +28,20 @@ const createInitialTransaction = async (user) => {
       transaction.set('amount', 1);
       transaction.set('type', 'NEW_USER');
       await transaction.save(null, { useMasterKey: true });
+    }
+
+    if (transaction) {
+      const amount = transaction.get('amount');
+      const coin = amount !== 1 ? 'Jibs' : 'Jib';
+      const notificationData = {
+        identifier: `transaction_${transaction.id}`,
+        title: `${amount} ${coin} received`,
+        body: transaction.note,
+        target: 'wallet',
+        category: 'transaction',
+        author: benjiAdmin.id,
+      };
+      await PushService.sendPushNotificationToUsers(notificationData, [user]);
     }
 
     return transaction;
