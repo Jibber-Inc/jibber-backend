@@ -39,7 +39,7 @@ const newReaction = async (request, response) => {
       console.log(' FILTERED ATTRS', filteredAttributes);
       notice.set('attributes', {
         ...attributes,
-        unreadMessageIds: filteredAttributes,
+        unreadMessages: filteredAttributes,
       });
 
       notice.save(null, { useMasterKey: true });
