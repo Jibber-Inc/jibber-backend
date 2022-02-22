@@ -39,7 +39,11 @@ const newReaction = async (request, response) => {
     if (notice) {
       const attributes = notice.get('attributes');
       const filteredAttributes = attributes.unreadMessages.filter(
-        unreadMessage => unreadMessage.cid !==conversationCid,
+        unreadMessage => {
+          console.log('----', unreadMessage)
+          console.log('----', unreadMessage.cid)
+          return unreadMessage.cid !== conversationCid;
+        },
       );
       console.log(' FILTERED ATTRS', filteredAttributes)
       notice.set('attributes', {
