@@ -17,6 +17,11 @@ const newReaction = async (request, response) => {
     reaction: incomingReaction,
   } = EventWrapper.getParams(request.body);
 
+  console.log('******** ***********')
+  console.log(conversationCid)
+  console.log('!!!!!!!!!!!!!!!!!!')
+  console.log(message.id)
+
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
   if (!fromUser) throw new Error('User not found!');
 
@@ -33,10 +38,10 @@ const newReaction = async (request, response) => {
 
     if (notice) {
       const attributes = notice.get('attributes');
-      const filteredAttributes = attributes.unreadMessageIds.filter(
-        messageId => messageId !== message.id,
+      const filteredAttributes = attributes.unreadMessages.filter(
+        unreadMessage => unreadMessage.cid !==conversationCid,
       );
-
+      console.log(' FILTERED ATTRS', filteredAttributes)
       notice.set('attributes', {
         ...attributes,
         unreadMessageIds: filteredAttributes,
