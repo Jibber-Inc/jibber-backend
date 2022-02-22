@@ -17,11 +17,6 @@ const newReaction = async (request, response) => {
     reaction: incomingReaction,
   } = EventWrapper.getParams(request.body);
 
-  console.log('******** ***********')
-  console.log(conversationCid)
-  console.log('!!!!!!!!!!!!!!!!!!')
-  console.log(message.id)
-
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
   if (!fromUser) throw new Error('User not found!');
 
@@ -39,13 +34,9 @@ const newReaction = async (request, response) => {
     if (notice) {
       const attributes = notice.get('attributes');
       const filteredAttributes = attributes.unreadMessages.filter(
-        unreadMessage => {
-          console.log('----', unreadMessage)
-          console.log('----', unreadMessage.cid)
-          return unreadMessage.cid !== conversationCid;
-        },
+        unreadMessage => unreadMessage.messageId !== message.id,
       );
-      console.log(' FILTERED ATTRS', filteredAttributes)
+      console.log(' FILTERED ATTRS', filteredAttributes);
       notice.set('attributes', {
         ...attributes,
         unreadMessageIds: filteredAttributes,
@@ -55,7 +46,12 @@ const newReaction = async (request, response) => {
     }
   }
 
-  if (reactionsFiltered.length && reactionsFiltered[0].user_id && message.context && message.context === 'time-sensitive') {
+  if (
+    reactionsFiltered.length &&
+    reactionsFiltered[0].user_id &&
+    message.context &&
+    message.context === 'time-sensitive'
+  ) {
     const toUser = await new Parse.Query(Parse.User).get(
       reactionsFiltered[0].user_id,
     );
