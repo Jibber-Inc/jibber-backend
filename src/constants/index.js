@@ -29,9 +29,9 @@ export const MESSAGE = {
 };
 
 export const INTERRUPTION_LEVEL_TYPES = {
-  TIME_SENSITIVE:'time-sensitive',
+  TIME_SENSITIVE: 'time-sensitive',
   ACTIVE: 'active',
-  PASIVE: 'pasive'
+  PASSIVE: 'passive'
 };
 
 export const REACTION_TYPES = {

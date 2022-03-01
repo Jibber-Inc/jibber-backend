@@ -3,6 +3,8 @@ import ExtendableError from 'extendable-error-class';
 // Providers
 import Parse from '../providers/ParseProvider';
 import PushService from './PushService';
+// Constants
+import { TRANSACTION } from '../constants/transactions';
 // Load Environment Variables
 const { BENJI_PHONE_NUMBER } = process.env;
 
@@ -24,9 +26,9 @@ const createInitialTransaction = async (user) => {
       transaction = new Parse.Object('Transaction');
       transaction.set('from', benjiAdmin);
       transaction.set('to', user);
-      transaction.set('note', 'Welcome to Jibber.');
+      transaction.set('note', TRANSACTION.INITIAL_NOTE);
       transaction.set('amount', 1);
-      transaction.set('type', 'NEW_USER');
+      transaction.set('eventType', TRANSACTION.EVENT_TYPE);
       await transaction.save(null, { useMasterKey: true });
     }
 
@@ -37,8 +39,8 @@ const createInitialTransaction = async (user) => {
         identifier: `transaction_${transaction.id}`,
         title: `${amount} ${coin} received`,
         body: transaction.note,
-        target: 'wallet',
-        category: 'transaction',
+        target: TRANSACTION.TARGET,
+        category: TRANSACTION.CATEGORY,
         author: benjiAdmin.id,
       };
       await PushService.sendPushNotificationToUsers(notificationData, [user]);

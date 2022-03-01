@@ -3,7 +3,7 @@ import UserUtils from '../../utils/userData';
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import NoticeService from '../../services/NoticeService';
-import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES, REACTION_TYPES, MESSAGE} from '../../constants';
+import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES, REACTION_TYPES, MESSAGE } from '../../constants';
 
 /**
  *
@@ -62,7 +62,7 @@ const newReaction = async (request, response) => {
       body: `${fullName} read ${message.text} `,
       target: 'conversation',
       category: 'stream.chat',
-      interruptionLevel: INTERRUPTION_LEVEL_TYPES.PASIVE,
+      interruptionLevel: INTERRUPTION_LEVEL_TYPES.PASSIVE,
       threadId: conversationCid,
       author: toUser.id,
     };
