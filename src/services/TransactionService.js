@@ -29,7 +29,7 @@ const createInitialTransaction = async (user) => {
       transaction.set('to', user);
       transaction.set('note', TRANSACTION.INITIAL_NOTE);
       transaction.set('amount', ACHIEVEMENTS.joinJibber.bounty);
-      transaction.set('eventType', ACHIEVEMENTS.joinJibber.name);
+      transaction.set('eventType', ACHIEVEMENTS.joinJibber.eventType);
       await transaction.save(null, { useMasterKey: true });
     }
 
