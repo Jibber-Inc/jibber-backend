@@ -1,4 +1,5 @@
 import ChatService from '../services/ChatService';
+import { REACTION_TYPES} from '../constants';
 
 /**
  * Send a Chat message
@@ -17,7 +18,7 @@ const addReaction = async request => {
       conversationCid,
     );
 
-    const reactionType = 'read'
+    const reactionType = REACTION_TYPES.READ
 
     const reaction = ChatService.sendReactionToMessage(conversation, messageId, reactionType, user.id);
 

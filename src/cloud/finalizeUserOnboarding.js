@@ -42,7 +42,7 @@ const setUserStatus = async (user, reservation = null) => {
   if (user.get('status') && user.get('status') !== UserStatus.USER_STATUS_INACTIVE) {
 
     if (reservation) {
-      user.set('status', UserStatus.USER_STATUS_INACTIVE);
+      user.set('status', UserStatus.USER_STATUS_ACTIVE);
     } else {
       // TODO: Uncomment when we use again the currentQuePosition logic.
       // user.set('quePosition', currentQuePosition);
