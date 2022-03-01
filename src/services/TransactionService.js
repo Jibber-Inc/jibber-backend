@@ -5,6 +5,7 @@ import Parse from '../providers/ParseProvider';
 import PushService from './PushService';
 // Constants
 import { TRANSACTION } from '../constants/transactions';
+import { ACHIEVEMENTS } from '../constants/achievements';
 // Load Environment Variables
 const { BENJI_PHONE_NUMBER } = process.env;
 
@@ -27,8 +28,8 @@ const createInitialTransaction = async (user) => {
       transaction.set('from', benjiAdmin);
       transaction.set('to', user);
       transaction.set('note', TRANSACTION.INITIAL_NOTE);
-      transaction.set('amount', 1);
-      transaction.set('eventType', TRANSACTION.EVENT_TYPE);
+      transaction.set('amount', ACHIEVEMENTS.joinJibber.bounty);
+      transaction.set('eventType', ACHIEVEMENTS.joinJibber.eventType);
       await transaction.save(null, { useMasterKey: true });
     }
 
