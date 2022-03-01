@@ -27,3 +27,13 @@ export const MESSAGE = {
     TIME_SENSITIVE: 'time-sensitive',
   },
 };
+
+export const INTERRUPTION_LEVEL_TYPES = {
+  TIME_SENSITIVE: 'time-sensitive',
+  ACTIVE: 'active',
+  PASSIVE: 'passive'
+};
+
+export const REACTION_TYPES = {
+  READ: 'read'
+};

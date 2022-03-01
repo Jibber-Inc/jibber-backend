@@ -3,7 +3,7 @@ import UserUtils from '../../utils/userData';
 import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
 import NoticeService from '../../services/NoticeService';
-import { NOTIFICATION_TYPES } from '../../constants';
+import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES } from '../../constants';
 
 /**
  * Given a context and a focus-status, returns an interruption-level
@@ -13,11 +13,11 @@ import { NOTIFICATION_TYPES } from '../../constants';
  * @returns
  */
  const getInterruptionLevel = (context) => {
-  if (context === 'time-sensitive') {
-    return 'time-sensitive';
+  if (context === INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE) {
+    return INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE;
   }
 
-  return 'active';
+  return INTERRUPTION_LEVEL_TYPES.ACTIVE;
 };
 
 /**
