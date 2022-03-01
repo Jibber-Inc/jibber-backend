@@ -8,10 +8,13 @@ import MessaginService from '../../services/MessagingService';
  * @returns {Response}
  */
 const typeFormEvent = async (request, response) => {
+  // eslint-disable-next-line camelcase
   const { form_response, event_type } = request.body;
 
   try {
+    // eslint-disable-next-line camelcase
     if (form_response && event_type && form_response.answers && event_type === 'form_response') {
+      // eslint-disable-next-line camelcase
       const { answers } = form_response;
 
       if (answers) {

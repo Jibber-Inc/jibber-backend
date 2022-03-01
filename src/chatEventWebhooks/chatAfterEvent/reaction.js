@@ -33,20 +33,23 @@ const newReaction = async (request, response) => {
 
     if (notice) {
       const attributes = notice.get('attributes');
-      const filteredAttributes = attributes.unreadMessageIds.filter(
-        messageId => messageId !== message.id,
+      const filteredAttributes = attributes.unreadMessages.filter(
+        unreadMessage => unreadMessage.messageId !== message.id,
       );
-
       notice.set('attributes', {
         ...attributes,
-        unreadMessageIds: filteredAttributes,
+        unreadMessages: filteredAttributes,
       });
-
       notice.save(null, { useMasterKey: true });
     }
   }
 
-  if (reactionsFiltered.length && reactionsFiltered[0].user_id && message.context && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
+  if (
+    reactionsFiltered.length &&
+    reactionsFiltered[0].user_id &&
+    message.context &&
+    message.context === MESSAGE.CONTEXT.TIME_SENSITIVE
+  ) {
     const toUser = await new Parse.Query(Parse.User).get(
       reactionsFiltered[0].user_id,
     );

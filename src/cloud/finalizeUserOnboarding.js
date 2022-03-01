@@ -97,7 +97,7 @@ const finalizeUserOnboarding = async request => {
       type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
       body: 'You have 0 unread messages',
       attributes: {
-        unreadMessageIds: []
+        unreadMessages: []
       },
       priority: 1,
       user

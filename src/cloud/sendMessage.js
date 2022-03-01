@@ -22,7 +22,7 @@ const sendMessage = async request => {
   try {
     const owner = await new Parse.Query(Parse.User).get(ownerId);
     await UserService.connectUser(owner);
-    const filter = { id: { $eq: conversationId } };
+    const filter = { cid: { $eq: conversationId } };
     const sort = [{ last_message_at: -1 }];
     const options = { message_limit: 0, limit: 1, state: true };
 

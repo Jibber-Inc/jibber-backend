@@ -51,7 +51,10 @@ const newMessage = async (request, response) => {
     if(notice){
       const attributes = notice.get('attributes');
 
-      attributes.unreadMessageIds.push(message.id);
+      attributes.unreadMessages.push({
+        cid: conversationCid,
+        messageId: message.id
+      });
   
       notice.set('attributes', attributes);
       notice.save(null, { useMasterKey: true });
