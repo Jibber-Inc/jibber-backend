@@ -3,6 +3,7 @@ export const GENERAL_UNREADMESSAGES_POST_TYPE = 'generalUnreadMessages';
 export const CONNECTION_REQUEST_POST = 'connectionRequest';
 
 export const ONBOARDING_ADMIN = 'ONBOARDING_ADMIN';
+export const SYSTEM_USER = 'SYSTEM_USER';
 
 export const CHANNEL_INVITE_POST = 'channelInvite';
 
@@ -17,6 +18,7 @@ export const NOTIFICATION_TYPES = {
   ALERT_MESSAGE: 'ALERT_MESSAGE',
   CONNECTION_REQUEST: 'CONNECTION_REQUEST',
   CONNECTION_CONFIRMED: 'CONNECTION_CONFIRMED',
+  UNREAD_MESSAGES: 'UNREAD_MESSAGES'
 };
 
 export const MESSAGE = {
@@ -24,4 +26,14 @@ export const MESSAGE = {
     PASSIVE: 'passive',
     TIME_SENSITIVE: 'time-sensitive',
   },
+};
+
+export const INTERRUPTION_LEVEL_TYPES = {
+  TIME_SENSITIVE: 'time-sensitive',
+  ACTIVE: 'active',
+  PASSIVE: 'passive'
+};
+
+export const REACTION_TYPES = {
+  READ: 'read'
 };

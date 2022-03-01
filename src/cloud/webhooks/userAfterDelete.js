@@ -1,9 +1,10 @@
 import ExtendableError from 'extendable-error-class';
 import Parse from '../../providers/ParseProvider';
 import ChatService from '../../services/ChatService';
+import NoticeService from '../../services/NoticeService';
 import UserService from '../../services/UserService';
 
-class UserAfterDeleteError extends ExtendableError { }
+class UserAfterDeleteError extends ExtendableError {}
 
 /**
  * After delete webhook for User objects.
@@ -24,7 +25,10 @@ const userAfterDelete = async request => {
       UserService.deleteReservations(user),
       UserService.deleteUserInstallations(user),
       UserService.clearUserSessions(user),
+      UserService.resetReservations(user),
       ChatService.deleteUser(user.id),
+      NoticeService.deleteNotice(user),
+      ChatService.deleteWaitlistConversation(user.id),
     ]);
   } catch (error) {
     console.warn(error);

@@ -4,7 +4,7 @@ import ExtendableError from 'extendable-error-class';
 // Services
 import ChatService from '../services/ChatService';
 
-export class CreateConversationError extends ExtendableError {}
+export class CreateConversationError extends ExtendableError { }
 
 /**
  * Create a connection
@@ -12,24 +12,20 @@ export class CreateConversationError extends ExtendableError {}
  * @param {*} response
  */
 const createConversation = async request => {
-  const { user, params } = request;
-  const { uniqueName, friendlyName, type, members, attributes } = params;
+  const { params } = request;
+  const { owner, conversationId, type, members, title } = params;
   try {
-    if (!user) throw new CreateConversationError('User need to be authenticated.');
     // create conversation
     const conversation = await ChatService.createConversation(
-      user,
-      uniqueName,
-      friendlyName,
+      owner,
+      conversationId,
       type,
-      attributes,
+      title,
+      members
     );
 
-    // add request user and members to member conversation list
-    await ChatService.addMembersToConversation(conversation.sid, [user.id, ...members]);
-
     return {
-      conversation: conversation.sid,
+      conversation,
     };
   } catch (error) {
     throw new CreateConversationError(error.message);

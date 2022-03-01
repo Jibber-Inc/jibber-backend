@@ -1,4 +1,8 @@
+import ExtendableError from 'extendable-error-class';
+import { NOTIFICATION_TYPES } from '../constants';
 import Parse from '../providers/ParseProvider';
+
+class NoticeServiceError extends ExtendableError { }
 
 /**
  * Creates a Notice object with the given data
@@ -6,7 +10,7 @@ import Parse from '../providers/ParseProvider';
  * @param {*} data
  * @returns
  */
-const createNotice = data => {
+const createNotice = async data => {
   const { type, body, attributes, priority, user } = data;
 
   const notice = new Parse.Object('Notice');
@@ -16,11 +20,42 @@ const createNotice = data => {
   notice.set('attributes', attributes);
   notice.set('priority', priority);
   notice.setACL(new Parse.ACL(user));
+  notice.set('owner', user);
 
-  notice.save(null, { useMasterKey: true });
+  await notice.save(null, { useMasterKey: true });
   return notice;
+};
+
+const getNoticeByOwner = async (user,type) => {
+  const notice = await new Parse.Query('Notice')
+    .equalTo('owner', user)
+    .equalTo('type', type)
+    .first({ useMasterKey: true });
+  return notice;
+};
+
+/**
+ * Delete all user reservations
+ *
+ * @param {Parse.User} user
+ */
+const deleteNotice = async user => {
+  try {
+    const query = new Parse.Query('Notice')
+      .equalTo('owner', user)
+      .equalTo('type', NOTIFICATION_TYPES.UNREAD_MESSAGES);
+    const result = await query.first({ useMasterKey: true });
+
+    if (result) {
+      await result.destroy({ useMasterKey: true });
+    }
+  } catch (error) {
+    throw new NoticeServiceError(error.message);
+  }
 };
 
 export default {
   createNotice,
+  getNoticeByOwner,
+  deleteNotice,
 };

@@ -8,6 +8,8 @@ import TwoFAService, { TwoFAServiceError } from '../services/TwoFAService';
 import UserService from '../services/UserService';
 // Utils
 import testUser from '../utils/testUser';
+// Constants
+import UserStatus from '../constants/userStatus';
 
 class SendCodeError extends ExtendableError { }
 
@@ -69,8 +71,9 @@ const sendCode = async request => {
       status = result.status;
     }
     if (!user) {
+      // CREATE USER IN PARSE
       user = await UserService.createUser(e164Number, installationId);
-      user.set('status', 'needsVerification');
+      user.set('status', UserStatus.USER_STATUS_NEEDS_VERIFICATION);
     }
     user.set('smsVerificationStatus', status);
     await user.save(null, { useMasterKey: true });

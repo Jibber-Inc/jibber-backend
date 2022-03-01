@@ -32,13 +32,15 @@ const chatAfterEvent = async (request, response) => {
   };
 
   const eventLog = new Parse.Object('EventLog');
+
   try {
     // Log Stream event in Parse
     eventLog.set('provider', 'Stream');
     eventLog.set('eventType', type);
     eventLog.set('payload', request.body);
+   
     await eventLog.save(null, { useMasterKey: true });
-
+   
     return handlers[currentHandler][eventType](request, response);
   } catch (error) {
     const msg = `No handler found for ${type}`;

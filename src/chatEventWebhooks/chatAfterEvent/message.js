@@ -2,22 +2,22 @@ import Parse from '../../providers/ParseProvider';
 import UserUtils from '../../utils/userData';
 import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
+import NoticeService from '../../services/NoticeService';
+import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES } from '../../constants';
 
 /**
  * Given a context and a focus-status, returns an interruption-level
- * 
- * @param {*} context 
- * @param {*} focusSatus 
- * @returns 
+ *
+ * @param {*} context
+ * @param {*} focusSatus
+ * @returns
  */
-const getInterruptionLevel = (context, focusSatus) => {
-  if (context === 'time-sensitive') {
-    return 'time-sensitive';
+ const getInterruptionLevel = (context) => {
+  if (context === INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE) {
+    return INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE;
   }
-  if (focusSatus === 'focused') {
-    return 'passive';
-  }
-  return 'active';
+
+  return INTERRUPTION_LEVEL_TYPES.ACTIVE;
 };
 
 /**
@@ -26,15 +26,18 @@ const getInterruptionLevel = (context, focusSatus) => {
  * @param {*} response
  */
 const newMessage = async (request, response) => {
-  const { conversationId, conversationCid, message, user, members } = EventWrapper.getParams(
+  const { conversationCid, message, user, members } = EventWrapper.getParams(
     request.body,
   );
-
+ 
   // TODO: Use attributes
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
-  const connection = await new Parse.Query('Connection').equalTo('channelSId', conversationCid).find({ useMasterKey: true });
-  const connectionId = connection && connection.length && connection[0].id || null
+  const connection = await new Parse.Query('Connection')
+    .equalTo('channelSId', conversationCid)
+    .find({ useMasterKey: true });
+  const connectionId =
+    (connection && connection.length && connection[0].id) || null;
 
   try {
     const { context } = message;
@@ -42,50 +45,44 @@ const newMessage = async (request, response) => {
     const usersIdentities = members
       .map(m => m.user_id)
       .filter(u => u !== user.id);
-
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
+    const notice = await NoticeService.getNoticeByOwner(fromUser, NOTIFICATION_TYPES.UNREAD_MESSAGES);
+    
+    if(notice){
+      const attributes = notice.get('attributes');
 
-    // Set the data for the alert message Notice object
-    /* const noticeData = {
-      type: NOTIFICATION_TYPES.ALERT_MESSAGE,
-      body: message.text,
-      attributes: {
-        channelId: conversationId,
-        messageId: message.id,
-        author: user.id,
-      },
-      priority: 1,
-      fromUser,
-    }; */
-    // Create the Notice object
-    // await NoticeService.createNotice(noticeData);
-
+      attributes.unreadMessages.push({
+        cid: conversationCid,
+        messageId: message.id
+      });
+  
+      notice.set('attributes', attributes);
+      notice.save(null, { useMasterKey: true });
+    }
+    
     // Set the data for the alert message push notification
     const fullName = UserUtils.getFullName(fromUser);
 
     const data = {
       messageId: message.id,
-      channelId: conversationId,
       conversationCid,
       identifier: message.id + context,
-      title: `🚨 ${fullName}`,
+      title: `${fullName}`,
       body: message.text,
-      target: 'channel',
-      category: 'message.new',
-      interruptionLevel: getInterruptionLevel(message.context, fromUser.focusSatus),
+      target: 'conversation',
+      category: 'MESSAGE_NEW',
+      interruptionLevel: getInterruptionLevel(message.context),
       threadId: conversationCid,
       author: fromUser.id,
       connectionId,
     };
 
     // Send the push notification
-    await PushService.sendPushNotificationToUsers(
-      data,
-      users,
-    );
+    await PushService.sendPushNotificationToUsers(data, users);
 
-    return response.status(200).json();
+    return response.status(200).end();
   } catch (error) {
+    console.warn('Error - message.newMessage', error);
     return response.status(500).json({ error: error.message });
   }
 };
