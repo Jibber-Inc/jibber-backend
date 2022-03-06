@@ -39,7 +39,7 @@ const createAchievementAndTransaction = async (user, type, note = '') => {
 
   const isRepeatable = achievementType.get('isRepeatable');
   if (isRepeatable) {
-    const transaction = await TransactionService.createTransaction(user, type);
+    const transaction = await TransactionService.createTransactionForAchievement(user, type);
     achievement = await createAchievement(transaction, achievementType, user);
   } else {
     achievement = await new Parse.Query('Achievement')

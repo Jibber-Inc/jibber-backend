@@ -62,10 +62,6 @@ const createTransaction = async (user, type, admin = null, note = null) => {
   }
   if (!achievementType) throw new TransactionServiceError('Type doesn\'t match an AchievementType.');
 
-  console.log(' ****************************************** achievementType ****************************************** ')
-  console.log(' ****************************************** achievementType ****************************************** ', achievementType)
-  console.log(' ****************************************** achievementType ****************************************** ')
-
   if (!admin || !(admin instanceof Parse.User)) {
     throw new TransactionServiceError('Admin is required.');
   } else {
