@@ -2,7 +2,6 @@
 import ExtendableError from 'extendable-error-class';
 // Providers
 import Parse from '../providers/ParseProvider';
-import { ACHIEVEMENTS } from '../constants/achievements';
 // Services
 // eslint-disable-next-line import/no-cycle
 import TransactionService from './TransactionService';
@@ -30,20 +29,34 @@ const createAchievement = async (transaction, achievementType, user) => {
   return achievement;
 };
 
-const createNewUserAchievement = async (user) => {
-  const achievementType = await AchievementTypeService.getAchievementType(ACHIEVEMENTS.joinJibber.type);
+const createAchievementAndTransaction = async (user, type, note = '') => {
+  if (!type) throw new AchievementServiceError('Achievement type is required.');
+
+  const achievementType = await AchievementTypeService.getAchievementType(type);
   if (!achievementType) throw new AchievementServiceError('Achievement type not found.');
-  let initialAchievement = await new Parse.Query('Achievement')
-    .equalTo('type', achievementType)
-    .first({ sessionToken: user.get('sessionToken') });
-  if (!initialAchievement) {
-    const initialTransaction = await TransactionService.createInitialTransaction(user);
-    initialAchievement = await createAchievement(initialTransaction, achievementType, user);
+
+  let achievement;
+
+  const isRepeatable = achievementType.get('isRepeatable');
+  if (isRepeatable) {
+    const transaction = await TransactionService.createTransaction(user, type);
+    achievement = await createAchievement(transaction, achievementType, user);
+  } else {
+    achievement = await new Parse.Query('Achievement')
+      .equalTo('type', achievementType)
+      .first({ sessionToken: user.get('sessionToken') });
+
+    if (!achievement) {
+      const existingTransaction = await TransactionService.createTransactionForAchievement(user, type, isRepeatable, note);
+      achievement = await createAchievement(existingTransaction, achievementType, user);
+    }
   }
-  return initialAchievement;
+
+  return achievement;
 };
+
 
 export default {
   createAchievement,
-  createNewUserAchievement
+  createAchievementAndTransaction
 };

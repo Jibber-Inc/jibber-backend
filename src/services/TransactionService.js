@@ -48,7 +48,7 @@ const sendPushForTransaction = async (admin, user, transaction) => {
   }
 };
 
-const createTransaction = async (admin = null, user, type = null, note = null) => {
+const createTransaction = async (user, type, admin = null, note = null) => {
   if (!user || !(user instanceof Parse.User)) throw new TransactionServiceError('User is required.');
   if (!type) throw new TransactionServiceError('Transaction type is required.');
   if (!admin || !(admin instanceof Parse.User)) {
@@ -81,24 +81,28 @@ const createTransaction = async (admin = null, user, type = null, note = null) =
   }
 };
 
-const createInitialTransaction = async (user) => {
+const createTransactionForAchievement = async (user, type, isRepeatable = false, note = '') => {
   try {
     if (!user || !(user instanceof Parse.User)) throw new TransactionServiceError('User is required.');
+    if (!type) throw new TransactionServiceError('Transaction type is required.');
 
-    // Check if the user has an INTEREST_PAYMENT (New user) Transaction
-    const initialTransaction = await new Parse.Query('Transaction')
-      .equalTo('to', user)
-      .equalTo('eventType', TRANSACTION.EVENT_TYPE.INTEREST_PAYMENT)
-      .first({ useMasterKey: true });
+    if (!isRepeatable) {
+      // If not repeatable and there's already a transaction for that type
+      // return the existing transaction
+      const existingTransaction = await new Parse.Query('Transaction')
+        .equalTo('to', user)
+        .equalTo('eventType', type)
+        .first({ useMasterKey: true });
 
-    if (initialTransaction) return initialTransaction;
+      if (existingTransaction) return existingTransaction;
+    }
 
     const admin = await getAdmin();
     const transaction = await createTransaction(
-      admin,
       user,
-      TRANSACTION.EVENT_TYPE.INTEREST_PAYMENT,
-      TRANSACTION.INITIAL_NOTE
+      type,
+      admin,
+      note
     );
     await sendPushForTransaction(admin, user, transaction);
 
@@ -109,6 +113,6 @@ const createInitialTransaction = async (user) => {
 };
 
 export default {
-  createInitialTransaction,
+  createTransactionForAchievement,
   createTransaction
 };
