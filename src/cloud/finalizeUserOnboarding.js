@@ -14,6 +14,8 @@ import QuePositionsService from '../services/QuePositionsService';
 import AchievementService from '../services/AchievementService';
 // Utils
 import db from '../utils/db';
+import { ACHIEVEMENTS } from '../constants/achievements';
+import { TRANSACTION } from '../constants/transactions';
 
 class FinalizeUserOnboardingError extends ExtendableError { }
 
@@ -112,10 +114,18 @@ const finalizeUserOnboarding = async request => {
         break;
     }
 
-    // This will check first if the user has an achievement related to a
-    // INTEREST_PAYMENT (new user) AchievementType
-    // If not, will create it and the transaction associated.
-    await AchievementService.createNewUserAchievement(user);
+    // Upsert achievement INTEREST_PAYMENT (new user).
+    await AchievementService.createAchievementAndTransaction(
+      user,
+      ACHIEVEMENTS.joinJibber.type,
+      TRANSACTION.INITIAL_NOTE
+    );
+
+    // Upsert achievement FIRST_10K.
+    await AchievementService.createAchievementAndTransaction(
+      user,
+      ACHIEVEMENTS.firstTenK.type
+    );
 
     user.save(null, { useMasterKey: true });
 

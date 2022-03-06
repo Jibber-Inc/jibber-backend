@@ -48,7 +48,7 @@ const sendPushForTransaction = async (admin, user, transaction) => {
   }
 };
 
-const createTransaction = async (admin = null, user, type = null, note = null) => {
+const createTransaction = async (user, type, admin = null, note = null) => {
   if (!user || !(user instanceof Parse.User)) throw new TransactionServiceError('User is required.');
   if (!type) throw new TransactionServiceError('Transaction type is required.');
   if (!admin || !(admin instanceof Parse.User)) {
@@ -56,15 +56,8 @@ const createTransaction = async (admin = null, user, type = null, note = null) =
     admin = await getAdmin();
   }
 
-  let achievementType = await AchievementTypeService.getAchievementType(type);
-  if (!achievementType) {
-    achievementType = AchievementTypeService.getFallbackAchievement(type);
-  }
-  if (!achievementType) throw new TransactionServiceError('Type doesn\'t match an AchievementType.');
-
-  console.log(' ****************************************** achievementType ****************************************** ')
-  console.log(' ****************************************** achievementType ****************************************** ', achievementType)
-  console.log(' ****************************************** achievementType ****************************************** ')
+  const achievementType = await AchievementTypeService.getAchievementType(type);
+  if (!achievementType) throw new TransactionServiceError('Type doesn\'t match any AchievementType.');
 
   if (!admin || !(admin instanceof Parse.User)) {
     throw new TransactionServiceError('Admin is required.');
@@ -72,33 +65,37 @@ const createTransaction = async (admin = null, user, type = null, note = null) =
     const transaction = new Parse.Object('Transaction');
     transaction.set('from', admin);
     transaction.set('to', user);
-    transaction.set('note', note || achievementType.title);
-    transaction.set('amount', achievementType.bounty);
-    transaction.set('eventType', achievementType.type);
+    transaction.set('note', note || achievementType.get('title'));
+    transaction.set('amount', achievementType.get('bounty'));
+    transaction.set('eventType', achievementType.get('type'));
     transaction.setACL(new Parse.ACL(user));
     await transaction.save(null, { useMasterKey: true });
     return transaction;
   }
 };
 
-const createInitialTransaction = async (user) => {
+const createTransactionForAchievement = async (user, type, isRepeatable = false, note = null) => {
   try {
     if (!user || !(user instanceof Parse.User)) throw new TransactionServiceError('User is required.');
+    if (!type) throw new TransactionServiceError('Transaction type is required.');
 
-    // Check if the user has an INTEREST_PAYMENT (New user) Transaction
-    const initialTransaction = await new Parse.Query('Transaction')
-      .equalTo('to', user)
-      .equalTo('eventType', TRANSACTION.EVENT_TYPE.INTEREST_PAYMENT)
-      .first({ useMasterKey: true });
+    if (!isRepeatable) {
+      // If not repeatable and there's already a transaction for that type
+      // return the existing transaction
+      const existingTransaction = await new Parse.Query('Transaction')
+        .equalTo('to', user)
+        .equalTo('eventType', type)
+        .first({ useMasterKey: true });
 
-    if (initialTransaction) return initialTransaction;
+      if (existingTransaction) return existingTransaction;
+    }
 
     const admin = await getAdmin();
     const transaction = await createTransaction(
-      admin,
       user,
-      TRANSACTION.EVENT_TYPE.INTEREST_PAYMENT,
-      TRANSACTION.INITIAL_NOTE
+      type,
+      admin,
+      note
     );
     await sendPushForTransaction(admin, user, transaction);
 
@@ -109,6 +106,6 @@ const createInitialTransaction = async (user) => {
 };
 
 export default {
-  createInitialTransaction,
+  createTransactionForAchievement,
   createTransaction
 };
