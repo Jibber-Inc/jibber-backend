@@ -9,10 +9,10 @@ import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES } from '../../constants';
  * Given a context and a focus-status, returns an interruption-level
  *
  * @param {*} context
- * @param {*} focusSatus
+ * @param {*} focusStatus
  * @returns
  */
- const getInterruptionLevel = (context) => {
+const getInterruptionLevel = (context) => {
   if (context === INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE) {
     return INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE;
   }
@@ -29,7 +29,7 @@ const newMessage = async (request, response) => {
   const { conversationCid, message, user, members } = EventWrapper.getParams(
     request.body,
   );
- 
+
   // TODO: Use attributes
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
@@ -47,19 +47,19 @@ const newMessage = async (request, response) => {
       .filter(u => u !== user.id);
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
     const notice = await NoticeService.getNoticeByOwner(fromUser, NOTIFICATION_TYPES.UNREAD_MESSAGES);
-    
-    if(notice){
+
+    if (notice) {
       const attributes = notice.get('attributes');
 
       attributes.unreadMessages.push({
         cid: conversationCid,
         messageId: message.id
       });
-  
+
       notice.set('attributes', attributes);
       notice.save(null, { useMasterKey: true });
     }
-    
+
     // Set the data for the alert message push notification
     const fullName = UserUtils.getFullName(fromUser);
 
