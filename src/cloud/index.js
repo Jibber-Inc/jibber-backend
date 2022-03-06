@@ -8,9 +8,11 @@ import createHandle from './createHandle';
 import getChatToken from './getChatToken';
 import getConnections from './getConnections';
 import updateConnection from './updateConnection';
-import setActiveStatus from './setActiveStatus';
+import finalizeUserOnboarding from './finalizeUserOnboarding';
 import updateReservation from './updateReservation';
 import createConnection from './createConnection';
+import createConversation from './createConversation';
+import addReaction from './addReaction';
 
 // Test functions
 import test from './test';
@@ -35,11 +37,13 @@ if (!JIBBER_SECRET_PASSWORD_TOKEN) {
 // Signup
 Parse.Cloud.define('sendCode', sendCode);
 Parse.Cloud.define('validateCode', validateCode);
-Parse.Cloud.define('setActiveStatus', setActiveStatus);
+Parse.Cloud.define('finalizeUserOnboarding', finalizeUserOnboarding);
 
 // Chat
 Parse.Cloud.define('getChatToken', getChatToken);
+Parse.Cloud.define('createConversation', createConversation);
 Parse.Cloud.define('sendMessage', sendMessage);
+Parse.Cloud.define('addReaction', addReaction);
 
 // Connection
 Parse.Cloud.define('getConnections', getConnections);

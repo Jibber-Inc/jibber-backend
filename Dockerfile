@@ -12,13 +12,13 @@ WORKDIR /code
 
 COPY package.json .
 COPY package-lock.json .
-RUN npm ci
+# RUN npm ci
 # RUN npm install
 
 COPY src ./src
 COPY babel.config.js .
-RUN npm run build
+# RUN npm run build
 
 EXPOSE 1337
-CMD [ "npm", "start" ]
-# CMD ["sh", "-c", "npm run dev:watch"]
+# CMD [ "npm", "start" ]
+CMD ["sh", "-c", "npm run dev:watch"]

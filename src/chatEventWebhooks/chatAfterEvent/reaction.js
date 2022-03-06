@@ -1,9 +1,80 @@
+import EventWrapper from '../../utils/eventWrapper';
+import UserUtils from '../../utils/userData';
+import Parse from '../../providers/ParseProvider';
+import PushService from '../../services/PushService';
+import NoticeService from '../../services/NoticeService';
+import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES, REACTION_TYPES, MESSAGE } from '../../constants';
+
 /**
  *
  * @param {*} request
  * @param {*} response
  */
-const newReaction = (request, response) => response.status(200).json();
+const newReaction = async (request, response) => {
+  const {
+    message,
+    conversationCid,
+    reaction: incomingReaction,
+  } = EventWrapper.getParams(request.body);
+
+  const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
+  if (!fromUser) throw new Error('User not found!');
+
+  const latestReactions = message.latest_reactions;
+  const reactionsFiltered = latestReactions.filter(
+    reaction => reaction.type === REACTION_TYPES.READ,
+  );
+
+  if (incomingReaction.type === REACTION_TYPES.READ) {
+    const notice = await NoticeService.getNoticeByOwner(
+      fromUser,
+      NOTIFICATION_TYPES.UNREAD_MESSAGES,
+    );
+
+    if (notice) {
+      const attributes = notice.get('attributes');
+      const filteredAttributes = attributes.unreadMessages.filter(
+        unreadMessage => unreadMessage.messageId !== message.id,
+      );
+      notice.set('attributes', {
+        ...attributes,
+        unreadMessages: filteredAttributes,
+      });
+      notice.save(null, { useMasterKey: true });
+    }
+  }
+
+  if (
+    reactionsFiltered.length &&
+    reactionsFiltered[0].user_id &&
+    message.context &&
+    message.context === MESSAGE.CONTEXT.TIME_SENSITIVE
+  ) {
+    const toUser = await new Parse.Query(Parse.User).get(
+      reactionsFiltered[0].user_id,
+    );
+
+    if (!toUser) throw new Error('No destination user found!');
+
+    const fullName = UserUtils.getFullName(toUser);
+
+    const data = {
+      messageId: message.id,
+      conversationCid,
+      title: `${fullName} read your message 🤓`,
+      body: `${fullName} read ${message.text} `,
+      target: 'conversation',
+      category: 'stream.chat',
+      interruptionLevel: INTERRUPTION_LEVEL_TYPES.PASSIVE,
+      threadId: conversationCid,
+      author: toUser.id,
+    };
+
+    await PushService.sendPushNotificationToUsers(data, [fromUser]);
+  }
+
+  return response.status(200).end();
+};
 
 /**
  *

@@ -169,6 +169,29 @@ const deleteReservations = async user => {
 };
 
 /**
+ * 
+ * @param {*} user 
+ * @returns 
+ */
+const resetReservations = async user => {
+  try {
+    const reservations = await new Parse.Query('Reservation')
+      .equalTo('user', user).find({ useMasterKey: true });
+    await Promise.all(
+      reservations.map(res => {
+        res.set('isClaimed', false);
+        res.set('user', null);
+        return res.save(null, { useMasterKey: true });
+      })
+    );
+  } catch (error) {
+    throw new UserServiceError(
+      `Cannot reset associated reservations. Detail: ${error.message}`,
+    );
+  }
+};
+
+/**
  * Creates the handle for the user
  *
  * @param {*} user
@@ -176,12 +199,12 @@ const deleteReservations = async user => {
  */
 const createUserHandle = async (user, claimedPosition, maxQuePosition) => {
   // If the user has a quePosition already, use it. Else, get a new quePosition
-  const handlePositioN = claimedPosition / maxQuePosition;
+  const handlePosition = claimedPosition / maxQuePosition;
   // Generate the user handler
   const name = `${user.get('givenName')}${user
     .get('familyName')
     .substring(0, 1)}`;
-  const userHandle = `@${name.toLowerCase()}_${handlePositioN}`;
+  const userHandle = `@${name.toLowerCase()}_${handlePosition}`;
 
   return userHandle.replace('.', '');
 };
@@ -206,7 +229,6 @@ const setActiveStatus = async user => {
     user.set('handle', handle);
     user.set('status', UserStatus.USER_STATUS_ACTIVE);
 
-    await user.save(null, { useMasterKey: true });
     await QuePositionsService.update('claimedPosition', claimedPosition);
   }
 
@@ -242,7 +264,7 @@ const createUserPreference = async (fromUser, toUser) => {
  * @param {ParseUser} user
  */
 const connectUser = async user => {
-  await Stream.client.disconnectUser();
+  // await Stream.client.disconnectUser();
   const result = await Stream.client.connectUser(
     {
       id: user.id,
@@ -253,8 +275,23 @@ const connectUser = async user => {
   return result;
 };
 
+/**
+ *
+ * @param {ParseUser} user
+ */
+const disconnectUser = async () => {
+  await Stream.client.disconnectUser();
+};
+
+/**
+ * Creates/updates the a Stream user server-side
+ * 
+ * @param {*} user 
+ * @returns 
+ */
 const upsertUser = async user => {
-  await Stream.client.upsertUser(user);
+  const newUser = await Stream.client.upsertUser(user);
+  return newUser;
 };
 
 export default {
@@ -265,8 +302,10 @@ export default {
   deleteUserInstallations,
   deleteConnections,
   deleteReservations,
+  resetReservations,
   setActiveStatus,
   createUserPreference,
   connectUser,
-  upsertUser
+  upsertUser,
+  disconnectUser
 };

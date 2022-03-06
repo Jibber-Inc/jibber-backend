@@ -4,7 +4,7 @@ import Parse from '../providers/ParseProvider';
 
 import { STATUS_CREATED } from '../constants';
 
-class ConnectionServiceError extends ExtendableError {}
+class ConnectionServiceError extends ExtendableError { }
 
 /**
  * Create a connection between 2 users and return
@@ -18,6 +18,7 @@ const createConnection = async (
   fromUser,
   targetUser,
   status = STATUS_CREATED,
+  reservationId = undefined
 ) => {
   // Get "Connection" schema
   const Connection = Parse.Object.extend('Connection');
@@ -39,6 +40,7 @@ const createConnection = async (
     connection.set('to', targetUser);
     connection.set('from', fromUser);
     connection.set('status', status);
+    connection.set('reservation', reservationId);
 
     return connection.save();
   } catch (error) {

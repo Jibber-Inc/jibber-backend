@@ -1,70 +1,34 @@
 import ExtendableError from 'extendable-error-class';
+// Providers
 import Parse from '../providers/ParseProvider';
+
 import generatePassword from '../utils/generatePassword';
 import TwoFAService from '../services/TwoFAService';
 import UserService from '../services/UserService';
-import ReservationService, {
-  ReservationServiceError,
-} from '../services/ReservationService';
+import ReservationService from '../services/ReservationService';
+
+// Constants
+import UserStatus from '../constants/userStatus';
+
 // import QuePositionsService from '../services/QuePositionsService';
-import ConnectionService from '../services/ConnectionService';
 // Utils
 import testUser from '../utils/testUser';
 // import db from '../utils/db';
-// Providers
-import Stream from '../providers/StreamProvider';
 
-class ValidateCodeError extends ExtendableError { }
+class ValidateCodeError extends ExtendableError {}
 
 const setReservations = async user => {
   const hasReservations = await ReservationService.hasReservations(user);
   if (!hasReservations) {
-    // creates 3 reservations for the new user.
+    // creates 9 reservations for the new user.
     // TODO: set this number as an app configuration.
-    await ReservationService.createReservations(user, 3);
-  }
-};
-
-// Users that come with a reservation has full access
-// Users without a reservation are placed in a queue.
-// Their position in the queue is set when they send the validation code
-// The user status can be one of: active, inactive, waitlist
-// If the position is higher than the max allowed position (maxQuePosition), they get the waitlist status
-// Active: users that have full access to the application
-// Inactive: users that have full access to the application, but they didnt end the onboarding yet
-// Waitlist: users in the Waitlist have to wait until the maxQuePosition is increased, letting more users get full access.
-const setUserStatus = async (user, reservation = null) => {
-  // Get the needed que values to calculate the user status
-  // const config = await Parse.Config.get({ useMasterKey: true });
-  // get maxQuePosition from parse. This variable is manually set depending on the needs
-  // const maxQuePosition = config.get('maxQuePosition');
-  // get the last position of the queue + 1. For more information, check db import.
-  // let currentQuePosition = user.get('quePosition');
-
-  // if (!currentQuePosition) {
-  //   currentQuePosition = await db.getValueForNextSequence('unclaimedPosition');
-
-  //   await QuePositionsService.update('unclaimedPosition', currentQuePosition);
-  // }
-
-  if (user.get('status') && user.get('status') !== 'active') {
-    if (reservation) {
-      user.set('status', 'inactive');
-    } else {
-      // user.set('quePosition', currentQuePosition);
-      // if (maxQuePosition >= currentQuePosition) {
-      //   user.set('status', 'inactive');
-      // } else {
-      //   user.set('status', 'waitlist');
-      // }
-      user.set('status', 'waitlist');
-    }
+    await ReservationService.createReservations(user, 9);
   }
 };
 
 const validateCode = async request => {
   const { params, installationId } = request;
-  const { phoneNumber, authCode, reservationId, passId } = params;
+  const { phoneNumber, authCode } = params;
 
   // Phone number is required in request body
   if (!phoneNumber) {
@@ -89,13 +53,12 @@ const validateCode = async request => {
   const userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo('phoneNumber', phoneNumber);
   const user = await userQuery.first({ useMasterKey: true });
-
+  
   if (!(user instanceof Parse.User)) {
     throw new ValidateCodeError('[zIslmc6c] User not found');
   }
 
   try {
-    let conversationId;
     if (user.get('smsVerificationStatus') !== 'approved') {
       let status;
       if (testUser.isTestUser(phoneNumber)) {
@@ -113,44 +76,12 @@ const validateCode = async request => {
         throw new ValidateCodeError('[KTN1RYO9] Auth code validation failed');
       }
 
-      if (reservationId) {
-        await ReservationService.claimReservation(reservationId, user);
-      }
-
-      if (passId) {
-        const pass = await new Parse.Query('Pass').get(passId);
-        const owner = pass.get('owner');
-        const connection = await ConnectionService.createConnection(
-          user,
-          owner,
-          'accepted',
-        );
-        const relation = pass.relation('connections');
-        relation.add(connection);
-        await pass.save(null, { useMasterKey: true });
-
-        const members = [user.id, owner.id];
-        conversationId = `pass_${user.id}_${owner.id}`;
-
-        const conversationConfig = Stream.client.conversation(
-          'messaging',
-          conversationId,
-          {
-            name: '',
-            description: '',
-            members,
-            created_by_id: user.id,
-          },
-        );
-
-        await conversationConfig.create();
-
-        user.set('status', 'inactive');
-      } else {
-        await setUserStatus(user, reservationId);
-      }
-
       user.set('smsVerificationStatus', status);
+
+      if (user.get('status') && user.get('status') !== UserStatus.USER_STATUS_ACTIVE) {
+        user.set('status', UserStatus.USER_STATUS_INACTIVE);  
+      }
+      
       await user.save(null, { useMasterKey: true });
 
       setReservations(user);
@@ -162,6 +93,7 @@ const validateCode = async request => {
     );
     // If no session token present login the user.
     if (!sessionToken) {
+
       const logged = await Parse.User.logIn(
         user.getUsername(),
         generatePassword(user.get('hashcode')),
@@ -172,16 +104,8 @@ const validateCode = async request => {
       return logged.getSessionToken();
     }
 
-    return {
-      sessionToken,
-      conversationId,
-    };
+    return sessionToken;
   } catch (error) {
-    if (error instanceof ReservationServiceError) {
-      setUserStatus(user);
-      user.save(null, { useMasterKey: true });
-      throw error;
-    }
     throw new ValidateCodeError(`Validation error. Detail: ${error.message}`);
   }
 };
