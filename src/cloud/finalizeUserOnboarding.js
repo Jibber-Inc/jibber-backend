@@ -4,17 +4,14 @@ import UserService from '../services/UserService';
 import Parse from '../providers/ParseProvider';
 // Constants
 import UserStatus from '../constants/userStatus';
-// Constants
-import { TRANSACTION } from '../constants/transactions';
 // Services
 import ChatService from '../services/ChatService';
 import PassService from '../services/PassService';
 import ReservationService from '../services/ReservationService';
 import NoticeService from '../services/NoticeService';
 // Notifications
-import { NOTIFICATION_TYPES } from '../constants';
-import TransactionService from '../services/TransactionService';
 import QuePositionsService from '../services/QuePositionsService';
+import AchievementService from '../services/AchievementService';
 // Utils
 import db from '../utils/db';
 
@@ -91,27 +88,12 @@ const finalizeUserOnboarding = async request => {
       await PassService.handlePass(passId, user);
     }
 
+    // Set the user status depending on the reservations, passes and QuePositions
     await setUserStatus(user, reservationId, passId);
 
-    // Check if the user has a UNREAD_MESSAGES Notice
-    const notice = await new Parse.Query('Notice')
-      .equalTo('owner', user)
-      .equalTo('type', NOTIFICATION_TYPES.UNREAD_MESSAGES)
-      .first({ useMasterKey: true });
-    // If the user doesn't have a UNREAD_MESSASES Notice, create one
-    if (!notice) {
-      const noticeData = {
-        type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
-        body: 'You have 0 unread messages',
-        attributes: {
-          unreadMessageIds: []
-        },
-        priority: 1,
-        user
-      };
-      // Create the Notice object
-      await NoticeService.createNotice(noticeData);
-    }
+    // If the user has a unreadMessages notice, it won't create one.
+    // Otherwise, a new notice with the type unreadMessages will be created.
+    await NoticeService.createUnreadMessagesNotice(user);
 
     // Hold on with this functionality
     // await CircleService.createCircle(user);
@@ -130,15 +112,10 @@ const finalizeUserOnboarding = async request => {
         break;
     }
 
-    // Check if the user has a NEW_USER Transaction
-    const initialTransaction = await new Parse.Query('Transaction')
-      .equalTo('to', user)
-      .equalTo('eventType', TRANSACTION.EVENT_TYPE.NEW_USER)
-      .first({ useMasterKey: true });
-    // If not, create one
-    if (!initialTransaction) {
-      await TransactionService.createInitialTransaction(user);
-    }
+    // This will check first if the user has an achievement related to a
+    // INTEREST_PAYMENT (new user) AchievementType
+    // If not, will create it and the transaction associated.
+    await AchievementService.createNewUserAchievement(user);
 
     user.save(null, { useMasterKey: true });
 

@@ -91,28 +91,6 @@ const deleteConversation = async conversationSid => {
 };
 
 /**
- * Remove the user from Twilio service
- *
- * @param {*} userId
- */
-const deleteTwilioUser = async userId => {
-  try {
-    const twilioUser = await new Twilio().client.chat
-      .services(SERVICE_ID)
-      .users(userId)
-      .fetch();
-    if (twilioUser) {
-      await new Twilio().client.chat
-        .services(SERVICE_ID)
-        .users(userId)
-        .remove();
-    }
-  } catch (error) {
-    throw new ChatServiceError(error.message);
-  }
-};
-
-/**
  * Remove all conversations from user
  *
  * @param {String} userId
@@ -271,11 +249,12 @@ const addMemberToConversation = async (conversation, members) => {
  * @param {*} userId 
  * @returns 
  */
-const deleteUser = async (userId) => {
-  const deletedUser = await Stream.client.deleteUser(userId, {
-    mark_messages_deleted: false,
-  });
-  return deletedUser;
+const deleteWaitlistConversation = async (userId) => {
+  const conversationCid = `messaging:${userId}_waitlist_conversation`;
+  const conversation = await getConversationByCid(conversationCid)
+  const deletedConversation = await conversation.delete();
+
+  return deletedConversation;
 };
 
 /**
@@ -284,12 +263,12 @@ const deleteUser = async (userId) => {
  * @param {*} userId 
  * @returns 
  */
- const deleteWaitlistConversation = async (userId) => {
-  const conversationCid = `messaging:${userId}_waitlist_conversation`;
-  const conversation = await getConversationByCid(conversationCid)
-  const deletedConversation = await conversation.delete();
-
-  return deletedConversation;
+const deleteUser = async (userId) => {
+  await deleteWaitlistConversation(userId);
+  const deletedUser = await Stream.client.deleteUser(userId, {
+    mark_messages_deleted: false,
+  });
+  return deletedUser;
 };
 
 /**
@@ -325,7 +304,7 @@ const createWaitlistConversation = async (user) => {
   );
 
   if (!hasWaitListConversation.length) {
-    // TODO: Uncomment when the app (frontend) is ready to use it.
+    // TODO: Uncomment this when the app (frontend) is ready to use it.
     // await ChatService.createConversation(
     //   user,
     //   `${user.id}_invitation_conversation_${new Date().getTime()}`,
@@ -360,7 +339,7 @@ const createWaitlistConversation = async (user) => {
           const newMessage = {
             text: formattedMessage,
             user_id: admin.id
-          };  
+          };
           return createMessage(newMessage, conversation);
         }),
       );
@@ -370,7 +349,6 @@ const createWaitlistConversation = async (user) => {
 
 export default {
   createConversation,
-  deleteTwilioUser,
   deleteUser,
   deleteUserConversations,
   createMessage,

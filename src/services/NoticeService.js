@@ -26,7 +26,7 @@ const createNotice = async data => {
   return notice;
 };
 
-const getNoticeByOwner = async (user,type) => {
+const getNoticeByOwner = async (user, type) => {
   const notice = await new Parse.Query('Notice')
     .equalTo('owner', user)
     .equalTo('type', type)
@@ -54,8 +54,30 @@ const deleteNotice = async user => {
   }
 };
 
+const createUnreadMessagesNotice = async (user) => {
+  // Check if the user has a UNREAD_MESSAGES Notice
+  const notice = await new Parse.Query('Notice')
+    .equalTo('owner', user)
+    .equalTo('type', NOTIFICATION_TYPES.UNREAD_MESSAGES)
+    .first({ useMasterKey: true });
+  // If the user doesn't have a UNREAD_MESSASES Notice, create one
+  if (!notice) {
+    const noticeData = {
+      type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
+      body: 'You have 0 unread messages',
+      attributes: {
+        unreadMessageIds: []
+      },
+      priority: 1,
+      user
+    };
+    await createNotice(noticeData);
+  }
+};
+
 export default {
   createNotice,
   getNoticeByOwner,
   deleteNotice,
+  createUnreadMessagesNotice
 };
