@@ -124,7 +124,7 @@ const finalizeUserOnboarding = async request => {
     // Upsert achievement FIRST_10K.
     await AchievementService.createAchievementAndTransaction(
       user,
-      ACHIEVEMENTS.firstTenK
+      ACHIEVEMENTS.firstTenK.type
     );
 
     user.save(null, { useMasterKey: true });
