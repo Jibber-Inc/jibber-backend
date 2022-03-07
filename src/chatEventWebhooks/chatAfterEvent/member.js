@@ -10,12 +10,16 @@ import UserUtils from '../../utils/userData';
  */
 const added = async (request, response) => {
   const {
-    conversationId,
+    conversationCid,
     user,
   } = EventWrapper.getParams(request.body);
-
+  console.log(' ***** MEMBER . ADDED ')
   try {
-    const conversation = await ChatService.getConversationById(conversationId);
+    console.log(' ***** ***** ***** **** ')
+
+    const conversation = await ChatService.getConversationByCid(conversationCid);
+
+    console.log(' ***** ***** PASO  ***** **** ')
     const fullName = UserUtils.getFullName(user);
     const message = {
       text: `${fullName} has joined the conversation.`,
@@ -51,11 +55,11 @@ const updated = (request, response) => response.status(200).json();
  */
 const removed = async (request, response) => {
   const {
-    conversationId,
+    conversationCid,
     user,
   } = EventWrapper.getParams(request.body);
   try {
-    const conversation = await ChatService.getConversationById(conversationId);
+    const conversation = await ChatService.getConversationByCid(conversationCid);
     const fullName = UserUtils.getFullName(user);
     const message = {
       text: `${fullName} has left the conversation.`,

@@ -16,7 +16,7 @@ const newReaction = async (request, response) => {
     conversationCid,
     reaction: incomingReaction,
   } = EventWrapper.getParams(request.body);
-  console.log('------ *****aaaaaa******* ------');
+  console.log('------ ***** REACTIOOON ******* ------');
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
   if (!fromUser) throw new Error('User not found!');
   console.log('------ *****bbbbbbbb******* ------');
