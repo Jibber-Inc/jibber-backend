@@ -16,17 +16,19 @@ const newReaction = async (request, response) => {
     conversationCid,
     reaction: incomingReaction,
   } = EventWrapper.getParams(request.body);
-
+  console.log('------ *****aaaaaa******* ------');
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
   if (!fromUser) throw new Error('User not found!');
-
+  console.log('------ *****bbbbbbbb******* ------');
   const latestReactions = message.latest_reactions;
-
+  console.log('------ *****ccccccc******* ------', latestReactions);
   const reactionsFiltered = latestReactions.filter(
     reaction => reaction.type === REACTION_TYPES.READ,
   );
-
+  console.log('------ *****dddddd******* ------');
   if (incomingReaction.type === REACTION_TYPES.READ) {
+    console.log('------ *****eeeeeeee******* ------');
+
     const notice = await NoticeService.getNoticeByOwner(
       fromUser,
       NOTIFICATION_TYPES.UNREAD_MESSAGES,
@@ -44,6 +46,7 @@ const newReaction = async (request, response) => {
       notice.save(null, { useMasterKey: true });
     }
   }
+  console.log('------ *****ffffffff******* ------');
 
   if (
     reactionsFiltered.length &&
@@ -51,6 +54,8 @@ const newReaction = async (request, response) => {
     message.context &&
     message.context === MESSAGE.CONTEXT.TIME_SENSITIVE
   ) {
+    console.log('------ *****gggggggg******* ------');
+
     const toUser = await new Parse.Query(Parse.User).get(
       reactionsFiltered[0].user_id,
     );
@@ -58,6 +63,7 @@ const newReaction = async (request, response) => {
     if (!toUser) throw new Error('No destination user found!');
 
     const fullName = UserUtils.getFullName(toUser);
+    console.log('------ *****hhhhhhhh******* ------');
 
     const data = {
       messageId: message.id,
@@ -70,10 +76,10 @@ const newReaction = async (request, response) => {
       threadId: conversationCid,
       author: toUser.id,
     };
-
+    console.log('------ *****iiiiiiiiiii******* ------');
     await PushService.sendPushNotificationToUsers(data, [fromUser]);
   }
-
+  console.log('------ *****jjjjjj******* ------');
   return response.status(200).end();
 };
 
