@@ -1,3 +1,4 @@
+import Parse from '../../providers/ParseProvider';
 import ChatService from "../../services/ChatService";
 import EventWrapper from '../../utils/eventWrapper';
 import UserUtils from '../../utils/userData';
@@ -15,22 +16,25 @@ const added = async (request, response) => {
   } = EventWrapper.getParams(request.body);
   console.log(' ***** MEMBER . ADDED ')
   try {
-    console.log(' ***** ***** ***** **** ')
+    console.log(' ***** ***** xxxxx ***** **** ')
 
     const conversation = await ChatService.getConversationByCid(conversationCid);
+    const fromUser = await new Parse.Query(Parse.User).get(user.id);
+
+    if (!fromUser) throw new Error('User not found!');
 
     console.log(' ***** ***** PASO  ***** **** ')
-    const fullName = UserUtils.getFullName(user);
+    const fullName = UserUtils.getFullName(fromUser);
     const message = {
       text: `${fullName} has joined the conversation.`,
       type: 'system',
       context: 'casual',
-      user_id: user.id,
+      user_id: fromUser.id,
       attributes: JSON.stringify({
         context: 'casual',
       })
     };
-
+    console.log('zZzZZZZZzzzz')
     await ChatService.createMessage(message, conversation);
     
     return response.status(200).end();
@@ -59,17 +63,23 @@ const removed = async (request, response) => {
     user,
   } = EventWrapper.getParams(request.body);
   try {
+    console.log('MMMMM')
     const conversation = await ChatService.getConversationByCid(conversationCid);
-    const fullName = UserUtils.getFullName(user);
+    const fromUser = await new Parse.Query(Parse.User).get(user.id);
+    console.log('TTTTTT')
+    if (!fromUser) throw new Error('User not found!');
+    console.log('PASOOOO ')
+    const fullName = UserUtils.getFullName(fromUser);
     const message = {
       text: `${fullName} has left the conversation.`,
       type: 'system',
       context: 'casual',
-      user_id: user.id,
+      user_id: fromUser.id,
       attributes: JSON.stringify({
         context: 'casual',
       })
     };
+    console.log('zZzZZZZZzzzz')
     const messageCreated = await ChatService.createMessage(message, conversation);
     return response.status(200).json(messageCreated);
   } catch (error) {
