@@ -21,6 +21,7 @@ const newReaction = async (request, response) => {
   if (!fromUser) throw new Error('User not found!');
 
   const latestReactions = message.latest_reactions;
+
   const reactionsFiltered = latestReactions.filter(
     reaction => reaction.type === REACTION_TYPES.READ,
   );
