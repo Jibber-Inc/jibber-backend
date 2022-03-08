@@ -16,11 +16,11 @@ const newReaction = async (request, response) => {
     conversationCid,
     reaction: incomingReaction,
   } = EventWrapper.getParams(request.body);
- 
+
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
   if (!fromUser) throw new Error('User not found!');
- 
+
   const latestReactions = message.latest_reactions;
 
   const reactionsFiltered = latestReactions.filter(
@@ -37,7 +37,7 @@ const newReaction = async (request, response) => {
     if (notice) {
       const attributes = notice.get('attributes');
 
-      if(attributes && attributes.unreadMessage){
+      if (attributes && attributes.unreadMessages) {
         const filteredAttributes = attributes.unreadMessages.filter(
           unreadMessage => unreadMessage.messageId !== message.id,
         );
@@ -78,7 +78,7 @@ const newReaction = async (request, response) => {
     };
     await PushService.sendPushNotificationToUsers(data, [fromUser]);
   }
-  
+
   return response.status(200).end();
 };
 
