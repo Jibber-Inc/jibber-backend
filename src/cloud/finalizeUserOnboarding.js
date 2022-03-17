@@ -100,8 +100,6 @@ const finalizeUserOnboarding = async request => {
     // Hold on with this functionality
     // await CircleService.createCircle(user);
 
-
-
     const currentUserStatus = user.get('status');
     switch (currentUserStatus) {
       case UserStatus.USER_STATUS_WAITLIST:
