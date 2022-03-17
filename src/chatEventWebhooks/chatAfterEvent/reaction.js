@@ -28,7 +28,6 @@ const newReaction = async (request, response) => {
   );
 
   if (incomingReaction.type === REACTION_TYPES.READ) {
-
     const notice = await NoticeService.getNoticeByOwner(
       fromUser,
       NOTIFICATION_TYPES.UNREAD_MESSAGES,
@@ -56,7 +55,6 @@ const newReaction = async (request, response) => {
     message.context &&
     message.context === MESSAGE.CONTEXT.TIME_SENSITIVE
   ) {
-
     const toUser = await new Parse.Query(Parse.User).get(
       reactionsFiltered[0].user_id,
     );
