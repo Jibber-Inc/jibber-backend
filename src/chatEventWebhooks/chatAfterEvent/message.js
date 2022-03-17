@@ -51,13 +51,15 @@ const newMessage = async (request, response) => {
     if (notice) {
       const attributes = notice.get('attributes');
 
-      attributes.unreadMessages.push({
-        cid: conversationCid,
-        messageId: message.id
-      });
+      if (attributes && attributes.unreadMessages) {
+        attributes.unreadMessages.push({
+          cid: conversationCid,
+          messageId: message.id
+        });
 
-      notice.set('attributes', attributes);
-      notice.save(null, { useMasterKey: true });
+        notice.set('attributes', attributes);
+        notice.save(null, { useMasterKey: true });
+      }
     }
 
     // Set the data for the alert message push notification

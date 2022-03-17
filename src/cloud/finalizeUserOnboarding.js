@@ -100,10 +100,18 @@ const finalizeUserOnboarding = async request => {
     // Hold on with this functionality
     // await CircleService.createCircle(user);
 
+<<<<<<< HEAD
     const currentUserStatus = user.get('status');
     switch (currentUserStatus) {
       case UserStatus.USER_STATUS_WAITLIST:
         await createInitialConversations(user, currentUserStatus);
+=======
+
+
+    const currentUserStatus = user.get('status');
+    switch (currentUserStatus) {
+      case UserStatus.USER_STATUS_WAITLIST:
+>>>>>>> develop
         break;
 
       case UserStatus.USER_STATUS_INACTIVE:
@@ -114,6 +122,12 @@ const finalizeUserOnboarding = async request => {
         break;
     }
 
+<<<<<<< HEAD
+=======
+    // Create an intial conversation if one does not already exist 
+    await createInitialConversations(user, currentUserStatus);
+
+>>>>>>> develop
     // Upsert achievement INTEREST_PAYMENT (new user).
     await AchievementService.createAchievementAndTransaction(
       user,

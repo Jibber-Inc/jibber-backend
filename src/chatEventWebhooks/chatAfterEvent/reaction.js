@@ -18,14 +18,26 @@ const newReaction = async (request, response) => {
   } = EventWrapper.getParams(request.body);
 
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
+<<<<<<< HEAD
   if (!fromUser) throw new Error('User not found!');
 
   const latestReactions = message.latest_reactions;
+=======
+
+  if (!fromUser) throw new Error('User not found!');
+
+  const latestReactions = message.latest_reactions;
+
+>>>>>>> develop
   const reactionsFiltered = latestReactions.filter(
     reaction => reaction.type === REACTION_TYPES.READ,
   );
 
   if (incomingReaction.type === REACTION_TYPES.READ) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
     const notice = await NoticeService.getNoticeByOwner(
       fromUser,
       NOTIFICATION_TYPES.UNREAD_MESSAGES,
@@ -33,6 +45,7 @@ const newReaction = async (request, response) => {
 
     if (notice) {
       const attributes = notice.get('attributes');
+<<<<<<< HEAD
       const filteredAttributes = attributes.unreadMessages.filter(
         unreadMessage => unreadMessage.messageId !== message.id,
       );
@@ -41,6 +54,19 @@ const newReaction = async (request, response) => {
         unreadMessages: filteredAttributes,
       });
       notice.save(null, { useMasterKey: true });
+=======
+
+      if (attributes && attributes.unreadMessages) {
+        const filteredAttributes = attributes.unreadMessages.filter(
+          unreadMessage => unreadMessage.messageId !== message.id,
+        );
+        notice.set('attributes', {
+          ...attributes,
+          unreadMessages: filteredAttributes,
+        });
+        notice.save(null, { useMasterKey: true });
+      }
+>>>>>>> develop
     }
   }
 
@@ -50,6 +76,10 @@ const newReaction = async (request, response) => {
     message.context &&
     message.context === MESSAGE.CONTEXT.TIME_SENSITIVE
   ) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
     const toUser = await new Parse.Query(Parse.User).get(
       reactionsFiltered[0].user_id,
     );
@@ -69,7 +99,10 @@ const newReaction = async (request, response) => {
       threadId: conversationCid,
       author: toUser.id,
     };
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
     await PushService.sendPushNotificationToUsers(data, [fromUser]);
   }
 
