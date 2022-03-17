@@ -60,11 +60,8 @@ const api = new ParseServer({
       'Notice',
       '_User',
       'Connection',
-<<<<<<< HEAD
       'Achievement',
       'Transaction',
-=======
->>>>>>> develop
       'Reservation'
     ],
     redisUrl: REDIS_URL,
