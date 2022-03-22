@@ -47,50 +47,46 @@ const newMessage = async (request, response) => {
       .filter(u => u !== user.id);
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
+    
+    users.forEach(async u => {
+      const notice = await NoticeService.getNoticeByOwner(
+        u,
+        NOTIFICATION_TYPES.UNREAD_MESSAGES,
+      );
 
-    usersIdentities.forEach(async userId => {
-      const conversationMember = await new Parse.Query(Parse.User).get(userId);
+      if (notice) {
+        const attributes = notice.get('attributes');
 
-      if (conversationMember) {
-        const notice = await NoticeService.getNoticeByOwner(
-          conversationMember,
-          NOTIFICATION_TYPES.UNREAD_MESSAGES,
-        );
+        if (attributes && attributes.unreadMessages) {
+          attributes.unreadMessages.push({
+            cid: conversationCid,
+            messageId: message.id,
+          });
 
-        if (notice) {
-          const attributes = notice.get('attributes');
-
-          if (attributes && attributes.unreadMessages) {
-            attributes.unreadMessages.push({
-              cid: conversationCid,
-              messageId: message.id,
-            });
-
-            notice.set('attributes', attributes);
-            notice.save(null, { useMasterKey: true });
-          }
+          notice.set('attributes', attributes);
+          notice.save(null, { useMasterKey: true });
         }
-
-        // Set the data for the alert message push notification
-        const fullName = UserUtils.getFullName(conversationMember);
-
-        const data = {
-          messageId: message.id,
-          conversationCid,
-          identifier: message.id + context,
-          title: `${fullName}`,
-          body: message.text,
-          target: 'conversation',
-          category: 'MESSAGE_NEW',
-          interruptionLevel: getInterruptionLevel(message.context),
-          threadId: conversationCid,
-          author: fromUser.id,
-          connectionId,
-        };
-
-        // Send the push notification
-        await PushService.sendPushNotificationToUsers(data, users);
       }
+
+      // Set the data for the alert message push notification
+      const fullName = UserUtils.getFullName(u);
+
+      const data = {
+        messageId: message.id,
+        conversationCid,
+        identifier: message.id + context,
+        title: `${fullName}`,
+        body: message.text,
+        target: 'conversation',
+        category: 'MESSAGE_NEW',
+        interruptionLevel: getInterruptionLevel(message.context),
+        threadId: conversationCid,
+        author: fromUser.id,
+        connectionId,
+      };
+
+      // Send the push notification
+      await PushService.sendPushNotificationToUsers(data, users);
     });
 
     return response.status(200).end();
