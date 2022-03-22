@@ -44,7 +44,7 @@ const newReaction = async (request, response) => {
           ...attributes,
           unreadMessages: filteredAttributes,
         });
-        notice.save(null, { useMasterKey: true });
+        await notice.save(null, { useMasterKey: true });
       }
     }
   }

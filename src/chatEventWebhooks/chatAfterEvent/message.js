@@ -47,10 +47,12 @@ const newMessage = async (request, response) => {
       .filter(u => u !== user.id);
 
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
-    
-    users.forEach(async u => {
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < users.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
       const notice = await NoticeService.getNoticeByOwner(
-        u,
+        users[i],
         NOTIFICATION_TYPES.UNREAD_MESSAGES,
       );
 
@@ -64,30 +66,31 @@ const newMessage = async (request, response) => {
           });
 
           notice.set('attributes', attributes);
-          notice.save(null, { useMasterKey: true });
+          // eslint-disable-next-line no-await-in-loop
+          await notice.save(null, { useMasterKey: true });
         }
       }
+    }
 
-      // Set the data for the alert message push notification
-      const fullName = UserUtils.getFullName(u);
+    // Set the data for the alert message push notification
+    const fullName = UserUtils.getFullName(fromUser);
 
-      const data = {
-        messageId: message.id,
-        conversationCid,
-        identifier: message.id + context,
-        title: `${fullName}`,
-        body: message.text,
-        target: 'conversation',
-        category: 'MESSAGE_NEW',
-        interruptionLevel: getInterruptionLevel(message.context),
-        threadId: conversationCid,
-        author: fromUser.id,
-        connectionId,
-      };
+    const data = {
+      messageId: message.id,
+      conversationCid,
+      identifier: message.id + context,
+      title: `${fullName}`,
+      body: message.text,
+      target: 'conversation',
+      category: 'MESSAGE_NEW',
+      interruptionLevel: getInterruptionLevel(message.context),
+      threadId: conversationCid,
+      author: fromUser.id,
+      connectionId,
+    };
 
-      // Send the push notification
-      await PushService.sendPushNotificationToUsers(data, users);
-    });
+    // Send the push notification
+    await PushService.sendPushNotificationToUsers(data, users);
 
     return response.status(200).end();
   } catch (error) {
