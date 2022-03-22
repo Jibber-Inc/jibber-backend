@@ -12,7 +12,7 @@ import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES } from '../../constants';
  * @param {*} focusStatus
  * @returns
  */
-const getInterruptionLevel = (context) => {
+const getInterruptionLevel = context => {
   if (context === INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE) {
     return INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE;
   }
@@ -45,42 +45,53 @@ const newMessage = async (request, response) => {
     const usersIdentities = members
       .map(m => m.user_id)
       .filter(u => u !== user.id);
+
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
-    const notice = await NoticeService.getNoticeByOwner(fromUser, NOTIFICATION_TYPES.UNREAD_MESSAGES);
 
-    if (notice) {
-      const attributes = notice.get('attributes');
+    usersIdentities.forEach(async userId => {
+      const conversationMember = await new Parse.Query(Parse.User).get(userId);
 
-      if (attributes && attributes.unreadMessages) {
-        attributes.unreadMessages.push({
-          cid: conversationCid,
-          messageId: message.id
-        });
+      if (conversationMember) {
+        const notice = await NoticeService.getNoticeByOwner(
+          conversationMember,
+          NOTIFICATION_TYPES.UNREAD_MESSAGES,
+        );
 
-        notice.set('attributes', attributes);
-        notice.save(null, { useMasterKey: true });
+        if (notice) {
+          const attributes = notice.get('attributes');
+
+          if (attributes && attributes.unreadMessages) {
+            attributes.unreadMessages.push({
+              cid: conversationCid,
+              messageId: message.id,
+            });
+
+            notice.set('attributes', attributes);
+            notice.save(null, { useMasterKey: true });
+          }
+        }
+
+        // Set the data for the alert message push notification
+        const fullName = UserUtils.getFullName(conversationMember);
+
+        const data = {
+          messageId: message.id,
+          conversationCid,
+          identifier: message.id + context,
+          title: `${fullName}`,
+          body: message.text,
+          target: 'conversation',
+          category: 'MESSAGE_NEW',
+          interruptionLevel: getInterruptionLevel(message.context),
+          threadId: conversationCid,
+          author: fromUser.id,
+          connectionId,
+        };
+
+        // Send the push notification
+        await PushService.sendPushNotificationToUsers(data, users);
       }
-    }
-
-    // Set the data for the alert message push notification
-    const fullName = UserUtils.getFullName(fromUser);
-
-    const data = {
-      messageId: message.id,
-      conversationCid,
-      identifier: message.id + context,
-      title: `${fullName}`,
-      body: message.text,
-      target: 'conversation',
-      category: 'MESSAGE_NEW',
-      interruptionLevel: getInterruptionLevel(message.context),
-      threadId: conversationCid,
-      author: fromUser.id,
-      connectionId,
-    };
-
-    // Send the push notification
-    await PushService.sendPushNotificationToUsers(data, users);
+    });
 
     return response.status(200).end();
   } catch (error) {
