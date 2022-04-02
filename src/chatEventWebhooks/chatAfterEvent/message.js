@@ -12,7 +12,7 @@ import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES } from '../../constants';
  * @param {*} focusStatus
  * @returns
  */
-const getInterruptionLevel = (context) => {
+const getInterruptionLevel = context => {
   if (context === INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE) {
     return INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE;
   }
@@ -45,20 +45,30 @@ const newMessage = async (request, response) => {
     const usersIdentities = members
       .map(m => m.user_id)
       .filter(u => u !== user.id);
+
     const users = usersIdentities.map(uid => Parse.User.createWithoutData(uid));
-    const notice = await NoticeService.getNoticeByOwner(fromUser, NOTIFICATION_TYPES.UNREAD_MESSAGES);
 
-    if (notice) {
-      const attributes = notice.get('attributes');
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < users.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      const notice = await NoticeService.getNoticeByOwner(
+        users[i],
+        NOTIFICATION_TYPES.UNREAD_MESSAGES,
+      );
 
-      if (attributes && attributes.unreadMessages) {
-        attributes.unreadMessages.push({
-          cid: conversationCid,
-          messageId: message.id
-        });
+      if (notice) {
+        const attributes = notice.get('attributes');
 
-        notice.set('attributes', attributes);
-        notice.save(null, { useMasterKey: true });
+        if (attributes && attributes.unreadMessages) {
+          attributes.unreadMessages.push({
+            cid: conversationCid,
+            messageId: message.id,
+          });
+
+          notice.set('attributes', attributes);
+          // eslint-disable-next-line no-await-in-loop
+          await notice.save(null, { useMasterKey: true });
+        }
       }
     }
 
