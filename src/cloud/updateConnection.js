@@ -71,7 +71,7 @@ const updateConnection = async request => {
         const conversation = await ChatService.createConversation(
           fromUser,
           conversationId,
-          null,
+          'messaging',
           conversationId,
           [fromUser.id, toUser.id],
         );
