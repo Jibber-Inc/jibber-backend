@@ -22,7 +22,7 @@ const newReaction = async (request, response) => {
   if (!fromUser) throw new Error('User not found!');
 
   const latestReactions = message.latest_reactions;
-  console.log('BBBBBB');
+  console.log('BBBBBB', latestReactions);
   const reactionsFilteredByTypeRead = latestReactions.filter(
     reaction => reaction.type === REACTION_TYPES.READ,
   );
@@ -52,7 +52,7 @@ const newReaction = async (request, response) => {
   console.log('DDDDDD')
   
   if (incomingReaction.type === REACTION_TYPES.READ && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
-    console.log('BBBB', message.latestReactions)
+    console.log('BBBB', message)
     if(message && message.latestReactions){ 
       console.log('xxxxxx') 
       const readerIds = message.latestReactions & message.latestReactions.map(reaction => reaction.user_id) ?? [];
