@@ -52,10 +52,13 @@ const newReaction = async (request, response) => {
   console.log('DDDDDD')
   
   if (incomingReaction.type === REACTION_TYPES.READ && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
-    console.log('BBBB')
-    const readerIds = message.latestReactions.map(reaction => reaction.user_id);
-    console.log('CCCCC')   
-    await NoticeService.createOrUpdateMessageReadNotice(fromUser, conversationCid, message.id, readerIds)
+    console.log('BBBB', message.latestReactions)
+    if(message && message.latestReactions){ 
+      console.log('xxxxxx') 
+      const readerIds = message.latestReactions & message.latestReactions.map(reaction => reaction.user_id) ?? [];
+      console.log('CCCCC')   
+      await NoticeService.createOrUpdateMessageReadNotice(fromUser, conversationCid, message.id, readerIds)
+    }
   }
 
   if (
