@@ -2,7 +2,7 @@ import ExtendableError from 'extendable-error-class';
 import { NOTIFICATION_TYPES } from '../constants';
 import Parse from '../providers/ParseProvider';
 
-class NoticeServiceError extends ExtendableError { }
+class NoticeServiceError extends ExtendableError {}
 
 /**
  * Creates a Notice object with the given data
@@ -54,7 +54,7 @@ const deleteNotice = async user => {
   }
 };
 
-const createUnreadMessagesNotice = async (user) => {
+const createUnreadMessagesNotice = async user => {
   // Check if the user has a UNREAD_MESSAGES Notice
   const notice = await new Parse.Query('Notice')
     .equalTo('owner', user)
@@ -66,12 +66,50 @@ const createUnreadMessagesNotice = async (user) => {
       type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
       body: 'You have 0 unread messages',
       attributes: {
-        unreadMessageIds: []
+        unreadMessageIds: [],
       },
       priority: 1,
-      user
+      user,
     };
     await createNotice(noticeData);
+  }
+};
+
+const createOrUpdateMessageReadNotice = async (user, cid, messageId, userIds) => {
+  console.log('CID', cid)
+  console.log('messageId', messageId)
+  console.log('userIds', userIds)
+
+  const notice = await getNoticeByOwner(user, NOTIFICATION_TYPES.MESSAGE_READ);
+
+  if(!notice){
+    console.log('CREACION')
+    const noticeData = {
+      type: NOTIFICATION_TYPES.MESSAGE_READ,
+      body: '',
+      attributes: {
+        cid,
+        messageId,
+        userIds
+      },
+      priority: 1,
+      user,
+    };
+  
+     await createNotice(noticeData);
+  }else{
+    console.log('ACTUALIZACION')
+    const attributes = notice.get('attributes');
+
+    if (attributes && attributes.userIds) {
+      
+      notice.set('attributes', {
+        ...attributes,
+        userIds,
+      });
+  
+      await notice.save(null, { useMasterKey: true });
+    }
   }
 };
 
@@ -79,5 +117,6 @@ export default {
   createNotice,
   getNoticeByOwner,
   deleteNotice,
-  createUnreadMessagesNotice
+  createUnreadMessagesNotice,
+  createOrUpdateMessageReadNotice
 };
