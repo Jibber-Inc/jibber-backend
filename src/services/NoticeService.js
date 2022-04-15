@@ -112,6 +112,7 @@ const createOrUpdateMessageReadNotice = async (
 };
 
 const createAlertMessageNotice = async (user, cid, messageId) => {
+  console.log('CREAND LA NOTICE')
   const noticeData = {
     type: NOTIFICATION_TYPES.ALERT_MESSAGE,
     body: '',
