@@ -80,10 +80,15 @@ const newMessage = async (request, response) => {
       console.log('RECIPIENTS ', recipients)
       if(recipients.length){
         console.log('DDDDDDDDDDDDDD')
+        
         await Promise.all(recipients.map(async (recipient) => {
-          console.log('XXXXXXXXXXXXXXXXX')
-          await NoticeService.createAlertMessageNotice(recipient, conversationCid, message.id);
-          console.log('mmmmmmmmmmmmm')
+          const toUser = await new Parse.Query(Parse.User).get(recipient.user.id);
+          
+          if (toUser){
+            console.log('XXXXXXXXXXXXXXXXX')
+            await NoticeService.createAlertMessageNotice(toUser, conversationCid, message.id);
+            console.log('mmmmmmmmmmmmm')
+          }
         }));
       }
     }
