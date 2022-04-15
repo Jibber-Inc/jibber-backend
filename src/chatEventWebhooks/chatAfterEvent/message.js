@@ -3,7 +3,7 @@ import UserUtils from '../../utils/userData';
 import PushService from '../../services/PushService';
 import EventWrapper from '../../utils/eventWrapper';
 import NoticeService from '../../services/NoticeService';
-import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES } from '../../constants';
+import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES, MESSAGE } from '../../constants';
 
 /**
  * Given a context and a focus-status, returns an interruption-level
@@ -69,6 +69,21 @@ const newMessage = async (request, response) => {
           // eslint-disable-next-line no-await-in-loop
           await notice.save(null, { useMasterKey: true });
         }
+      }
+    }
+
+    console.log('AAAAAAAAAAAAAAA')
+
+    if(message.context === MESSAGE.CONTEXT.TIME_SENSITIVE){
+      console.log('BBBBBBBBBBBBBBBB')
+      const recipients = members.filter(member => member.user.id !== user.id)
+      console.log('CCCCCCCCCCCCCCCC', recipients)
+      if(recipients.length){
+        console.log('DDDDDDDDDDDDDD', recipients)
+        await Promise.all(recipients.map(async (recipient) => {
+          console.log('XXXXXXXXXXXXXXXXX', recipients)
+          await NoticeService.createAlertMessageNotice(recipient, conversationCid, message.id);
+        }));
       }
     }
 

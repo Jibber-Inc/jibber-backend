@@ -75,36 +75,54 @@ const createUnreadMessagesNotice = async user => {
   }
 };
 
-const createOrUpdateMessageReadNotice = async (user, cid, messageId, userIds) => {
+const createOrUpdateMessageReadNotice = async (
+  user,
+  cid,
+  messageId,
+  userIds,
+) => {
   const notice = await getNoticeByOwner(user, NOTIFICATION_TYPES.MESSAGE_READ);
 
-  if(!notice){
+  if (!notice) {
     const noticeData = {
       type: NOTIFICATION_TYPES.MESSAGE_READ,
       body: '',
       attributes: {
         cid,
         messageId,
-        userIds
+        userIds,
       },
       priority: 1,
       user,
     };
-  
-     await createNotice(noticeData);
-  }else{
+
+    await createNotice(noticeData);
+  } else {
     const attributes = notice.get('attributes');
 
     if (attributes && attributes.userIds) {
-      
       notice.set('attributes', {
         ...attributes,
         userIds,
       });
-  
+
       await notice.save(null, { useMasterKey: true });
     }
   }
+};
+
+const createAlertMessageNotice = async (user, cid, messageId) => {
+  const noticeData = {
+    type: NOTIFICATION_TYPES.ALERT_MESSAGE,
+    body: '',
+    attributes: {
+      cid,
+      messageId
+    },
+    priority: 1,
+    user,
+  };
+  await createNotice(noticeData);
 };
 
 export default {
@@ -112,5 +130,6 @@ export default {
   getNoticeByOwner,
   deleteNotice,
   createUnreadMessagesNotice,
-  createOrUpdateMessageReadNotice
+  createOrUpdateMessageReadNotice,
+  createAlertMessageNotice,
 };
