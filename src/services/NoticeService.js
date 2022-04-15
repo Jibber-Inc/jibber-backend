@@ -39,11 +39,11 @@ const getNoticeByOwner = async (user, type) => {
  *
  * @param {Parse.User} user
  */
-const deleteNotice = async user => {
+const deleteNotice = async (user, type) => {
   try {
     const query = new Parse.Query('Notice')
       .equalTo('owner', user)
-      .equalTo('type', NOTIFICATION_TYPES.UNREAD_MESSAGES);
+      .equalTo('type', type);
     const result = await query.first({ useMasterKey: true });
 
     if (result) {

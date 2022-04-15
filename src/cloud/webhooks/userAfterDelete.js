@@ -3,6 +3,7 @@ import Parse from '../../providers/ParseProvider';
 import ChatService from '../../services/ChatService';
 import NoticeService from '../../services/NoticeService';
 import UserService from '../../services/UserService';
+import { NOTIFICATION_TYPES} from '../../constants';
 
 class UserAfterDeleteError extends ExtendableError { }
 
@@ -27,7 +28,7 @@ const userAfterDelete = async request => {
       UserService.clearUserSessions(user),
       UserService.resetReservations(user),
       ChatService.deleteUser(user.id),
-      NoticeService.deleteNotice(user)
+      NoticeService.deleteNotice(user, NOTIFICATION_TYPES.UNREAD_MESSAGES)
     ]);
   } catch (error) {
     console.warn(error);
