@@ -16,23 +16,23 @@ const newReaction = async (request, response) => {
     conversationCid,
     reaction: incomingReaction,
   } = EventWrapper.getParams(request.body);
-
+  console.log('AAAAAAA');
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
   if (!fromUser) throw new Error('User not found!');
 
   const latestReactions = message.latest_reactions;
-
-  const reactionsFiltered = latestReactions.filter(
+  console.log('BBBBBB', latestReactions);
+  const reactionsFilteredByTypeRead = latestReactions.filter(
     reaction => reaction.type === REACTION_TYPES.READ,
   );
-
+  console.log('CCCCCC');
   if (incomingReaction.type === REACTION_TYPES.READ) {
     const notice = await NoticeService.getNoticeByOwner(
       fromUser,
       NOTIFICATION_TYPES.UNREAD_MESSAGES,
     );
-
+    console.log('EEEEEE');
     if (notice) {
       const attributes = notice.get('attributes');
 
@@ -49,14 +49,23 @@ const newReaction = async (request, response) => {
     }
   }
 
+  console.log('DDDDDD')
+  
+  if (incomingReaction.type === REACTION_TYPES.READ && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
+    console.log('BBBB', reactionsFilteredByTypeRead)
+    const readerIds = reactionsFilteredByTypeRead.map(reaction => reaction.user_id);
+    console.log('CCCCC', readerIds)   
+    await NoticeService.createOrUpdateMessageReadNotice(fromUser, conversationCid, message.id, readerIds) 
+  }
+
   if (
-    reactionsFiltered.length &&
-    reactionsFiltered[0].user_id &&
+    reactionsFilteredByTypeRead.length &&
+    reactionsFilteredByTypeRead[0].user_id &&
     message.context &&
     message.context === MESSAGE.CONTEXT.TIME_SENSITIVE
   ) {
     const toUser = await new Parse.Query(Parse.User).get(
-      reactionsFiltered[0].user_id,
+      reactionsFilteredByTypeRead[0].user_id,
     );
 
     if (!toUser) throw new Error('No destination user found!');
