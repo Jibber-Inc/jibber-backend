@@ -72,22 +72,15 @@ const newMessage = async (request, response) => {
       }
     }
 
-    console.log('AAAAAAAAAAAAAAA')
-
     if(message.context === MESSAGE.CONTEXT.TIME_SENSITIVE){
-      console.log('MEMBERRS', members)
       const recipients = members.filter(member => member.user.id !== user.id)
-      console.log('RECIPIENTS ', recipients)
-      if(recipients.length){
-        console.log('DDDDDDDDDDDDDD')
-        
+
+      if(recipients.length){        
         await Promise.all(recipients.map(async (recipient) => {
           const toUser = await new Parse.Query(Parse.User).get(recipient.user.id);
-          
+
           if (toUser){
-            console.log('XXXXXXXXXXXXXXXXX')
             await NoticeService.createAlertMessageNotice(toUser, conversationCid, message.id);
-            console.log('mmmmmmmmmmmmm')
           }
         }));
       }
