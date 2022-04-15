@@ -75,14 +75,15 @@ const newMessage = async (request, response) => {
     console.log('AAAAAAAAAAAAAAA')
 
     if(message.context === MESSAGE.CONTEXT.TIME_SENSITIVE){
-      console.log('BBBBBBBBBBBBBBBB')
+      console.log('MEMBERRS', members)
       const recipients = members.filter(member => member.user.id !== user.id)
-      console.log('CCCCCCCCCCCCCCCC', recipients)
+      console.log('RECIPIENTS ', recipients)
       if(recipients.length){
-        console.log('DDDDDDDDDDDDDD', recipients)
+        console.log('DDDDDDDDDDDDDD')
         await Promise.all(recipients.map(async (recipient) => {
-          console.log('XXXXXXXXXXXXXXXXX', recipients)
+          console.log('XXXXXXXXXXXXXXXXX')
           await NoticeService.createAlertMessageNotice(recipient, conversationCid, message.id);
+          console.log('mmmmmmmmmmmmm')
         }));
       }
     }
