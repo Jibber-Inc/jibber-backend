@@ -54,7 +54,8 @@ const newReaction = async (request, response) => {
   if (incomingReaction.type === REACTION_TYPES.READ && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
     console.log('BBBB', reactionsFilteredByTypeRead)
     const readerIds = reactionsFilteredByTypeRead.map(reaction => reaction.user_id);
-    console.log('CCCCC', readerIds)   
+    console.log('CCCCCCC', readerIds)   
+
     await NoticeService.createOrUpdateMessageReadNotice(fromUser, conversationCid, message.id, readerIds) 
   }
 
