@@ -113,9 +113,23 @@ const claimReservation = async (reservationId, user) => {
 const handleReservation = async (reservationId, user) => {
   const reservation = await claimReservation(reservationId, user);
   const conversationCid = reservation.get('conversationCid');
-  const conversation = await ChatService.getConversationByCid(
-    conversationCid,
-  );
+  if (!conversationCid) {
+    const fromUser = reservation.get('createdBy');
+    const toUser = user
+    const conversationId = `conv_${fromUser.id}_${toUser.id}`;
+    const conversation = await ChatService.createConversation(
+          fromUser,
+          conversationId,
+          'messaging',
+          conversationId,
+          [fromUser.id, toUser.id],
+        );
+    conversationCid = conversation.conversationCid
+  } else {
+    const conversation = await ChatService.getConversationByCid(
+      conversationCid,
+    );
+  }
 
   const fromUser = await new Parse.Query(Parse.User).get(conversation.data.created_by.id);
   const toFullName = UserUtils.getFullName(user);
@@ -123,9 +137,9 @@ const handleReservation = async (reservationId, user) => {
   const data = {
     messageId: null,
     conversationCid,
-    title: `${toFullName} joined your conversation! 🥳`,
-    body: `${toFullName} accepted your invitation and was added to your conversation.`,
-    target: 'channel',
+    title: `${toFullName} claimed your reservation! 🥳`,
+    body: `${toFullName} accepted your invitation and was added to a conversation with you.`,
+    target: 'conversation',
     category: 'connection.new',
     interruptionLevel: INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE,
     threadId: conversationCid,
