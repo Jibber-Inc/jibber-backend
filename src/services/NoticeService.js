@@ -131,7 +131,6 @@ const createOrUpdateMessageReadNotice = async (user,cid, messageId,userIds) => {
         ...attributes,
         userIds,
       });
-
       await notice.save(null, { useMasterKey: true });
     }
   }

@@ -16,23 +16,21 @@ const newReaction = async (request, response) => {
     conversationCid,
     reaction: incomingReaction,
   } = EventWrapper.getParams(request.body);
-
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
   if (!fromUser) throw new Error('User not found!');
 
   const latestReactions = message.latest_reactions;
-
   const reactionsFilteredByTypeRead = latestReactions.filter(
     reaction => reaction.type === REACTION_TYPES.READ,
   );
-
+  
   if (incomingReaction.type === REACTION_TYPES.READ) {
     const notice = await NoticeService.getNoticeByOwner(
       fromUser,
       NOTIFICATION_TYPES.UNREAD_MESSAGES,
     );
-
+    
     if (notice) {
       const attributes = notice.get('attributes');
 
@@ -55,6 +53,11 @@ const newReaction = async (request, response) => {
   if (incomingReaction.type === REACTION_TYPES.READ && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
     const readerIds = reactionsFilteredByTypeRead.map(reaction => reaction.user_id);
 
+    await NoticeService.createOrUpdateMessageReadNotice(fromUser, conversationCid, message.id, readerIds) 
+  }
+  
+  if (incomingReaction.type === REACTION_TYPES.READ && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
+    const readerIds = reactionsFilteredByTypeRead.map(reaction => reaction.user_id);
     await NoticeService.createOrUpdateMessageReadNotice(fromUser, conversationCid, message.id, readerIds) 
   }
 
