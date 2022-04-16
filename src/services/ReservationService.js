@@ -6,8 +6,7 @@ import Parse from '../providers/ParseProvider';
 import UserUtils from '../utils/userData';
 import { INTERRUPTION_LEVEL_TYPES } from '../constants';
 
-
-export class ReservationServiceError extends ExtendableError { }
+export class ReservationServiceError extends ExtendableError {}
 
 /**
  * Create a reservation
@@ -63,9 +62,9 @@ const checkReservation = async reservationId => {
 };
 
 /**
- * 
- * @param {*} user 
- * @returns 
+ *
+ * @param {*} user
+ * @returns
  */
 const hasReservations = async user => {
   const count = await new Parse.Query('Reservation')
@@ -75,9 +74,9 @@ const hasReservations = async user => {
 };
 
 /**
- * 
- * @param {*} reservationId 
- * @param {*} user 
+ *
+ * @param {*} reservationId
+ * @param {*} user
  */
 const claimReservation = async (reservationId, user) => {
   if (!reservationId) {
@@ -117,40 +116,39 @@ const handleReservation = async (reservationId, user) => {
 
   if (!conversationCid) {
     const fromUser = reservation.get('createdBy');
-    const toUser = user
+    const toUser = user;
     const conversationId = `conv_${fromUser.id}_${toUser.id}`;
     conversation = await ChatService.createConversation(
-          fromUser,
-          conversationId,
-          'messaging',
-          conversationId,
-          [fromUser.id, toUser.id],
-        );
-  } else {
-   conversation = await ChatService.getConversationByCid(
-      conversationCid,
+      fromUser,
+      conversationId,
+      'messaging',
+      conversationId,
+      [fromUser.id, toUser.id],
     );
+  } else {
+    conversation = await ChatService.getConversationByCid(conversationCid);
   }
 
-  const fromUser = await new Parse.Query(Parse.User).get(conversation.data.created_by.id);
+  const fromUser = await new Parse.Query(Parse.User).get(
+    conversation.data.created_by.id,
+  );
   const toFullName = UserUtils.getFullName(user);
 
-  const data = {
-    messageId: null,
-    conversationCid: conversation.conversationCid,
-    title: `${toFullName} claimed your reservation! 🥳`,
-    body: `${toFullName} accepted your invitation and was added to a conversation with you.`,
-    target: 'conversation',
-    category: 'connection.new',
-    interruptionLevel: INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE,
-    threadId: conversationCid,
-    author: fromUser.id
-  };
+  if (conversation) {
+    const data = {
+      messageId: null,
+      conversationCid: conversation.conversationCid,
+      title: `${toFullName} claimed your reservation! 🥳`,
+      body: `${toFullName} accepted your invitation and was added to a conversation with you.`,
+      target: 'conversation',
+      category: 'connection.new',
+      interruptionLevel: INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE,
+      threadId: conversationCid,
+      author: fromUser.id,
+    };
 
-  await PushService.sendPushNotificationToUsers(
-    data,
-    [fromUser],
-  );
+    await PushService.sendPushNotificationToUsers(data, [fromUser]);
+  }
 };
 
 export default {
@@ -159,5 +157,5 @@ export default {
   checkReservation,
   hasReservations,
   claimReservation,
-  handleReservation
+  handleReservation,
 };
