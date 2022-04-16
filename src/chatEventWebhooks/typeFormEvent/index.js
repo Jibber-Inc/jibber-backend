@@ -13,7 +13,12 @@ const typeFormEvent = async (request, response) => {
 
   try {
     // eslint-disable-next-line camelcase
-    if (form_response && event_type && form_response.answers && event_type === 'form_response') {
+    if (
+      form_response &&
+      event_type &&
+      form_response.answers &&
+      event_type === 'form_response'
+    ) {
       // eslint-disable-next-line camelcase
       const { answers } = form_response;
 

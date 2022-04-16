@@ -3,7 +3,12 @@ import UserUtils from '../../utils/userData';
 import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import NoticeService from '../../services/NoticeService';
-import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES, REACTION_TYPES, MESSAGE } from '../../constants';
+import {
+  NOTIFICATION_TYPES,
+  INTERRUPTION_LEVEL_TYPES,
+  REACTION_TYPES,
+  MESSAGE,
+} from '../../constants';
 
 /**
  *
@@ -51,11 +56,21 @@ const newReaction = async (request, response) => {
     // REMOVE NOTICE TYPE ALERT_MESSAGE
       await NoticeService.deleteAlertMessageNotice(fromUser, conversationCid, message.id);
   }
-  
-  if (incomingReaction.type === REACTION_TYPES.READ && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
-    const readerIds = reactionsFilteredByTypeRead.map(reaction => reaction.user_id);
 
-    await NoticeService.createOrUpdateMessageReadNotice(fromUser, conversationCid, message.id, readerIds) 
+  if (
+    incomingReaction.type === REACTION_TYPES.READ &&
+    message.context === MESSAGE.CONTEXT.TIME_SENSITIVE
+  ) {
+    const readerIds = reactionsFilteredByTypeRead.map(
+      reaction => reaction.user_id,
+    );
+
+    await NoticeService.createOrUpdateMessageReadNotice(
+      fromUser,
+      conversationCid,
+      message.id,
+      readerIds,
+    );
   }
 
   if (
