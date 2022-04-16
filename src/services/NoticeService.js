@@ -2,7 +2,7 @@ import ExtendableError from 'extendable-error-class';
 import { NOTIFICATION_TYPES } from '../constants';
 import Parse from '../providers/ParseProvider';
 
-class NoticeServiceError extends ExtendableError {}
+class NoticeServiceError extends ExtendableError { }
 
 /**
  * Creates a Notice object with the given data
@@ -39,11 +39,11 @@ const getNoticeByOwner = async (user, type) => {
  *
  * @param {Parse.User} user
  */
-const deleteNotice = async (user, type) => {
+const deleteNotice = async (user) => {
   try {
     const query = new Parse.Query('Notice')
       .equalTo('owner', user)
-      .equalTo('type', type);
+      .equalTo('type', NOTIFICATION_TYPES.UNREAD_MESSAGES);
     const result = await query.first({ useMasterKey: true });
 
     if (result) {
@@ -54,7 +54,24 @@ const deleteNotice = async (user, type) => {
   }
 };
 
-const createUnreadMessagesNotice = async user => {
+const deleteConnectionRequestNotice = async (user, connectionId) => {
+  try {
+    const query = new Parse.Query('Notice')
+    .equalTo('owner', user)
+    .equalTo('type', NOTIFICATION_TYPES.CONNECTION_REQUEST)
+    .equalTo('attributes.connectionId', connectionId);
+
+    const result = await query.first({ useMasterKey: true });
+
+    if (result) {
+      await result.destroy({ useMasterKey: true });
+    }
+  } catch (error) {
+    throw new NoticeServiceError(error.message);
+  }
+};
+
+const createUnreadMessagesNotice = async (user) => {
   // Check if the user has a UNREAD_MESSAGES Notice
   const notice = await new Parse.Query('Notice')
     .equalTo('owner', user)
@@ -66,64 +83,13 @@ const createUnreadMessagesNotice = async user => {
       type: NOTIFICATION_TYPES.UNREAD_MESSAGES,
       body: 'You have 0 unread messages',
       attributes: {
-        unreadMessageIds: [],
+        unreadMessageIds: []
       },
       priority: 1,
-      user,
+      user
     };
     await createNotice(noticeData);
   }
-};
-
-const createOrUpdateMessageReadNotice = async (
-  user,
-  cid,
-  messageId,
-  userIds,
-) => {
-  const notice = await getNoticeByOwner(user, NOTIFICATION_TYPES.MESSAGE_READ);
-
-  if (!notice) {
-    const noticeData = {
-      type: NOTIFICATION_TYPES.MESSAGE_READ,
-      body: '',
-      attributes: {
-        cid,
-        messageId,
-        userIds,
-      },
-      priority: 1,
-      user,
-    };
-
-    await createNotice(noticeData);
-  } else {
-    const attributes = notice.get('attributes');
-
-    if (attributes && attributes.userIds) {
-      notice.set('attributes', {
-        ...attributes,
-        userIds,
-      });
-
-      await notice.save(null, { useMasterKey: true });
-    }
-  }
-};
-
-const createAlertMessageNotice = async (user, cid, messageId) => {
-  console.log('CREAND LA NOTICE')
-  const noticeData = {
-    type: NOTIFICATION_TYPES.ALERT_MESSAGE,
-    body: '',
-    attributes: {
-      cid,
-      messageId
-    },
-    priority: 1,
-    user,
-  };
-  await createNotice(noticeData);
 };
 
 export default {
@@ -131,6 +97,5 @@ export default {
   getNoticeByOwner,
   deleteNotice,
   createUnreadMessagesNotice,
-  createOrUpdateMessageReadNotice,
-  createAlertMessageNotice,
+  deleteConnectionRequestNotice
 };

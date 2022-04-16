@@ -12,7 +12,9 @@ import {
   STATUS_ACCEPTED,
   STATUS_DECLINED,
   STATUS_PENDING,
+  NOTIFICATION_TYPES,
 } from '../constants';
+import NoticeService from '../services/NoticeService';
 
 const STATUS_LIST = [
   STATUS_INVITED,
@@ -61,12 +63,10 @@ const updateConnection = async request => {
   try {
     // If there is an existing connection, update and return it
     if (connection instanceof Connection) {
-      if (
-        connection.get('status') !== STATUS_ACCEPTED &&
-        status === STATUS_ACCEPTED
-      ) {
-        const fromUser = connection.get('from');
-        const toUser = connection.get('to');
+      const fromUser = connection.get('from');
+      const toUser = connection.get('to');
+
+      if (connection.get('status') !== STATUS_ACCEPTED && status === STATUS_ACCEPTED) {
         const conversationId = `conv_${fromUser.id}_${toUser.id}`;
         const conversation = await ChatService.createConversation(
           fromUser,
@@ -101,6 +101,10 @@ const updateConnection = async request => {
           data,
           [fromUser],
         );
+      }
+
+      if (status === STATUS_ACCEPTED || status === STATUS_DECLINED) {        
+         await NoticeService.deleteConnectionRequestNotice(toUser, connectionId);
       }
     }
     return connection;

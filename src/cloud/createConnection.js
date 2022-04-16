@@ -63,7 +63,6 @@ const createConnection = async request => {
 
     // Notify the user about the connection request
     if (connection && status === STATUS_INVITED) {
-
       // Set the data for the connection request Notice object
       const noticeData = {
         type: NOTIFICATION_TYPES.CONNECTION_REQUEST,
@@ -72,8 +71,9 @@ const createConnection = async request => {
           connectionId: connection.id,
         },
         priority: 2,
-        user,
+        user: toUser,
       };
+ 
       // Create the Notice object
       await NoticeService.createNotice(noticeData);
 
