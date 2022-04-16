@@ -110,6 +110,19 @@ const createUnreadMessagesNotice = async user => {
   }
 };
 
+const createConnectionConfirmedNotice = async (user, connectionId) => {
+  const noticeData = {
+    type: NOTIFICATION_TYPES.CONNECTION_CONFIRMED,
+    body: 'Your connection has been confirmed',
+    attributes: {
+      connectionId,
+    },
+    priority: 1,
+    user,
+  };
+  await createNotice(noticeData);
+};
+
 const createOrUpdateMessageReadNotice = async (
   user,
   cid,
@@ -169,5 +182,6 @@ export default {
   deleteConnectionRequestNotice,
   createOrUpdateMessageReadNotice,
   createAlertMessageNotice,
-  deleteAlertMessageNotice
+  deleteAlertMessageNotice,
+  createConnectionConfirmedNotice,
 };
