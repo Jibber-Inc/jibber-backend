@@ -1,5 +1,5 @@
 import Parse from '../../providers/ParseProvider';
-import ChatService from "../../services/ChatService";
+import ChatService from '../../services/ChatService';
 import EventWrapper from '../../utils/eventWrapper';
 import UserUtils from '../../utils/userData';
 
@@ -10,13 +10,12 @@ import UserUtils from '../../utils/userData';
  * @param {*} response
  */
 const added = async (request, response) => {
-  const {
-    conversationCid,
-    user,
-  } = EventWrapper.getParams(request.body);
+  const { conversationCid, user } = EventWrapper.getParams(request.body);
 
   try {
-    const conversation = await ChatService.getConversationByCid(conversationCid);
+    const conversation = await ChatService.getConversationByCid(
+      conversationCid,
+    );
     const fromUser = await new Parse.Query(Parse.User).get(user.id);
 
     if (!fromUser) throw new Error('User not found!');
@@ -29,15 +28,15 @@ const added = async (request, response) => {
       user_id: fromUser.id,
       attributes: JSON.stringify({
         context: 'casual',
-      })
+      }),
     };
 
     await ChatService.createMessage(message, conversation);
-    
+
     return response.status(200).end();
   } catch (error) {
     console.warn('Error - member.added', error);
-    return response.status(500).json(error)
+    return response.status(500).json(error);
   }
 };
 
@@ -55,12 +54,11 @@ const updated = (request, response) => response.status(200).json();
  * @param {*} response
  */
 const removed = async (request, response) => {
-  const {
-    conversationCid,
-    user,
-  } = EventWrapper.getParams(request.body);
+  const { conversationCid, user } = EventWrapper.getParams(request.body);
   try {
-    const conversation = await ChatService.getConversationByCid(conversationCid);
+    const conversation = await ChatService.getConversationByCid(
+      conversationCid,
+    );
     const fromUser = await new Parse.Query(Parse.User).get(user.id);
 
     if (!fromUser) throw new Error('User not found!');
@@ -73,14 +71,17 @@ const removed = async (request, response) => {
       user_id: fromUser.id,
       attributes: JSON.stringify({
         context: 'casual',
-      })
+      }),
     };
 
-    const messageCreated = await ChatService.createMessage(message, conversation);
+    const messageCreated = await ChatService.createMessage(
+      message,
+      conversation,
+    );
     return response.status(200).json(messageCreated);
   } catch (error) {
     console.warn('Error - member.added', error);
-    return response.status(500).json(error)
+    return response.status(500).json(error);
   }
 };
 

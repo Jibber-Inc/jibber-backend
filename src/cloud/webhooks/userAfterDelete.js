@@ -4,7 +4,7 @@ import ChatService from '../../services/ChatService';
 import NoticeService from '../../services/NoticeService';
 import UserService from '../../services/UserService';
 
-class UserAfterDeleteError extends ExtendableError { }
+class UserAfterDeleteError extends ExtendableError {}
 
 /**
  * After delete webhook for User objects.
@@ -27,7 +27,7 @@ const userAfterDelete = async request => {
       UserService.clearUserSessions(user),
       UserService.resetReservations(user),
       ChatService.deleteUser(user.id),
-      NoticeService.deleteNotice(user)
+      NoticeService.deleteNotice(user),
     ]);
   } catch (error) {
     console.warn(error);
