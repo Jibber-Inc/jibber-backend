@@ -113,12 +113,13 @@ const claimReservation = async (reservationId, user) => {
 const handleReservation = async (reservationId, user) => {
   const reservation = await claimReservation(reservationId, user);
   const conversationCid = reservation.get('conversationCid');
-  const conversation
+  let conversation;
+
   if (!conversationCid) {
     const fromUser = reservation.get('createdBy');
     const toUser = user
     const conversationId = `conv_${fromUser.id}_${toUser.id}`;
-   conversation = await ChatService.createConversation(
+    conversation = await ChatService.createConversation(
           fromUser,
           conversationId,
           'messaging',
@@ -136,7 +137,7 @@ const handleReservation = async (reservationId, user) => {
 
   const data = {
     messageId: null,
-    conversation.conversationCid,
+    conversationCid: conversation.conversationCid,
     title: `${toFullName} claimed your reservation! 🥳`,
     body: `${toFullName} accepted your invitation and was added to a conversation with you.`,
     target: 'conversation',
