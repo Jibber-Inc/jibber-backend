@@ -54,6 +54,24 @@ const deleteNotice = async (user, type) => {
   }
 };
 
+const deleteAlertMessageNotice = async (user, cid, messageId) => {
+  try {
+    const query = new Parse.Query('Notice')
+      .equalTo('owner', user)
+      .equalTo('type', NOTIFICATION_TYPES.ALERT_MESSAGE)
+      .equalTo('attributes.cid', cid)
+      .equalTo('attributes.messageId', messageId);
+
+    const result = await query.first({ useMasterKey: true });
+
+    if (result) {
+      await result.destroy({ useMasterKey: true });
+    }
+  } catch (error) {
+    throw new NoticeServiceError(error.message);
+  }
+};
+
 const createUnreadMessagesNotice = async user => {
   // Check if the user has a UNREAD_MESSAGES Notice
   const notice = await new Parse.Query('Notice')
@@ -112,17 +130,17 @@ const createOrUpdateMessageReadNotice = async (
 };
 
 const createAlertMessageNotice = async (user, cid, messageId) => {
-  console.log('CREAND LA NOTICE')
   const noticeData = {
     type: NOTIFICATION_TYPES.ALERT_MESSAGE,
     body: '',
     attributes: {
       cid,
-      messageId
+      messageId,
     },
     priority: 1,
     user,
   };
+  
   await createNotice(noticeData);
 };
 
@@ -133,4 +151,5 @@ export default {
   createUnreadMessagesNotice,
   createOrUpdateMessageReadNotice,
   createAlertMessageNotice,
+  deleteAlertMessageNotice
 };
