@@ -76,7 +76,12 @@ const createUnreadMessagesNotice = async user => {
 };
 
 const createOrUpdateMessageReadNotice = async (user, cid, messageId, userIds) => {
-  const notice = await getNoticeByOwner(user, NOTIFICATION_TYPES.MESSAGE_READ);
+  const notice = await new Parse.Query('Notice')
+                .equalTo('owner', user)
+                .equalTo('type', NOTIFICATION_TYPES.MESSAGE_READ)
+                .equalTo('attributes.cid', cid)
+                .equalTo('attributes.messageId', messageId)
+                .first({ useMasterKey: true });
 
   if(!notice){
     const noticeData = {
@@ -92,11 +97,10 @@ const createOrUpdateMessageReadNotice = async (user, cid, messageId, userIds) =>
     };
   
      await createNotice(noticeData);
-  }else{
+  } else {
     const attributes = notice.get('attributes');
 
     if (attributes && attributes.userIds) {
-      
       notice.set('attributes', {
         ...attributes,
         userIds,
