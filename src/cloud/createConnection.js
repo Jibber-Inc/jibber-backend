@@ -72,7 +72,7 @@ const createConnection = async request => {
           connectionId: connection.id,
         },
         priority: 2,
-        user,
+        toUser,
       };
       // Create the Notice object
       await NoticeService.createNotice(noticeData);
