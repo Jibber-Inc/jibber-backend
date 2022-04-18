@@ -54,6 +54,28 @@ const deleteNotice = async user => {
   }
 };
 
+/**
+ * Delete all user reservations
+ *
+ * @param {Parse.User} user
+ */
+ const deleteAllNoticeByUser = async user => {
+  try {
+    const query = new Parse.Query('Notice')
+      .equalTo('owner', user);
+
+    const notices = await query.find({ useMasterKey: true });
+
+    const promises = notices.map(notice =>
+      notice.destroy({ useMasterKey: true }),
+    );
+   
+    await Promise.all(promises);
+  } catch (error) {
+    throw new NoticeServiceError(error.message);
+  }
+};
+
 const createUnreadMessagesNotice = async user => {
   // Check if the user has a UNREAD_MESSAGES Notice
   const notice = await new Parse.Query('Notice')
@@ -169,5 +191,6 @@ export default {
   createOrUpdateMessageReadNotice,
   deleteConnectionRequestNotice,
   createAlertMessageNotice,
-  deleteAlertMessageNotice
+  deleteAlertMessageNotice,
+  deleteAllNoticeByUser
 };
