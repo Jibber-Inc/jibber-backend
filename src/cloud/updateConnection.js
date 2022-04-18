@@ -22,7 +22,7 @@ const STATUS_LIST = [
   STATUS_PENDING,
 ];
 
-class UpdateConnectionError extends ExtendableError { }
+class UpdateConnectionError extends ExtendableError {}
 
 const updateConnection = async request => {
   const { user } = request;
@@ -99,15 +99,16 @@ const updateConnection = async request => {
           target: 'conversation',
         };
 
-        await PushService.sendPushNotificationToUsers(
-          data,
-          [fromUser],
-        );
+        await PushService.sendPushNotificationToUsers(data, [fromUser]);
       }
 
-      if (status === STATUS_ACCEPTED || status === STATUS_DECLINED) {        
+      if (status === STATUS_ACCEPTED || status === STATUS_DECLINED) {
         await NoticeService.deleteConnectionRequestNotice(toUser, connectionId);
-     }
+      }
+
+      if (status === STATUS_ACCEPTED) {
+        await NoticeService.createConnectionConfirmedNotice(fromUser, connectionId);
+      }
     }
     return connection;
   } catch (error) {
