@@ -47,6 +47,9 @@ const newReaction = async (request, response) => {
         await notice.save(null, { useMasterKey: true });
       }
     }
+
+    // REMOVE NOTICE TYPE ALERT_MESSAGE
+    await NoticeService.deleteAlertMessageNotice(fromUser, conversationCid, message.id);
   }
   
   if (incomingReaction.type === REACTION_TYPES.READ && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
