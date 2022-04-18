@@ -111,6 +111,21 @@ const createOrUpdateMessageReadNotice = async (user,cid, messageId,userIds) => {
   }
 };
 
+const createAlertMessageNotice = async (user, cid, messageId) => {
+  const noticeData = {
+    type: NOTIFICATION_TYPES.ALERT_MESSAGE,
+    body: '',
+    attributes: {
+      cid,
+      messageId,
+    },
+    priority: 1,
+    user,
+  };
+
+  await createNotice(noticeData);
+};
+
 const deleteConnectionRequestNotice = async (user, connectionId) => {
   try {
     const query = new Parse.Query('Notice')
@@ -128,11 +143,31 @@ const deleteConnectionRequestNotice = async (user, connectionId) => {
   }
 };
 
+const deleteAlertMessageNotice = async (user, cid, messageId) => {
+  try {
+    const query = new Parse.Query('Notice')
+      .equalTo('owner', user)
+      .equalTo('type', NOTIFICATION_TYPES.ALERT_MESSAGE)
+      .equalTo('attributes.cid', cid)
+      .equalTo('attributes.messageId', messageId);
+
+    const result = await query.first({ useMasterKey: true });
+
+    if (result) {
+      await result.destroy({ useMasterKey: true });
+    }
+  } catch (error) {
+    throw new NoticeServiceError(error.message);
+  }
+};
+
 export default {
   createNotice,
   getNoticeByOwner,
   deleteNotice,
   createUnreadMessagesNotice,
   createOrUpdateMessageReadNotice,
-  deleteConnectionRequestNotice
+  deleteConnectionRequestNotice,
+  createAlertMessageNotice,
+  deleteAlertMessageNotice
 };
