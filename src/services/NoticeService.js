@@ -76,14 +76,9 @@ const createUnreadMessagesNotice = async user => {
 };
 
 const createOrUpdateMessageReadNotice = async (user, cid, messageId, userIds) => {
-  console.log('CID', cid)
-  console.log('messageId', messageId)
-  console.log('userIds', userIds)
-
   const notice = await getNoticeByOwner(user, NOTIFICATION_TYPES.MESSAGE_READ);
 
   if(!notice){
-    console.log('CREACION')
     const noticeData = {
       type: NOTIFICATION_TYPES.MESSAGE_READ,
       body: '',
@@ -98,7 +93,6 @@ const createOrUpdateMessageReadNotice = async (user, cid, messageId, userIds) =>
   
      await createNotice(noticeData);
   }else{
-    console.log('ACTUALIZACION')
     const attributes = notice.get('attributes');
 
     if (attributes && attributes.userIds) {
