@@ -109,6 +109,10 @@ const updateConnection = async request => {
       if (status === STATUS_ACCEPTED) {
         await NoticeService.createConnectionConfirmedNotice(fromUser, connectionId);
       }
+
+      if (status === STATUS_ACCEPTED || status === STATUS_DECLINED) {        
+        await NoticeService.deleteConnectionRequestNotice(toUser, connectionId);
+     }
     }
     return connection;
   } catch (error) {
