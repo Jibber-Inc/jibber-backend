@@ -3,6 +3,7 @@ import Parse from '../providers/ParseProvider';
 import ChatService from '../services/ChatService';
 import PushService from '../services/PushService';
 import UserService from '../services/UserService';
+import NoticeService from '../services/NoticeService';
 import UserUtils from '../utils/userData';
 
 // Constants
@@ -61,12 +62,13 @@ const updateConnection = async request => {
   try {
     // If there is an existing connection, update and return it
     if (connection instanceof Connection) {
+      const fromUser = connection.get('from');
+      const toUser = connection.get('to');
+
       if (
         connection.get('status') !== STATUS_ACCEPTED &&
         status === STATUS_ACCEPTED
       ) {
-        const fromUser = connection.get('from');
-        const toUser = connection.get('to');
         const conversationId = `conv_${fromUser.id}_${toUser.id}`;
         const conversation = await ChatService.createConversation(
           fromUser,
@@ -102,6 +104,10 @@ const updateConnection = async request => {
           [fromUser],
         );
       }
+
+      if (status === STATUS_ACCEPTED || status === STATUS_DECLINED) {        
+        await NoticeService.deleteConnectionRequestNotice(toUser, connectionId);
+     }
     }
     return connection;
   } catch (error) {

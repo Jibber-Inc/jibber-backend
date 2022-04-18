@@ -111,10 +111,28 @@ const createOrUpdateMessageReadNotice = async (user,cid, messageId,userIds) => {
   }
 };
 
+const deleteConnectionRequestNotice = async (user, connectionId) => {
+  try {
+    const query = new Parse.Query('Notice')
+      .equalTo('owner', user)
+      .equalTo('type', NOTIFICATION_TYPES.CONNECTION_REQUEST)
+      .equalTo('attributes.connectionId', connectionId);
+
+    const result = await query.first({ useMasterKey: true });
+
+    if (result) {
+      await result.destroy({ useMasterKey: true });
+    }
+  } catch (error) {
+    throw new NoticeServiceError(error.message);
+  }
+};
+
 export default {
   createNotice,
   getNoticeByOwner,
   deleteNotice,
   createUnreadMessagesNotice,
-  createOrUpdateMessageReadNotice
+  createOrUpdateMessageReadNotice,
+  deleteConnectionRequestNotice
 };
