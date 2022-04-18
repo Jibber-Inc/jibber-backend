@@ -33,12 +33,6 @@ const newMessage = async (request, response) => {
   // TODO: Use attributes
   const fromUser = await new Parse.Query(Parse.User).get(message.user.id);
 
-  const connection = await new Parse.Query('Connection')
-    .equalTo('channelSId', conversationCid)
-    .find({ useMasterKey: true });
-  const connectionId =
-    (connection && connection.length && connection[0].id) || null;
-
   try {
     const { context } = message;
 
@@ -86,7 +80,6 @@ const newMessage = async (request, response) => {
       interruptionLevel: getInterruptionLevel(message.context),
       threadId: conversationCid,
       author: fromUser.id,
-      connectionId,
     };
 
     // Send the push notification
