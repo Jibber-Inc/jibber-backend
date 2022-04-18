@@ -75,15 +75,15 @@ const createUnreadMessagesNotice = async user => {
   }
 };
 
-const createOrUpdateMessageReadNotice = async (user, cid, messageId, userIds) => {
+const createOrUpdateMessageReadNotice = async (user,cid, messageId,userIds) => {
   const notice = await new Parse.Query('Notice')
-                .equalTo('owner', user)
-                .equalTo('type', NOTIFICATION_TYPES.MESSAGE_READ)
-                .equalTo('attributes.cid', cid)
-                .equalTo('attributes.messageId', messageId)
-                .first({ useMasterKey: true });
+    .equalTo('owner', user)
+    .equalTo('type', NOTIFICATION_TYPES.MESSAGE_READ)
+    .equalTo('attributes.cid', cid)
+    .equalTo('attributes.messageId', messageId)
+    .first({ useMasterKey: true });
 
-  if(!notice){
+  if (!notice) {
     const noticeData = {
       type: NOTIFICATION_TYPES.MESSAGE_READ,
       body: '',
@@ -95,8 +95,8 @@ const createOrUpdateMessageReadNotice = async (user, cid, messageId, userIds) =>
       priority: 1,
       user,
     };
-  
-     await createNotice(noticeData);
+
+    await createNotice(noticeData);
   } else {
     const attributes = notice.get('attributes');
 
@@ -105,7 +105,7 @@ const createOrUpdateMessageReadNotice = async (user, cid, messageId, userIds) =>
         ...attributes,
         userIds,
       });
-  
+
       await notice.save(null, { useMasterKey: true });
     }
   }
