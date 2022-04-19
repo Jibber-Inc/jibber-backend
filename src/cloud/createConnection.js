@@ -83,7 +83,7 @@ const createConnection = async request => {
         title: 'Connection Request handshake',
         body: `You have a connection request from ${userFullName}.`,
         connectionId: connection.id,
-        target: 'channel',
+        target: 'room',
       };
 
       // Create the push notification
