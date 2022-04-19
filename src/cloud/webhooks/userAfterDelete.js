@@ -27,7 +27,7 @@ const userAfterDelete = async request => {
       UserService.clearUserSessions(user),
       UserService.resetReservations(user),
       ChatService.deleteUser(user.id),
-      NoticeService.deleteNotice(user)
+      NoticeService.deleteAllNoticeByUser(user)
     ]);
   } catch (error) {
     console.warn(error);

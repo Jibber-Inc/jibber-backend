@@ -3,6 +3,7 @@ import Parse from '../providers/ParseProvider';
 import ChatService from '../services/ChatService';
 import PushService from '../services/PushService';
 import UserService from '../services/UserService';
+import NoticeService from '../services/NoticeService';
 import UserUtils from '../utils/userData';
 
 // Constants
@@ -21,7 +22,7 @@ const STATUS_LIST = [
   STATUS_PENDING,
 ];
 
-class UpdateConnectionError extends ExtendableError { }
+class UpdateConnectionError extends ExtendableError {}
 
 const updateConnection = async request => {
   const { user } = request;
@@ -61,17 +62,18 @@ const updateConnection = async request => {
   try {
     // If there is an existing connection, update and return it
     if (connection instanceof Connection) {
+      const fromUser = connection.get('from');
+      const toUser = connection.get('to');
+
       if (
         connection.get('status') !== STATUS_ACCEPTED &&
         status === STATUS_ACCEPTED
       ) {
-        const fromUser = connection.get('from');
-        const toUser = connection.get('to');
         const conversationId = `conv_${fromUser.id}_${toUser.id}`;
         const conversation = await ChatService.createConversation(
           fromUser,
           conversationId,
-          null,
+          'messaging',
           conversationId,
           [fromUser.id, toUser.id],
         );
@@ -97,10 +99,15 @@ const updateConnection = async request => {
           target: 'conversation',
         };
 
-        await PushService.sendPushNotificationToUsers(
-          data,
-          [fromUser],
-        );
+        await PushService.sendPushNotificationToUsers(data, [fromUser]);
+      }
+
+      if (status === STATUS_ACCEPTED || status === STATUS_DECLINED) {
+        await NoticeService.deleteConnectionRequestNotice(toUser, connectionId);
+      }
+
+      if (status === STATUS_ACCEPTED) {
+        await NoticeService.createConnectionConfirmedNotice(fromUser, connectionId);
       }
     }
     return connection;
