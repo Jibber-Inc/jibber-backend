@@ -1,12 +1,12 @@
-# Ours API Parse Sever implementation
+# Jibber API Parse Sever implementation
 
-Ours project API.
+Jibber project API.
 
 ## Tech Stack
 Parse server version: 4.5.0  
 MongoDb
 ## Team
-Ours is the result of the work of a all core contributors.
+Jibber is the result of the work of a all core contributors.
 ## License
 [MIT](LICENSE)
 
