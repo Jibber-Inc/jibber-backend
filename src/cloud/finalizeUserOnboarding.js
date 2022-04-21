@@ -63,7 +63,7 @@ const setUserStatus = async (user, reservationId, passId) => {
 const createInitialConversations = async (user) => {
   // Here we create the user in Stream
   const createdUser = await UserService.upsertUser({ id: user.id });
-  await ChatService.createWaitlistConversation(user);
+ // await ChatService.createWaitlistConversation(user);
   return createdUser
 };
 
