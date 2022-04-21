@@ -243,19 +243,13 @@ const addMemberToConversation = async (conversation, members) => {
   await conversation.addMembers(members);
 };
 
-/**
- * Deletes an user in Stream
- * 
- * @param {*} userId 
- * @returns 
- */
-const deleteWaitlistConversation = async (userId) => {
+/* const deleteWaitlistConversation = async (userId) => {
   const conversationCid = `messaging:${userId}_waitlist_conversation`;
   const conversation = await getConversationByCid(conversationCid)
   const deletedConversation = await conversation.delete();
 
   return deletedConversation;
-};
+}; */
 
 /**
  * Deletes an user in Stream
@@ -264,7 +258,7 @@ const deleteWaitlistConversation = async (userId) => {
  * @returns 
  */
 const deleteUser = async (userId) => {
-  await deleteWaitlistConversation(userId);
+  // await deleteWaitlistConversation(userId);
   const deletedUser = await Stream.client.deleteUser(userId, {
     mark_messages_deleted: false,
   });
@@ -297,7 +291,7 @@ const sendReactionToMessage = async (conversation, messageId, reactionType, user
  * 
  * @param {*} user 
  */
-const createWaitlistConversation = async (user) => {
+/* const createWaitlistConversation = async (user) => {
 
   const hasWaitListConversation = await existsConversationByCid(
     `messaging:${user.id}_waitlist_conversation`,
@@ -345,7 +339,7 @@ const createWaitlistConversation = async (user) => {
       );
     }
   }
-};
+}; */
 
 export default {
   createConversation,
@@ -358,7 +352,5 @@ export default {
   addMemberToConversation,
   getConversationByCid,
   sendReactionToMessage,
-  existsConversationByCid,
-  deleteWaitlistConversation,
-  createWaitlistConversation
+  existsConversationByCid
 };

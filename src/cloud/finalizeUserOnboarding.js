@@ -47,9 +47,9 @@ const setUserStatus = async (user, reservationId, passId) => {
       user.set('status', UserStatus.USER_STATUS_ACTIVE);
     } else if (maxQuePosition >= currentQuePosition) {
       user.set('status', UserStatus.USER_STATUS_INACTIVE);
-    } else {
-      user.set('status', UserStatus.USER_STATUS_WAITLIST);
-    }
+    } /* else {
+    //  user.set('status', UserStatus.USER_STATUS_WAITLIST);
+    } */
   }
 
   return user;
@@ -102,8 +102,8 @@ const finalizeUserOnboarding = async request => {
 
     const currentUserStatus = user.get('status');
     switch (currentUserStatus) {
-      case UserStatus.USER_STATUS_WAITLIST:
-        break;
+     /* case UserStatus.USER_STATUS_WAITLIST:
+        break; */
 
       case UserStatus.USER_STATUS_INACTIVE:
         await UserService.setActiveStatus(user);

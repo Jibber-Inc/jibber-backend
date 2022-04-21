@@ -17,7 +17,7 @@ const getMessage = (message, values) => {
 };
 
 const welcomeMessages = [
-  ["How do I move up the waitlist?", "Invite friends or family. Groups of 3+ get in first."],
+  // ["How do I move up the waitlist?", "Invite friends or family. Groups of 3+ get in first."],
   ["Are you an independent startup?", "100%. Jibber is not secretly owned by big social."],
   ["Can anyone invest in Jibber?", "Users can soon. Accredited investors can now. JoinJibber.com"],
   ["How is your business model different?", "If we're good enough that 1 in 3 upgrade, we will never need ads."],
@@ -35,14 +35,13 @@ const welcomeMessages = [
   ["What is Jibber?", "A new way to talk that feels more like being in person."]
 ];
 
-const waitlistMessages = [
+/* const waitlistMessages = [
   "Hi, I'm Benji Dodgson, Co-founder of Jibber. Welcome to the private beta.",
   "If you have any questions, I'm here for you. Just ask.",
   "Type a message, then swipe it up to send it to me."
-];
+]; */
 
 export default {
   getMessage,
-  welcomeMessages,
-  waitlistMessages,
+  welcomeMessages
 };
