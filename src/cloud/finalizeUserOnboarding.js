@@ -5,6 +5,7 @@ import Parse from '../providers/ParseProvider';
 // Constants
 import UserStatus from '../constants/userStatus';
 // Services
+import ChatService from '../services/ChatService';
 import PassService from '../services/PassService';
 import ReservationService from '../services/ReservationService';
 import NoticeService from '../services/NoticeService';
@@ -21,9 +22,11 @@ class FinalizeUserOnboardingError extends ExtendableError { }
 // Users that come with a reservation have full access.
 // Users without a reservation are placed in a queue.
 // Their position in the queue is set when they send the validation code.
-// The user status can be one of: active, inactive
+// The user status can be one of: active, inactive, waitlist
 // Active: users that have full access to the application
 // Inactive: users that have full access to the application, but they didn't finish the onboarding yet
+// Waitlist: users in the Waitlist have to wait until the maxQuePosition is increased, letting more users get full access.
+// If the position is higher than the max allowed position (maxQuePosition), they get the waitlist status
 const setUserStatus = async (user, reservationId, passId) => {
   // Get the needed que values to calculate the user status
   const config = await Parse.Config.get({ useMasterKey: true });
@@ -44,6 +47,8 @@ const setUserStatus = async (user, reservationId, passId) => {
       user.set('status', UserStatus.USER_STATUS_ACTIVE);
     } else if (maxQuePosition >= currentQuePosition) {
       user.set('status', UserStatus.USER_STATUS_INACTIVE);
+    } else {
+      user.set('status', UserStatus.USER_STATUS_WAITLIST);
     }
   }
 
@@ -58,6 +63,7 @@ const setUserStatus = async (user, reservationId, passId) => {
 const createInitialConversations = async (user) => {
   // Here we create the user in Stream
   const createdUser = await UserService.upsertUser({ id: user.id });
+
   return createdUser
 };
 
@@ -96,6 +102,9 @@ const finalizeUserOnboarding = async request => {
 
     const currentUserStatus = user.get('status');
     switch (currentUserStatus) {
+      case UserStatus.USER_STATUS_WAITLIST:
+        break; 
+
       case UserStatus.USER_STATUS_INACTIVE:
         await UserService.setActiveStatus(user);
         break;
