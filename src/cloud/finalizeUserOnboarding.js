@@ -5,7 +5,6 @@ import Parse from '../providers/ParseProvider';
 // Constants
 import UserStatus from '../constants/userStatus';
 // Services
-import ChatService from '../services/ChatService';
 import PassService from '../services/PassService';
 import ReservationService from '../services/ReservationService';
 import NoticeService from '../services/NoticeService';

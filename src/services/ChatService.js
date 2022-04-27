@@ -9,9 +9,6 @@ import UserService from './UserService';
 // Utils
 import MessagesUtil from '../utils/messages';
 
-// Load Environment Variables
-const { BENJI_PHONE_NUMBER } = process.env;
-
 export class ChatServiceError extends ExtendableError { }
 
 const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
