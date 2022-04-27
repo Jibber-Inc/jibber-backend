@@ -63,7 +63,7 @@ const setUserStatus = async (user, reservationId, passId) => {
 const createInitialConversations = async (user) => {
   // Here we create the user in Stream
   const createdUser = await UserService.upsertUser({ id: user.id });
-  await ChatService.createWaitlistConversation(user);
+
   return createdUser
 };
 
@@ -103,7 +103,7 @@ const finalizeUserOnboarding = async request => {
     const currentUserStatus = user.get('status');
     switch (currentUserStatus) {
       case UserStatus.USER_STATUS_WAITLIST:
-        break;
+        break; 
 
       case UserStatus.USER_STATUS_INACTIVE:
         await UserService.setActiveStatus(user);
