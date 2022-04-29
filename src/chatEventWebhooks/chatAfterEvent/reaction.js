@@ -4,6 +4,7 @@ import Parse from '../../providers/ParseProvider';
 import PushService from '../../services/PushService';
 import NoticeService from '../../services/NoticeService';
 import { NOTIFICATION_TYPES, INTERRUPTION_LEVEL_TYPES, REACTION_TYPES, MESSAGE } from '../../constants';
+import ChatService from '../../services/ChatService';
 
 /**
  *
@@ -26,6 +27,12 @@ const newReaction = async (request, response) => {
   const reactionsFilteredByTypeRead = latestReactions.filter(
     reaction => reaction.type === REACTION_TYPES.READ,
   );
+
+  const readerIds = reactionsFilteredByTypeRead.map(reaction => reaction.user_id);
+
+  if (incomingReaction.type === REACTION_TYPES.READ && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
+    await NoticeService.createOrUpdateMessageReadNotice(fromUser, conversationCid, message.id, readerIds) 
+  }
 
   if (incomingReaction.type === REACTION_TYPES.READ) {
     const notice = await NoticeService.getNoticeByOwner(
@@ -50,13 +57,26 @@ const newReaction = async (request, response) => {
 
     // REMOVE NOTICE TYPE ALERT_MESSAGE
     await NoticeService.deleteAlertMessageNotice(fromUser, conversationCid, message.id);
+    console.log('GGGGGGGGGG');
+    if (message && message.reaction_counts && message.reaction_counts.read) {
+      const readCounts = message.reaction_counts.read;
+
+      if (readCounts) {
+        try {
+          const conversation = await ChatService.getConversationByCid(conversationCid);
+          console.log('CONVERSATION', conversation)
+          const { member_count } = conversation;
+          console.log('MEMBER COUNT', member_count)
+          
+          // REMOVE NOTICE TYPE ALERT READ
+          // await NoticeService.deleteMessageReadNotice(fromUser, conversationCid, message.id);
+        } catch (error) {
+          throw error.message;
+        }
+      }
+    }
   }
   
-  if (incomingReaction.type === REACTION_TYPES.READ && message.context === MESSAGE.CONTEXT.TIME_SENSITIVE) {
-    const readerIds = reactionsFilteredByTypeRead.map(reaction => reaction.user_id);
-
-    await NoticeService.createOrUpdateMessageReadNotice(fromUser, conversationCid, message.id, readerIds) 
-  }
 
   if (
     reactionsFilteredByTypeRead.length &&
