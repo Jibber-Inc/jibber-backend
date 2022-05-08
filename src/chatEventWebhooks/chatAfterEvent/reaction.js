@@ -76,7 +76,7 @@ const newReaction = async (request, response) => {
       messageId: message.id,
       conversationCid,
       title: `${fullName} read your message 🤓`,
-      body: `${fullName} read ${message.text} `,
+      body: `🤓: ${message.text} `,
       target: 'conversation',
       category: 'stream.chat',
       interruptionLevel: INTERRUPTION_LEVEL_TYPES.PASSIVE,
