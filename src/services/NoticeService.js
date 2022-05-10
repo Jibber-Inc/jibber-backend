@@ -11,7 +11,7 @@ class NoticeServiceError extends ExtendableError {}
  * @returns
  */
 const createNotice = async data => {
-  const { type, body, attributes, priority, user } = data;
+  const { type, body, attributes, priority, user, toUser } = data;
 
   const notice = new Parse.Object('Notice');
 
@@ -19,7 +19,11 @@ const createNotice = async data => {
   notice.set('body', body);
   notice.set('attributes', attributes);
   notice.set('priority', priority);
-  notice.setACL(new Parse.ACL(user));
+  if(!toUser) {
+    notice.setACL(new Parse.ACL(user));
+  } else {
+    notice.setACL(new Parse.ACL(toUser));
+  }
   notice.set('owner', user);
 
   await notice.save(null, { useMasterKey: true });
