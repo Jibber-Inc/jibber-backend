@@ -10,18 +10,13 @@ import Parse from '../providers/ParseProvider';
 const sendToUsers = async (data, users = []) => {
   if (!data) throw new Error('Cannot send notificaction. Data is required');
   // Find sessions of the user.
-  const query = new Parse.Query(Parse.Session);
+  const query = new Parse.Query(Parse.Installation);
   query.containedIn('user', users);
-  const now = new Date();
-  query.greaterThan('expiresAt', now);
-  // Find installations associated with the user
-  const pushQuery = new Parse.Query(Parse.Installation);
-  pushQuery.matchesKeyInQuery('installationId', 'installationId', query);
-
+ 
   // Send push notification to query
   return Parse.Push.send(
     {
-      where: pushQuery,
+      where: query,
       data,
     },
     {
