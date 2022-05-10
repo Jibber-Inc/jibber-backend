@@ -9,9 +9,6 @@ import UserService from './UserService';
 // Utils
 import MessagesUtil from '../utils/messages';
 
-// Load Environment Variables
-const { BENJI_PHONE_NUMBER } = process.env;
-
 export class ChatServiceError extends ExtendableError { }
 
 const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
@@ -249,22 +246,7 @@ const addMemberToConversation = async (conversation, members) => {
  * @param {*} userId 
  * @returns 
  */
-const deleteWaitlistConversation = async (userId) => {
-  const conversationCid = `messaging:${userId}_waitlist_conversation`;
-  const conversation = await getConversationByCid(conversationCid)
-  const deletedConversation = await conversation.delete();
-
-  return deletedConversation;
-};
-
-/**
- * Deletes an user in Stream
- * 
- * @param {*} userId 
- * @returns 
- */
 const deleteUser = async (userId) => {
-  await deleteWaitlistConversation(userId);
   const deletedUser = await Stream.client.deleteUser(userId, {
     mark_messages_deleted: false,
   });
@@ -291,62 +273,6 @@ const sendReactionToMessage = async (conversation, messageId, reactionType, user
   }
 };
 
-
-/**
- * Creates the waitlist conversation for the given user
- * 
- * @param {*} user 
- */
-const createWaitlistConversation = async (user) => {
-
-  const hasWaitListConversation = await existsConversationByCid(
-    `messaging:${user.id}_waitlist_conversation`,
-  );
-
-  if (!hasWaitListConversation.length) {
-    // TODO: Uncomment this when the app (frontend) is ready to use it.
-    // await ChatService.createConversation(
-    //   user,
-    //   `${user.id}_invitation_conversation_${new Date().getTime()}`,
-    //   'invitation'
-    // );
-
-    // Retrieve the user with the phoneNumber
-    const userQuery = new Parse.Query(Parse.User);
-    userQuery.equalTo('phoneNumber', BENJI_PHONE_NUMBER);
-
-    const admin = await userQuery.first({ useMasterKey: true });
-
-    await createConversation(
-      user,
-      `${user.id}_waitlist_conversation`,
-      'messaging',
-      'Benji, Co-Founder',
-      [admin.id, user.id],
-    );
-    const conversation = await getConversationByCid(
-      `messaging:${user.id}_waitlist_conversation`,
-    );
-
-    if (conversation) {
-      const { waitlistMessages } = MessagesUtil;
-
-      await Promise.all(
-        waitlistMessages.map(message => {
-          const formattedMessage = MessagesUtil.getMessage(message, {
-            givenName: user.get('givenName'),
-          });
-          const newMessage = {
-            text: formattedMessage,
-            user_id: admin.id
-          };
-          return createMessage(newMessage, conversation);
-        }),
-      );
-    }
-  }
-};
-
 export default {
   createConversation,
   deleteUser,
@@ -358,7 +284,5 @@ export default {
   addMemberToConversation,
   getConversationByCid,
   sendReactionToMessage,
-  existsConversationByCid,
-  deleteWaitlistConversation,
-  createWaitlistConversation
+  existsConversationByCid
 };

@@ -71,16 +71,16 @@ const newMessage = async (request, response) => {
 
       if (recipients.length) {
         await Promise.all(recipients.map(async recipient => {
-            const toUser = await new Parse.Query(Parse.User).get(recipient.user.id);
+          const toUser = await new Parse.Query(Parse.User).get(recipient.user.id);
 
-            if (toUser) {
-              await NoticeService.createAlertMessageNotice(
-                toUser,
-                conversationCid,
-                message.id,
-              );
-            }
-          }),
+          if (toUser) {
+            await NoticeService.createAlertMessageNotice(
+              toUser,
+              conversationCid,
+              message.id,
+            );
+          }
+        }),
         );
       }
     }
