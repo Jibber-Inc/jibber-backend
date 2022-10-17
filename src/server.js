@@ -8,7 +8,6 @@ import api from './api';
 
 // Stream Webhooks
 import chatAfterEvent from './chatEventWebhooks/chatAfterEvent';
-import typeFormEvent from './chatEventWebhooks/typeFormEvent';
 
 // Load Environment Variables
 const { PARSE_MOUNT } = process.env;
@@ -33,7 +32,5 @@ app.get('/', async (request, response) =>
 
 // Stream Pre/Post Even Webhooks
 app.post('/stream/chatAfterEvent', chatAfterEvent);
-app.post('/typeForm/typeFormEvent', typeFormEvent);
-
 
 export default createServer(app);
