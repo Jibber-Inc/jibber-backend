@@ -36,7 +36,7 @@ const api = new ParseServer({
   push: {
     ios: {
       token: {
-        key: `/${IOS_APN_KEY}`,
+        key: IOS_APN_KEY,
         keyId: IOS_KEY_ID,
         teamId: IOS_TEAM_ID // The Team ID for your developer account
       },
