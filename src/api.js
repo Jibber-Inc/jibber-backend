@@ -5,7 +5,7 @@ require('dotenv').config();
 // Load Environment Variables
 const {
   APP_ID,
-  APP_NAME,
+  APP_NAME, 
   CLOUD_CODE_MAIN,
   DATABASE_URI,
   MASTER_KEY,
@@ -13,10 +13,7 @@ const {
   PUBLIC_SERVER_URL,
   REST_API_KEY,
   PARSE_SERVER_LOG_LEVEL,
-  // IOS_PFX_CERTIFICATE,
-  // IOS_PASSPHRASE,
-  // IOS_PUSH_PRODUCTION = false,
-  // IOS_TOPIC = 'com.jibber-inc.Jibber',
+  IOS_PUSH_PRODUCTION,
   REDIS_URL,
   S3_BUCKET,
   IOS_KEY_ID,
@@ -44,14 +41,8 @@ const api = new ParseServer({
         teamId: IOS_TEAM_ID // The Team ID for your developer account
       },
       topic: IOS_BUNDLE_ID, // The bundle identifier associated with your app
-      production: false
+      production: IOS_PUSH_PRODUCTION
     },
-    // ios: {
-    //   pfx: IOS_PFX_CERTIFICATE,
-    //   passphrase: IOS_PASSPHRASE,
-    //   topic: IOS_TOPIC,
-    //   production: IOS_PUSH_PRODUCTION,
-    // },
   },
   liveQuery: {
     // List of classes to support for query subscriptions
@@ -62,7 +53,8 @@ const api = new ParseServer({
       'Connection',
       'Achievement',
       'Transaction',
-      'Reservation'
+      'Reservation',
+      'Moment'
     ],
     redisUrl: REDIS_URL,
   },
