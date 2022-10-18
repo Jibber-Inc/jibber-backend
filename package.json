@@ -18,6 +18,7 @@
     "prettier": "prettier"
   },
   "dependencies": {
+    "@parse/s3-files-adapter": "^1.6.2",
     "axios": "^0.21.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -25,8 +26,8 @@
     "google-libphonenumber": "^3.2.15",
     "hat": "0.0.3",
     "mongoose": "^5.9.6",
-    "stream-chat": "^4.2.0",
     "parse-server": "^5.2.8",
+    "stream-chat": "^4.2.0",
     "tcp-port-used": "^1.0.1",
     "twilio": "^3.54.1",
     "twilio-chat": "^4.1.0",
