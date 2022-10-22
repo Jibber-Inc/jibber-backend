@@ -20,7 +20,6 @@ const {
   IOS_TEAM_ID,
   IOS_BUNDLE_ID,
   IOS_APN_KEY,
-  TEST_APN_KEY,
 } = process.env;
 
 // Build parse server instance
@@ -37,7 +36,7 @@ const api = new ParseServer({
   push: {
     ios: {
       token: {
-        key: TEST_APN_KEY,
+        key: IOS_APN_KEY,
         keyId: IOS_KEY_ID,
         teamId: IOS_TEAM_ID // The Team ID for your developer account
       },
