@@ -6,7 +6,6 @@
     "build": "npm run clean && babel -d ./dist ./src -s",
     "postinstall": "npm run build",
     "start": "node ./dist/index.js",
-    //"heroku-prebuild": "echo $IOS_APN_KEY_BASE64 | base64 --decode > $IOS_APN_KEY",
     "dev:watch": "nodemon --watch 'src/**/*' -e js,json --exec 'npm run dev:src'",
     "dev:src": "babel-node src",
     "dev:dist": "npm run build && nodemon ./dist/index.js",
