@@ -1,5 +1,6 @@
 import { ParseServer } from 'parse-server';
-import PushAdapter from '@parse/push-adapter';
+
+const PushAdapter = require('@parse/push-adapter').default;
 
 require('dotenv').config();
 
@@ -31,7 +32,7 @@ const pushOptions = {
       teamId: IOS_TEAM_ID // The Team ID for your developer account
     },
     topic: IOS_BUNDLE_ID, // The bundle identifier associated with your app
-    production: IOS_PUSH_PRODUCTION
+    production: IOS_PUSH_PRODUCTION === 'true'
   },
 }
 
