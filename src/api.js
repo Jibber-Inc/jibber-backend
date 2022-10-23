@@ -1,4 +1,5 @@
 import { ParseServer } from 'parse-server';
+import { default as PushAdapter } from '@parse/push-adapter';
 
 require('dotenv').config();
 
@@ -22,6 +23,18 @@ const {
   IOS_APN_KEY,
 } = process.env;
 
+const pushOptions = {
+  ios: {
+    token: {
+      key: IOS_APN_KEY,
+      keyId: IOS_KEY_ID,
+      teamId: IOS_TEAM_ID // The Team ID for your developer account
+    },
+    topic: IOS_BUNDLE_ID, // The bundle identifier associated with your app
+    production: IOS_PUSH_PRODUCTION
+  },
+}
+
 // Build parse server instance
 const api = new ParseServer({
   appId: APP_ID,
@@ -34,15 +47,7 @@ const api = new ParseServer({
   publicServerURL: PUBLIC_SERVER_URL,
   logLevel: PARSE_SERVER_LOG_LEVEL || 'info',
   push: {
-    ios: {
-      token: {
-        key: IOS_APN_KEY,
-        keyId: IOS_KEY_ID,
-        teamId: IOS_TEAM_ID // The Team ID for your developer account
-      },
-      topic: IOS_BUNDLE_ID, // The bundle identifier associated with your app
-      production: IOS_PUSH_PRODUCTION
-    },
+    adapter: new PushAdapter(pushOptions),
   },
   liveQuery: {
     // List of classes to support for query subscriptions
