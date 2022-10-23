@@ -1,5 +1,5 @@
 import { ParseServer } from 'parse-server';
-import { default as PushAdapter } from '@parse/push-adapter';
+import PushAdapter from '@parse/push-adapter';
 
 require('dotenv').config();
 
