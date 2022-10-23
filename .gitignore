@@ -109,3 +109,6 @@ dist/
 
 # PHPStorm Folder
 .idea
+
+# Mac files
+.DS_Store
