@@ -66,8 +66,10 @@ Parse.Cloud.define('test', test);
 // Connection webhooks
 Parse.Cloud.afterSave('Connection', connectionAfterSave);
 
+// Moment webhooks
+Parse.Cloud.afterSave('Moment', momentAfterSave);
+
 // User webhooks
 Parse.Cloud.beforeSave(Parse.User, userBeforeSave);
 Parse.Cloud.afterSave(Parse.User, userAfterSave);
 Parse.Cloud.afterDelete(Parse.User, userAfterDelete);
-Parse.Cloud.afterSave(Parse.Moment, momentAfterSave)
