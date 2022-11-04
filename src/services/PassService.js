@@ -33,6 +33,28 @@ const handlePass = async (passId, user) => {
   await conversationConfig.create();
 }
 
+/**
+ * Create a pass
+ * 
+ * Verifies if the user already has a pass, otherwise creates it
+ *
+ * @param {Parse.User} user
+ */
+ const createPass = async user => {
+  try {
+    const currentPass = await new Parse.Query('Pass').equalTo('owner', user).first();
+    if (currentPass) return currentPass;
+    const pass = new Parse.Object('Pass');
+    pass.set('link', 'ADD_LINK');
+    pass.set('owner', user);
+    pass.setACL(new Parse.ACL(user));
+    return pass.save(null, { useMasterKey: true });
+  } catch (error) {
+    throw new PassServiceError(error.message);
+  }
+};
+
 export default {
-  handlePass
+  handlePass,
+  createPass
 };

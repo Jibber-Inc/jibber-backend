@@ -13,6 +13,7 @@ import UserStatus from '../constants/userStatus';
 // import QuePositionsService from '../services/QuePositionsService';
 // Utils
 import testUser from '../utils/testUser';
+import PassService from '../services/PassService';
 // import db from '../utils/db';
 
 class ValidateCodeError extends ExtendableError {}
@@ -84,6 +85,7 @@ const validateCode = async request => {
       
       await user.save(null, { useMasterKey: true });
 
+      await PassService.createPass(user);
       setReservations(user);
     }
 
