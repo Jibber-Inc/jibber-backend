@@ -38,6 +38,14 @@ const getNoticeByOwner = async (user, type) => {
   return notice;
 };
 
+const getReadMessageNotices = async (user, type) => {
+  const notices = await new Parse.Query('Notice')
+    .equalTo('type', NOTIFICATION_TYPES.MESSAGE_READ)
+    .find({ useMasterKey: true });
+  return notices;
+};
+
+
 /**
  * Delete all user reservations
  *
@@ -186,6 +194,20 @@ const deleteAlertMessageNotice = async (user, cid, messageId) => {
   }
 };
 
+ const deleteMessageReadNotice = async user => {
+  try {
+    const query = new Parse.Query('Notice')
+      .equalTo('type', NOTIFICATION_TYPES.MESSAGE_READ);
+    const result = await query.first({ useMasterKey: true });
+
+    if (result) {
+      await result.destroy({ useMasterKey: true });
+    }
+  } catch (error) {
+    throw new NoticeServiceError(error.message);
+  }
+};
+
 export default {
   createNotice,
   getNoticeByOwner,
@@ -195,5 +217,7 @@ export default {
   deleteConnectionRequestNotice,
   createAlertMessageNotice,
   deleteAlertMessageNotice,
-  deleteAllNoticeByUser
+  deleteAllNoticeByUser,
+  getReadMessageNotices,
+  deleteMessageReadNotice
 };
