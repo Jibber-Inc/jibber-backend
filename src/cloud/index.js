@@ -24,6 +24,7 @@ import userAfterSave from './webhooks/userAfterSave';
 import userAfterDelete from './webhooks/userAfterDelete';
 import sendSMS from './sendSMS';
 import sendMessage from './sendMessage';
+import momentAfterSave from './webhooks/momentAfterSave';
 
 // Load Environment variables
 const { JIBBER_SECRET_PASSWORD_TOKEN } = process.env;
@@ -64,6 +65,9 @@ Parse.Cloud.define('test', test);
 // --- Cloud code webhooks ----------------------------------------------------
 // Connection webhooks
 Parse.Cloud.afterSave('Connection', connectionAfterSave);
+
+// Moment webhooks
+Parse.Cloud.afterSave('Moment', momentAfterSave);
 
 // User webhooks
 Parse.Cloud.beforeSave(Parse.User, userBeforeSave);
