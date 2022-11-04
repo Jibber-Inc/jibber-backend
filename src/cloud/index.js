@@ -13,6 +13,7 @@ import updateReservation from './updateReservation';
 import createConnection from './createConnection';
 import createConversation from './createConversation';
 import addReaction from './addReaction';
+import deleteNotices from './deleteNotices';
 
 // Test functions
 import test from './test';
@@ -57,6 +58,10 @@ Parse.Cloud.define('updateReservation', updateReservation);
 Parse.Cloud.define('sendPush', sendPush);
 Parse.Cloud.define('createHandle', createHandle);
 Parse.Cloud.define('sendSMS', sendSMS);
+
+// Notices
+Parse.Cloud.define('deleteNotices', deleteNotices);
+
 
 // Test
 Parse.Cloud.define('test', test);
