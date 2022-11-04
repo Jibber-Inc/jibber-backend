@@ -34,7 +34,9 @@ const handlePass = async (passId, user) => {
 }
 
 /**
- * Create a reservation
+ * Create a pass
+ * 
+ * Verifies if the user already has a pass, otherwise creates it
  *
  * @param {Parse.User} user
  */
