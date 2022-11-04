@@ -42,11 +42,10 @@ const momentAfterSave = async request => {
 
   if (usersWithConnections) {
     const data = {
-      title: `New moment has been shared`,
       body: `${fullName} shared a Moment 👀`,
       target: 'moment',
       interruptionLevel: INTERRUPTION_LEVEL_TYPES.ACTIVE,
-      momentId: moment.get('id'),
+      momentId: moment.get('id')
     };
 
     await PushService.sendPushNotificationToUsers(data, usersWithConnections);
