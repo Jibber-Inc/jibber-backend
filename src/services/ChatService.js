@@ -273,6 +273,17 @@ const sendReactionToMessage = async (conversation, messageId, reactionType, user
   }
 };
 
+const getMessage = async (messageId) => {
+  let message = undefined;
+  
+  try {
+    const message = await Stream.client.getMessage(messageId);
+    return message;
+  } catch (error) {
+     return null
+  }
+};
+
 export default {
   createConversation,
   deleteUser,
@@ -284,5 +295,6 @@ export default {
   addMemberToConversation,
   getConversationByCid,
   sendReactionToMessage,
-  existsConversationByCid
+  existsConversationByCid,
+  getMessage
 };
