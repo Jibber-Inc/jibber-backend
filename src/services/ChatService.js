@@ -273,15 +273,16 @@ const sendReactionToMessage = async (conversation, messageId, reactionType, user
   }
 };
 
-const getMessage = async (messageId) => {
+const getMessage = async messageId => {
   let message = undefined;
-  
+
   try {
-    const message = await Stream.client.getMessage(messageId);
-    return message;
+    message = await Stream.client.getMessage(messageId);
   } catch (error) {
-     return null
+    console.warn(error.message);
   }
+
+  return message;
 };
 
 export default {
