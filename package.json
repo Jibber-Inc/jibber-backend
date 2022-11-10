@@ -27,7 +27,7 @@
     "google-libphonenumber": "^3.2.15",
     "hat": "0.0.3",
     "mongoose": "^5.9.6",
-    "parse-server": "^5.2.8",
+    "parse-server": "^5.3.2",
     "stream-chat": "^4.2.0",
     "tcp-port-used": "^1.0.1",
     "twilio": "^3.54.1",
