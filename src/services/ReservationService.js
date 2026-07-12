@@ -1,6 +1,5 @@
 import ExtendableError from 'extendable-error-class';
 import ChatService from './ChatService';
-import UserService from './UserService';
 import PushService from './PushService';
 import Parse from '../providers/ParseProvider';
 import UserUtils from '../utils/userData';
@@ -16,7 +15,7 @@ export class ReservationServiceError extends ExtendableError {}
 const createReservation = async user => {
   try {
     const reservation = new Parse.Object('Reservation');
-    reservation.set('isClaimed'.false);
+    reservation.set('isClaimed', false);
     reservation.set('createdBy', user);
     return reservation.save(null, { useMasterKey: true });
   } catch (error) {
@@ -97,7 +96,6 @@ const claimReservation = async (reservationId, user) => {
         conversationCid,
       );
 
-      await UserService.upsertUser({ id: user.id });
       await ChatService.addMemberToConversation(conversation, [user.id]);
     }
 
@@ -124,26 +122,30 @@ const handleReservation = async (reservationId, user) => {
       'messaging',
       conversationId,
       [fromUser.id, toUser.id],
+      { trustedLegacyContextKey: true },
     );
+    reservation.set('conversationCid', conversation.id);
+    await reservation.save(null, { useMasterKey: true });
   } else {
     conversation = await ChatService.getConversationByCid(conversationCid);
   }
 
   const fromUser = await new Parse.Query(Parse.User).get(
-    conversation.data.created_by.id,
+    conversation.get('creator').id,
+    { useMasterKey: true },
   );
   const toFullName = UserUtils.getFullName(user);
 
   if (conversation) {
     const data = {
       messageId: null,
-      conversationCid: conversation.conversationCid,
+      conversationCid: conversation.id,
       title: `${toFullName} claimed your reservation! 🥳`,
       body: `${toFullName} accepted your invitation and was added to a conversation with you.`,
       target: 'conversation',
       category: 'connection.new',
       interruptionLevel: INTERRUPTION_LEVEL_TYPES.TIME_SENSITIVE,
-      threadId: conversationCid,
+      threadId: conversation.id,
       author: fromUser.id,
     };
 

@@ -1,0 +1,145 @@
+[
+  {
+    "className": "Conversation",
+    "name": "conversation_activity",
+    "keys": [["isDeleted", 1], ["lastActivityAt", -1]],
+    "unique": false
+  },
+  {
+    "className": "Conversation",
+    "name": "conversation_creator",
+    "keys": [["_p_creator", 1], ["isDeleted", 1]],
+    "unique": false
+  },
+  {
+    "className": "Conversation",
+    "name": "conversation_client_id",
+    "keys": [["_p_creator", 1], ["clientConversationId", 1]],
+    "unique": true,
+    "partialFilterExpression": {
+      "clientConversationId": { "$type": "string" }
+    }
+  },
+  {
+    "className": "Conversation",
+    "name": "conversation_context_key",
+    "keys": [["contextKey", 1]],
+    "unique": true,
+    "partialFilterExpression": { "contextKey": { "$type": "string" } }
+  },
+  {
+    "className": "ConversationMember",
+    "name": "member_conversation_user",
+    "keys": [["_p_conversation", 1], ["_p_user", 1]],
+    "unique": true
+  },
+  {
+    "className": "ConversationMember",
+    "name": "member_conversation_active",
+    "keys": [["_p_conversation", 1], ["active", 1]],
+    "unique": false
+  },
+  {
+    "className": "ConversationMember",
+    "name": "member_user_active",
+    "keys": [["_p_user", 1], ["active", 1], ["updatedAt", -1]],
+    "unique": false
+  },
+  {
+    "className": "ConversationMember",
+    "name": "member_user_visible",
+    "keys": [
+      ["_p_user", 1],
+      ["active", 1],
+      ["isHidden", 1],
+      ["updatedAt", -1]
+    ],
+    "unique": false
+  },
+  {
+    "className": "Message",
+    "name": "message_client_id",
+    "keys": [["_p_conversation", 1], ["clientMessageId", 1]],
+    "unique": true
+  },
+  {
+    "className": "Message",
+    "name": "message_history_cursor",
+    "keys": [["_p_conversation", 1], ["createdAt", -1], ["_id", -1]],
+    "unique": false
+  },
+  {
+    "className": "Message",
+    "name": "message_history",
+    "keys": [["_p_conversation", 1], ["isDeleted", 1], ["createdAt", -1]],
+    "unique": false
+  },
+  {
+    "className": "Message",
+    "name": "message_roots",
+    "keys": [
+      ["_p_conversation", 1],
+      ["_p_replyTo", 1],
+      ["createdAt", -1],
+      ["_id", -1]
+    ],
+    "unique": false
+  },
+  {
+    "className": "Message",
+    "name": "message_reply",
+    "keys": [["_p_replyTo", 1], ["createdAt", 1], ["_id", -1]],
+    "unique": false
+  },
+  {
+    "className": "Message",
+    "name": "message_reply_active",
+    "keys": [
+      ["_p_replyTo", 1],
+      ["isDeleted", 1],
+      ["createdAt", -1],
+      ["_id", -1]
+    ],
+    "unique": false
+  },
+  {
+    "className": "Message",
+    "name": "message_pins",
+    "keys": [
+      ["_p_conversation", 1],
+      ["isPinned", 1],
+      ["pinnedAt", -1],
+      ["_id", -1]
+    ],
+    "unique": false
+  },
+  {
+    "className": "MessageReaction",
+    "name": "reaction_identity",
+    "keys": [["_p_message", 1], ["_p_user", 1], ["type", 1]],
+    "unique": true
+  },
+  {
+    "className": "MessageReaction",
+    "name": "reaction_conversation_message",
+    "keys": [["_p_conversation", 1], ["_p_message", 1]],
+    "unique": false
+  },
+  {
+    "className": "MessageReceipt",
+    "name": "receipt_identity",
+    "keys": [["_p_message", 1], ["_p_user", 1]],
+    "unique": true
+  },
+  {
+    "className": "MessageReceipt",
+    "name": "receipt_unread_cursor",
+    "keys": [
+      ["_p_conversation", 1],
+      ["_p_user", 1],
+      ["state", 1],
+      ["messageCreatedAt", 1]
+    ],
+    "unique": false
+  }
+]

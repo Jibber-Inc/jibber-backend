@@ -1,60 +1,41 @@
-// Providers
+import { v4 as uuidv4 } from 'uuid';
 import Parse from '../providers/ParseProvider';
-import Stream from '../providers/StreamProvider';
-// Services
 import ChatService from '../services/ChatService';
-import UserService from '../services/UserService';
+import { assertMinimumAppVersion } from '../utils/appVersion';
 
 /**
- * Send a Chat message
- * @param {Object} request
+ * Compatibility Cloud function for clients that still call `sendMessage`.
+ * The authenticated Parse user is always the author; ownerId can no longer be
+ * used to write on behalf of another user.
  */
 const sendMessage = async request => {
-  const { params } = request;
+  const { params, user } = request;
   const { ownerId, conversationId, message } = params;
 
-  if (!ownerId) throw new Error('A logged user is required');
-
-  if (!conversationId) throw new Error('A conversationId is required');
-
-  if (!message || !message.text) throw new Error('A message.text is required');
-
-  try {
-    const owner = await new Parse.Query(Parse.User).get(ownerId);
-    await UserService.connectUser(owner);
-    const filter = { cid: { $eq: conversationId } };
-    const sort = [{ last_message_at: -1 }];
-    const options = { message_limit: 0, limit: 1, state: true };
-
-    const queryConversationsResponse = await Stream.client.queryConversations(
-      filter,
-      sort,
-      options,
-    );
-
-    if (!queryConversationsResponse.length){
-      throw new Error("There's no conversation with the given conversation ID");
-    }
-    
-    const conversation = queryConversationsResponse[0];
-
-    message.user_id = owner.id;
-
-    if(!message.context){
-      message.context = 'respectful'
-    }
-
-    const messageCreated = await ChatService.createMessage(
-      message,
-      conversation,
-    );
-
-    await UserService.disconnectUser();
-
-    return messageCreated;
-  } catch (error) {
-    throw error.message;
+  if (!(user instanceof Parse.User)) {
+    throw new Error('A logged user is required');
   }
+  if (ownerId && ownerId !== user.id) {
+    throw new Error('ownerId must match the logged user');
+  }
+  if (process.env.PARSE_MESSAGING_ENABLED === 'false') {
+    throw new Error('Parse messaging is not enabled.');
+  }
+  assertMinimumAppVersion(request);
+  if (!conversationId) throw new Error('A conversationId is required');
+  if (!message || !message.text) {
+    throw new Error('A message.text is required');
+  }
+
+  return ChatService.createMessage(
+    {
+      ...message,
+      clientMessageId:
+        message.clientMessageId || `legacy-message:${uuidv4()}`,
+      user_id: user.id,
+    },
+    conversationId,
+  );
 };
 
 export default sendMessage;

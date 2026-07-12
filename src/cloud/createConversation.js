@@ -1,5 +1,7 @@
 // Vendor
 import ExtendableError from 'extendable-error-class';
+import Parse from '../providers/ParseProvider';
+import { assertMinimumAppVersion } from '../utils/appVersion';
 
 // Services
 import ChatService from '../services/ChatService';
@@ -12,16 +14,22 @@ export class CreateConversationError extends ExtendableError { }
  * @param {*} response
  */
 const createConversation = async request => {
-  const { params } = request;
-  const { owner, conversationId, type, members, title } = params;
+  const { params, user } = request;
+  const { conversationId, type, members = [], title } = params;
+  if (!(user instanceof Parse.User)) {
+    throw new CreateConversationError('Authentication is required.');
+  }
+  if (process.env.PARSE_MESSAGING_ENABLED === 'false') {
+    throw new CreateConversationError('Parse messaging is not enabled.');
+  }
+  assertMinimumAppVersion(request);
   try {
-    // create conversation
     const conversation = await ChatService.createConversation(
-      owner,
+      user,
       conversationId,
       type,
       title,
-      members
+      members,
     );
 
     return {

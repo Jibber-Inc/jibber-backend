@@ -8,6 +8,7 @@ import UserStatus from '../constants/userStatus';
 import PassService from '../services/PassService';
 import ReservationService from '../services/ReservationService';
 import NoticeService from '../services/NoticeService';
+import ChatService from '../services/ChatService';
 // Notifications
 import QuePositionsService from '../services/QuePositionsService';
 import AchievementService from '../services/AchievementService';
@@ -59,12 +60,8 @@ const setUserStatus = async (user, reservationId, passId) => {
  * @param {*} user 
  * @returns 
  */
-const createInitialConversations = async (user) => {
-  // Here we create the user in Stream
-  const createdUser = await UserService.upsertUser({ id: user.id });
-
-  return createdUser
-};
+const createInitialConversations = user =>
+  ChatService.createInitialConversations(user);
 
 /**
  * Sets the user's status from inactive to active

@@ -1,0 +1,108 @@
+{
+  "className": "Message",
+  "fields": {
+    "objectId": { "type": "String" },
+    "createdAt": { "type": "Date" },
+    "updatedAt": { "type": "Date" },
+    "ACL": { "type": "ACL" },
+    "conversation": {
+      "type": "Pointer",
+      "targetClass": "Conversation",
+      "required": true
+    },
+    "author": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": true
+    },
+    "clientMessageId": { "type": "String", "required": true },
+    "clientCreatedAt": { "type": "Date", "required": false },
+    "contentType": { "type": "String", "required": true },
+    "text": { "type": "String", "required": false },
+    "linkURL": { "type": "String", "required": false },
+    "attachments": { "type": "Array", "required": false },
+    "expressions": { "type": "Array", "required": false },
+    "metadata": { "type": "Object", "required": false },
+    "replyTo": {
+      "type": "Pointer",
+      "targetClass": "Message",
+      "required": false
+    },
+    "replyCount": {
+      "type": "Number",
+      "required": true,
+      "defaultValue": 0
+    },
+    "latestReply": {
+      "type": "Pointer",
+      "targetClass": "Message",
+      "required": false
+    },
+    "latestReplyAt": { "type": "Date", "required": false },
+    "latestReplyAuthor": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": false
+    },
+    "latestReplyText": { "type": "String", "required": false },
+    "deliveryType": { "type": "String", "required": true },
+    "editedAt": { "type": "Date", "required": false },
+    "isPinned": {
+      "type": "Boolean",
+      "required": true,
+      "defaultValue": false
+    },
+    "pinnedAt": { "type": "Date", "required": false },
+    "pinnedBy": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": false
+    },
+    "isDeleted": {
+      "type": "Boolean",
+      "required": true,
+      "defaultValue": false
+    },
+    "deletedAt": { "type": "Date", "required": false },
+    "attachmentsPurgedAt": { "type": "Date", "required": false }
+  },
+  "classLevelPermissions": {
+    "find": { "requiresAuthentication": true },
+    "count": { "requiresAuthentication": true },
+    "get": { "requiresAuthentication": true },
+    "create": { "requiresAuthentication": true },
+    "update": { "requiresAuthentication": true },
+    "delete": {},
+    "addField": {},
+    "protectedFields": { "*": [] }
+  },
+  "indexes": {
+    "_id_": { "_id": 1 },
+    "message_client_id": { "_p_conversation": 1, "clientMessageId": 1 },
+    "message_history_cursor": {
+      "_p_conversation": 1,
+      "createdAt": -1,
+      "_id": -1
+    },
+    "message_history": { "_p_conversation": 1, "isDeleted": 1, "createdAt": -1 },
+    "message_roots": {
+      "_p_conversation": 1,
+      "_p_replyTo": 1,
+      "createdAt": -1,
+      "_id": -1
+    },
+    "message_reply": { "_p_replyTo": 1, "createdAt": 1, "_id": -1 },
+    "message_reply_active": {
+      "_p_replyTo": 1,
+      "isDeleted": 1,
+      "createdAt": -1,
+      "_id": -1
+    },
+    "message_pins": {
+      "_p_conversation": 1,
+      "isPinned": 1,
+      "pinnedAt": -1,
+      "_id": -1
+    }
+  }
+}

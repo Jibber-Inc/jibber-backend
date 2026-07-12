@@ -1,9 +1,9 @@
 import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
-import Stream from '../providers/StreamProvider';
+import ChatService from './ChatService';
 import ConnectionService from './ConnectionService';
 
-export class PassServiceError extends ExtendableError { }
+export class PassServiceError extends ExtendableError {}
 
 const handlePass = async (passId, user) => {
   const pass = await new Parse.Query('Pass').get(passId);
@@ -20,19 +20,16 @@ const handlePass = async (passId, user) => {
   const members = [user.id, owner.id];
   const conversationId = `pass_${user.id}_${owner.id}`;
 
-  const conversationConfig = Stream.client.conversation(
-    'messaging',
+  return ChatService.createConversation(
+    user,
     conversationId,
-    {
-      name: '',
-      description: '',
-      members,
-      created_by_id: user.id,
-    },
+    'pass',
+    '',
+    members,
+    { trustedLegacyContextKey: true },
   );
-  await conversationConfig.create();
-}
+};
 
 export default {
-  handlePass
+  handlePass,
 };

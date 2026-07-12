@@ -1,288 +1,344 @@
+import crypto from 'crypto';
 import ExtendableError from 'extendable-error-class';
-// Providers
+import { v4 as uuidv4 } from 'uuid';
 import Parse from '../providers/ParseProvider';
-import Twilio from '../providers/TwilioProvider';
-import Stream from '../providers/StreamProvider';
-// Constants
-import { ONBOARDING_ADMIN, MESSAGE } from '../constants/index';
-import UserService from './UserService';
-// Utils
+import { ONBOARDING_ADMIN } from '../constants/index';
+import {
+  CONVERSATION_TYPES,
+  MESSAGE_DELIVERY_TYPES,
+  MESSAGING_CLASSES,
+} from '../constants/messaging';
+import {
+  addConversationMembers,
+  addReaction,
+  createConversation as createParseConversation,
+  deactivateUserMemberships,
+  getObjectId,
+  sendMessage,
+} from './ParseMessagingService';
 import MessagesUtil from '../utils/messages';
 
-export class ChatServiceError extends ExtendableError { }
+export class ChatServiceError extends ExtendableError {}
 
-const SERVICE_ID = process.env.TWILIO_SERVICE_SID;
+const masterOptions = { useMasterKey: true };
 
-/**
- * Create a conversation
- * @param {Parse.User} owner
- * @param {String} uniqueName
- * @param {String} friendlyName
- * @param {Boolean} isPrivate
- * @param {Object} attributes
- * @returns {Promise}
- */
-const createConversation = async (owner, conversationId, type = 'messaging', title = '', members = []) => {
-  if (!owner) {
-    throw new ChatServiceError('[SmQNWk96] owner is required');
+const resolveUser = async user => {
+  const userId = getObjectId(user);
+  if (!userId) throw new ChatServiceError('A user is required.');
+  if (user instanceof Parse.User) return user;
+  return new Parse.Query(Parse.User).get(userId, masterOptions);
+};
+
+const digestIdentifier = value =>
+  crypto.createHash('sha256').update(value).digest('hex');
+
+const makeClientConversationId = conversationId =>
+  /^[A-Za-z0-9._:-]{8,128}$/.test(conversationId)
+    ? conversationId
+    : `legacy:${digestIdentifier(conversationId)}`;
+
+const makeContextKey = conversationId => {
+  const candidate = `legacy:${conversationId}`;
+  return /^[A-Za-z0-9._:-]{3,256}$/.test(candidate)
+    ? candidate
+    : `legacy:${digestIdentifier(conversationId)}`;
+};
+
+const normalizeConversationType = (type, memberCount) => {
+  if (CONVERSATION_TYPES.indexOf(type) !== -1) return type;
+  return memberCount > 2 ? 'group' : 'direct';
+};
+
+const normalizeDeliveryType = value => {
+  if (MESSAGE_DELIVERY_TYPES.indexOf(value) !== -1) return value;
+  const mappings = {
+    active: 'conversational',
+    passive: 'respectful',
+    quiet: 'respectful',
+    timeSensitive: 'time-sensitive',
+    urgent: 'time-sensitive',
+  };
+  return mappings[value] || 'respectful';
+};
+
+const legacyIdentifierCandidates = conversationCid => {
+  const identifier = String(conversationCid);
+  const unqualified = identifier.includes(':')
+    ? identifier.slice(identifier.indexOf(':') + 1)
+    : identifier;
+  const identifiers = Array.from(new Set([identifier, unqualified]));
+  return {
+    clientIds: Array.from(
+      new Set(identifiers.map(makeClientConversationId)),
+    ),
+    contextKeys: Array.from(new Set(identifiers.map(makeContextKey))),
+    objectIds: identifiers,
+  };
+};
+
+const findConversationByCid = async conversationCid => {
+  if (!conversationCid) return undefined;
+  if (
+    conversationCid instanceof Parse.Object &&
+    conversationCid.className === MESSAGING_CLASSES.CONVERSATION
+  ) {
+    return conversationCid;
   }
 
+  const candidates = legacyIdentifierCandidates(conversationCid);
+  // Parse object IDs are the canonical identifier after the cutover. Legacy
+  // client/context keys remain a compatibility lookup for reachable workflows.
+  // eslint-disable-next-line no-restricted-syntax
+  for (const objectId of candidates.objectIds) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      return await new Parse.Query(MESSAGING_CLASSES.CONVERSATION).get(
+        objectId,
+        masterOptions,
+      );
+    } catch (error) {
+      if (error.code !== Parse.Error.OBJECT_NOT_FOUND) throw error;
+    }
+  }
+
+  const clientIdQuery = new Parse.Query(MESSAGING_CLASSES.CONVERSATION)
+    .containedIn('clientConversationId', candidates.clientIds);
+  const contextKeyQuery = new Parse.Query(MESSAGING_CLASSES.CONVERSATION)
+    .containedIn('contextKey', candidates.contextKeys);
+  return Parse.Query.or(clientIdQuery, contextKeyQuery).first(masterOptions);
+};
+
+/**
+ * Creates a Parse-native conversation. The function name remains as a narrow
+ * compatibility boundary for onboarding, pass, reservation, and connection
+ * workflows that predate the Parse messaging service.
+ */
+const createConversation = async (
+  owner,
+  conversationId,
+  type = 'direct',
+  title = '',
+  members = [],
+  options = {},
+) => {
+  if (!owner) throw new ChatServiceError('[SmQNWk96] owner is required');
   if (!conversationId || typeof conversationId !== 'string') {
     throw new ChatServiceError('[ITLA8RgD] conversationId is required');
   }
 
-  if (!members.length) {
-    members.push(owner.id || owner);
-  }
-
   try {
-    const conversationConfig = Stream.client.conversation(
-      type,
-      conversationId,
-      {
-        title,
-        name: title,
-        description: '',
-        members,
-        created_by_id: owner.id || owner,
-      },
+    const creator = await resolveUser(owner);
+    const memberIds = Array.from(
+      new Set([creator.id].concat(members.map(getObjectId)).filter(Boolean)),
     );
-
-    const conversation = await conversationConfig.create();
-    return conversation;
+    const trustedContextKey = options.trustedLegacyContextKey
+      ? makeContextKey(conversationId)
+      : undefined;
+    return await createParseConversation(
+      creator,
+      {
+        clientConversationId: makeClientConversationId(conversationId),
+        contextKey: trustedContextKey,
+        memberIds,
+        title,
+        type: normalizeConversationType(type, memberIds.length),
+      },
+      { trustedContextKey: Boolean(trustedContextKey) },
+    );
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
 };
 
-/**
- * Get all user conversations
- *
- * @param {String} userId
- */
+const getConversationByCid = async conversationCid => {
+  const conversation = await findConversationByCid(conversationCid);
+  if (!conversation) {
+    throw new ChatServiceError(
+      "There's no conversation with the given conversation ID",
+    );
+  }
+  return conversation;
+};
+
+const existsConversationByCid = async conversationCid => {
+  const conversation = await findConversationByCid(conversationCid);
+  return conversation ? [conversation] : [];
+};
+
 const getUserConversations = async userId => {
   try {
-    const filter = { members: { $in: [userId] } };
-    const userConversations = await Stream.client.queryChannels(filter, {}, {});
-
-    return userConversations;
+    const user = await resolveUser(userId);
+    const memberships = await new Parse.Query(MESSAGING_CLASSES.MEMBER)
+      .equalTo('user', user)
+      .equalTo('active', true)
+      .include('conversation')
+      .limit(1000)
+      .find(masterOptions);
+    return memberships.map(membership => membership.get('conversation'));
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
 };
 
-/**
- * Delte a given conversation
- *
- * @param {String} conversationSid
- */
-const deleteConversation = async conversationSid => {
+const deleteConversation = async conversationCid => {
   try {
-    return new Twilio().client.chat
-      .services(SERVICE_ID)
-      .channels(conversationSid)
-      .remove();
+    const conversation = await getConversationByCid(conversationCid);
+    conversation.set('isDeleted', true);
+    return conversation.save(null, masterOptions);
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
 };
 
-/**
- * Remove all conversations from user
- *
- * @param {String} userId
- */
 const deleteUserConversations = async userId => {
   try {
-    const userConversations = await getUserConversations(userId);
-    await Promise.all(
-      userConversations.map(u => deleteConversation(u.conversationSid)),
-    );
+    await deactivateUserMemberships(userId);
     return userId;
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
 };
 
-/**
- * Create a message on a given conversation.
- *
- * @param {Object} message
- * @param {StreamConversation} conversation
- */
-const createMessage = async (message, conversation) => {
+const createMessage = async (message, conversationReference) => {
   try {
-    return await conversation.sendMessage(message);
+    const conversation = await getConversationByCid(conversationReference);
+    const author = await resolveUser(
+      message.user_id || message.authorId || message.user,
+    );
+    return sendMessage(author, {
+      attachments: Array.isArray(message.attachments)
+        ? message.attachments
+        : [],
+      clientCreatedAt: message.clientCreatedAt || new Date(),
+      clientMessageId:
+        message.clientMessageId || message.id || `legacy-message:${uuidv4()}`,
+      contentType: message.contentType || 'text',
+      conversationId: conversation.id,
+      deliveryType: normalizeDeliveryType(
+        message.deliveryType || message.context,
+      ),
+      expressions: message.expressions || [],
+      linkURL: message.linkURL,
+      metadata: message.metadata || {},
+      replyToId: message.replyToId,
+      text: message.text || '',
+    });
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
 };
 
-/**
- *
- * @param {StreamConversation} conversationInstance
- * @param {StreamConversation} conversationConfig
- * @param {String} senderId
- * @param {Object} data
- */
 const createMessagesForConversation = async (
-  { conversation },
-  conversationConfig,
+  conversationInstance,
+  conversationReference,
   senderId,
   data = {},
 ) => {
-  const { messages } = MessagesUtil;
-  // eslint-disable-next-line no-restricted-syntax
-  for await (const message of messages[conversation.name]) {
-    const formattedMessage = MessagesUtil.getMessage(message, data);
-    const newMessage = {
-      text: formattedMessage,
-      user_id: senderId,
-      context: MESSAGE.CONTEXT.PASSIVE,
-    };
-    await createMessage(newMessage, conversationConfig);
-  }
+  const conversation = await getConversationByCid(
+    conversationReference || conversationInstance,
+  );
+  const messages = MessagesUtil.welcomeMessages.reduce(
+    (allMessages, pair) => allMessages.concat(pair),
+    [],
+  );
+  await messages.reduce(
+    (previous, template, index) =>
+      previous.then(() =>
+        createMessage(
+          {
+            clientMessageId: `welcome:${conversation.id}:${index}`,
+            context: 'passive',
+            text: MessagesUtil.getMessage(template, data),
+            user_id: senderId,
+          },
+          conversation,
+        ),
+      ),
+    Promise.resolve(),
+  );
+  return conversation;
 };
 
-/**
- * Creates the initial conversations for the new user
- * @param {*} user
- */
 const createInitialConversations = async user => {
-  // Add to conversation members the user
-  const members = [user.id];
-  let admin;
-
-  // If the desired role exists, add to conversation members the admin with that role
-  // Get parse role
   const onboardingRole = await new Parse.Query(Parse.Role)
     .equalTo('name', ONBOARDING_ADMIN)
-    .first();
+    .first(masterOptions);
+  if (!onboardingRole) return undefined;
 
-  if (onboardingRole) {
-    // If the role is defined, get the first user with it
-    admin = await onboardingRole.get('users').query().first();
-    // If we have users with the desired role, add them to the members
-    if (admin) {
-      members.push(admin.id);
+  const admin = await onboardingRole
+    .get('users')
+    .query()
+    .first(masterOptions);
+  if (!admin) return undefined;
 
-      await UserService.connectUser(admin);
+  const conversation = await createConversation(
+    admin,
+    `welcome_${user.id}`,
+    'welcome',
+    'welcome',
+    [admin.id, user.id],
+    { trustedLegacyContextKey: true },
+  );
+  await createMessagesForConversation(
+    conversation,
+    conversation,
+    admin.id,
+    { givenName: user.get('givenName') },
+  );
+  return conversation;
+};
 
-      const welcomeConversationConfig = Stream.client.channel(
-        'messaging',
-        `welcome_${user.id}`,
-        {
-          name: 'welcome',
-          description: 'Start here to learn your way around.',
-          members,
-          created_by_id: admin.id,
-        },
-      );
-
-      const welcomeConversationInstance = await welcomeConversationConfig.create();
-
-      // Send the welcome messages
-      await createMessagesForConversation(
-        welcomeConversationInstance,
-        welcomeConversationConfig,
-        admin.id,
-        {
-          givenName: user.get('givenName'),
-        },
-      );
-    }
+const addMemberToConversation = async (conversationReference, members) => {
+  try {
+    const conversation = await getConversationByCid(conversationReference);
+    return addConversationMembers(conversation.get('creator'), {
+      conversationId: conversation.id,
+      memberIds: members,
+    });
+  } catch (error) {
+    throw new ChatServiceError(error.message);
   }
 };
 
-/**
- * 
- * @param {*} conversationCid 
- * @returns 
- */
-const getConversationByCid = async (conversationCid) => {
-  const filter = { cid: { $eq: conversationCid } };
-  const sort = [{ last_message_at: -1 }];
-  const options = { message_limit: 0, limit: 1, state: true };
-  const conversationsResponse = await Stream.client.queryConversations(
-    filter,
-    sort,
-    options,
-  );
-  if (!conversationsResponse.length)
-    throw new Error("There's no conversation with the given conversation ID");
-
-  return conversationsResponse[0];
+const deleteUser = async userId => {
+  await deactivateUserMemberships(userId);
+  return userId;
 };
 
-/**
- * 
- * @param {*} conversationCid 
- * @returns 
- */
-const existsConversationByCid = async (conversationCid) => {
-  const filter = { cid: { $eq: conversationCid } };
-  const sort = [{ last_message_at: -1 }];
-  const options = { message_limit: 0, limit: 1, state: true };
-  const conversationsResponse = await Stream.client.queryConversations(
-    filter,
-    sort,
-    options,
-  );
-  return conversationsResponse;
-};
-
-/**
- * 
- * @param {*} conversation 
- * @param {*} members 
- */
-const addMemberToConversation = async (conversation, members) => {
-  await conversation.addMembers(members);
-};
-
-/**
- * Deletes an user in Stream
- * 
- * @param {*} userId 
- * @returns 
- */
-const deleteUser = async (userId) => {
-  const deletedUser = await Stream.client.deleteUser(userId, {
-    mark_messages_deleted: false,
-  });
-  return deletedUser;
-};
-
-/**
- * set new reaction to message
- * @param {Channel} conversation
- * @param {String} messageId
- * @param {String} reactionType
- * @param {String} userId
- */
-const sendReactionToMessage = async (conversation, messageId, reactionType, userId) => {
+const sendReactionToMessage = async (
+  conversationReference,
+  messageId,
+  reactionType,
+  userId,
+) => {
   try {
-    const reaction = await conversation.sendReaction(messageId, {
-      type: reactionType,
-      user_id: userId,
-    });
-
-    return reaction;
+    const [conversation, user, message] = await Promise.all([
+      getConversationByCid(conversationReference),
+      resolveUser(userId),
+      new Parse.Query(MESSAGING_CLASSES.MESSAGE).get(messageId, masterOptions),
+    ]);
+    if (getObjectId(message.get('conversation')) !== conversation.id) {
+      throw new ChatServiceError(
+        'The message does not belong to the supplied conversation.',
+      );
+    }
+    return addReaction(user, { messageId, type: reactionType });
   } catch (error) {
     throw new ChatServiceError(error.message);
   }
 };
 
 export default {
+  addMemberToConversation,
   createConversation,
+  createInitialConversations,
+  createMessage,
+  createMessagesForConversation,
+  deleteConversation,
   deleteUser,
   deleteUserConversations,
-  createMessage,
-  getUserConversations,
-  createInitialConversations,
-  createMessagesForConversation,
-  addMemberToConversation,
+  existsConversationByCid,
   getConversationByCid,
+  getUserConversations,
   sendReactionToMessage,
-  existsConversationByCid
 };

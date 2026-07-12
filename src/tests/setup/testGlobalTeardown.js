@@ -10,8 +10,9 @@ const globalTeardown = async () => {
   const reset = '\x1b[0m';
 
   console.log(`\n${ magenta }[Jest Dev server] Tearing down test http server...`);
-  await teardownDevServer()
+  await teardownDevServer(globalThis.servers || [])
     .then(() => console.log(`[Jest Dev server] ...done${ reset }`));
+  globalThis.servers = [];
 };
 
 

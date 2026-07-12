@@ -6,31 +6,25 @@ import { createServer } from 'http';
 // Jibber api
 import api from './api';
 
-// Stream Webhooks
-import chatAfterEvent from './chatEventWebhooks/chatAfterEvent';
+const createJibberServer = async () => {
+  const { PARSE_MOUNT } = process.env;
 
-// Load Environment Variables
-const { PARSE_MOUNT } = process.env;
+  // Parse Server 9 initializes adapters and Cloud Code asynchronously and
+  // exposes its Express application only after start completes.
+  await api.start();
 
-// create express app
-const app = express();
+  const app = express();
 
-// Built in middleware
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json());
+  app.use('/public', express.static(path.join(__dirname, '/public')));
+  app.use(PARSE_MOUNT || '/parse', api.app);
 
-// Serve static assets from the /public folder
-app.use('/public', express.static(path.join(__dirname, '/public')));
+  app.get('/', async (request, response) =>
+    response.status(200).send({ health: 'ok', date: new Date() }),
+  );
 
-// Serve the Parse API on the /parse URL prefix
-app.use(PARSE_MOUNT || '/parse', api);
+  return createServer(app);
+};
 
-// health endpoint
-app.get('/', async (request, response) =>
-  response.status(200).send({ health: 'ok', date: new Date() }),
-);
-
-// Stream Pre/Post Even Webhooks
-app.post('/stream/chatAfterEvent', chatAfterEvent);
-
-export default createServer(app);
+export default createJibberServer;

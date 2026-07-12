@@ -1,8 +1,11 @@
-version: '3'
 services:
   backend:
     build:
       context: .
+      target: development
+    depends_on:
+      mongodb:
+        condition: service_healthy
     restart: always
     logging:
       driver: 'json-file'
@@ -11,7 +14,7 @@ services:
         max-file: '10'
     volumes:
       - .:/code/:cached
-      # - /code/node_modules
+      - node_modules:/code/node_modules
     ports:
       - ${PUBLIC_PORT}:${PORT}
     environment:
@@ -19,10 +22,12 @@ services:
       APP_NAME: ${APP_NAME}
       JIBBER_SECRET_PASSWORD_TOKEN: ${JIBBER_SECRET_PASSWORD_TOKEN}
       #CLOUD_CODE_MAIN: ${CLOUD_CODE_MAIN}
-      DATABASE_URI: ${DATABASE_URI}
+      CLOUD_CODE_MAIN: ${CLOUD_CODE_MAIN:-src/cloud}
+      DATABASE_URI: ${DATABASE_URI:-mongodb://mongodb:27017/jibber}
       MASTER_KEY: ${MASTER_KEY}
       PARSE_MOUNT: ${PARSE_MOUNT}
       PORT: ${PORT}
+      PUBLIC_SERVER_URL: ${PUBLIC_SERVER_URL}
       SERVER_URL: ${SERVER_URL}
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
       TWILIO_API_KEY: ${TWILIO_API_KEY}
@@ -34,12 +39,24 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       S3_BUCKET: ${S3_BUCKET}
-      IOS_PFX_CERTIFICATE: ${IOS_PFX_CERTIFICATE}
-      IOS_PASSPHRASE: ${IOS_PASSPHRASE}
-      IOS_TOPIC: ${IOS_TOPIC}
+      IOS_APN_KEY: ${IOS_APN_KEY}
+      IOS_BUNDLE_ID: ${IOS_BUNDLE_ID}
+      IOS_KEY_ID: ${IOS_KEY_ID}
+      IOS_PUSH_PRODUCTION: ${IOS_PUSH_PRODUCTION:-false}
+      IOS_TEAM_ID: ${IOS_TEAM_ID}
       REDIS_URL: ${REDIS_URL}
       TEST_USER_PHONE_NUMBER: ${TEST_USER_PHONE_NUMBER}
       TEST_USER_VERIFICATION_CODE: ${TEST_USER_VERIFICATION_CODE}
+  mongodb:
+    image: mongo:7.0
+    restart: always
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - mongodb_data:/data/db
   dashboard:
     image: parseplatform/parse-dashboard
     logging:
@@ -64,3 +81,7 @@ services:
       # PARSE_DASHBOARD_SSL_KEY: "sslKey"
       # PARSE_DASHBOARD_SSL_CERT: "sslCert"
       # PARSE_DASHBOARD_COOKIE_SESSION_SECRET:
+
+volumes:
+  mongodb_data:
+  node_modules:

@@ -1,7 +1,3 @@
-// Transorm setup files to allow importing/exporting modules
-const babelConfig = require('./babel.config');
-require('@babel/register')(babelConfig);
-
 // Hard coded test env vars
 process.env.APP_NAME = 'test-jibber-backend';
 process.env.APP_ID = 'test-app-id';
@@ -21,7 +17,11 @@ module.exports = {
   coverageDirectory: './coverage',
   moduleDirectories: ['node_modules', 'src'],
   roots: ['<rootDir>/src/'],
+  setupFiles: ['<rootDir>/src/tests/setup/testEnvironment.js'],
   testEnvironment: 'node',
+  transform: {
+    '^.+\\.js$': 'babel-jest',
+  },
   verbose: true,
   globalSetup: '<rootDir>/src/tests/setup/testGlobalSetup.js',
   globalTeardown: '<rootDir>/src/tests/setup/testGlobalTeardown.js',

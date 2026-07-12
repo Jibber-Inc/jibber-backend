@@ -1,0 +1,72 @@
+{
+  "className": "ConversationMember",
+  "fields": {
+    "objectId": { "type": "String" },
+    "createdAt": { "type": "Date" },
+    "updatedAt": { "type": "Date" },
+    "ACL": { "type": "ACL" },
+    "conversation": {
+      "type": "Pointer",
+      "targetClass": "Conversation",
+      "required": true
+    },
+    "user": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": true
+    },
+    "role": { "type": "String", "required": true },
+    "active": {
+      "type": "Boolean",
+      "required": true,
+      "defaultValue": true
+    },
+    "joinedAt": { "type": "Date", "required": true },
+    "leftAt": { "type": "Date", "required": false },
+    "notificationsEnabled": {
+      "type": "Boolean",
+      "required": true,
+      "defaultValue": true
+    },
+    "isHidden": {
+      "type": "Boolean",
+      "required": true,
+      "defaultValue": false
+    },
+    "hiddenAt": { "type": "Date", "required": false },
+    "unreadCount": {
+      "type": "Number",
+      "required": true,
+      "defaultValue": 0
+    },
+    "lastReadAt": { "type": "Date", "required": false },
+    "lastReadMessage": {
+      "type": "Pointer",
+      "targetClass": "Message",
+      "required": false
+    },
+    "typingExpiresAt": { "type": "Date", "required": false }
+  },
+  "classLevelPermissions": {
+    "find": { "requiresAuthentication": true },
+    "count": { "requiresAuthentication": true },
+    "get": { "requiresAuthentication": true },
+    "create": { "requiresAuthentication": true },
+    "update": { "requiresAuthentication": true },
+    "delete": {},
+    "addField": {},
+    "protectedFields": { "*": [] }
+  },
+  "indexes": {
+    "_id_": { "_id": 1 },
+    "member_conversation_user": { "_p_conversation": 1, "_p_user": 1 },
+    "member_conversation_active": { "_p_conversation": 1, "active": 1 },
+    "member_user_active": { "_p_user": 1, "active": 1, "updatedAt": -1 },
+    "member_user_visible": {
+      "_p_user": 1,
+      "active": 1,
+      "isHidden": 1,
+      "updatedAt": -1
+    }
+  }
+}

@@ -1,19 +1,15 @@
 // Vendor
 import hat from 'hat';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import ExtendableError from 'extendable-error-class';
 // Providers
 import Parse from '../providers/ParseProvider';
-import Stream from '../providers/StreamProvider';
 // Utils
 import generatePassword from '../utils/generatePassword';
-import UserUtils from '../utils/userData';
 // Services
 import QuePositionsService from './QuePositionsService';
 // Constants
 import UserStatus from '../constants/userStatus';
-
-import createChatTokenService from './createChatTokenService';
 
 class UserServiceError extends ExtendableError { }
 
@@ -259,41 +255,6 @@ const createUserPreference = async (fromUser, toUser) => {
   await fromUser.save(null, { useMasterKey: true });
 };
 
-/**
- *
- * @param {ParseUser} user
- */
-const connectUser = async user => {
-  // await Stream.client.disconnectUser();
-  const result = await Stream.client.connectUser(
-    {
-      id: user.id,
-      name: UserUtils.getFullName(user),
-    },
-    createChatTokenService(user.id),
-  );
-  return result;
-};
-
-/**
- *
- * @param {ParseUser} user
- */
-const disconnectUser = async () => {
-  await Stream.client.disconnectUser();
-};
-
-/**
- * Creates/updates the a Stream user server-side
- * 
- * @param {*} user 
- * @returns 
- */
-const upsertUser = async user => {
-  const newUser = await Stream.client.upsertUser(user);
-  return newUser;
-};
-
 export default {
   createUser,
   assignDefaultRole,
@@ -305,7 +266,4 @@ export default {
   resetReservations,
   setActiveStatus,
   createUserPreference,
-  connectUser,
-  upsertUser,
-  disconnectUser
 };

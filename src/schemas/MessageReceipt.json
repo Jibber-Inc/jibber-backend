@@ -1,0 +1,49 @@
+{
+  "className": "MessageReceipt",
+  "fields": {
+    "objectId": { "type": "String" },
+    "createdAt": { "type": "Date" },
+    "updatedAt": { "type": "Date" },
+    "ACL": { "type": "ACL" },
+    "message": {
+      "type": "Pointer",
+      "targetClass": "Message",
+      "required": true
+    },
+    "conversation": {
+      "type": "Pointer",
+      "targetClass": "Conversation",
+      "required": true
+    },
+    "user": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": true
+    },
+    "state": { "type": "String", "required": true },
+    "messageCreatedAt": { "type": "Date", "required": true },
+    "deliveredAt": { "type": "Date", "required": false },
+    "readAt": { "type": "Date", "required": false }
+  },
+  "classLevelPermissions": {
+    "find": { "requiresAuthentication": true },
+    "count": { "requiresAuthentication": true },
+    "get": { "requiresAuthentication": true },
+    "create": { "requiresAuthentication": true },
+    "update": { "requiresAuthentication": true },
+    "delete": {},
+    "addField": {},
+    "protectedFields": { "*": [] }
+  },
+  "indexes": {
+    "_id_": { "_id": 1 },
+    "receipt_identity": { "_p_message": 1, "_p_user": 1 },
+    "receipt_unread_cursor": {
+      "_p_conversation": 1,
+      "_p_user": 1,
+      "state": 1,
+      "messageCreatedAt": 1
+    }
+  }
+}
+

@@ -1,0 +1,63 @@
+{
+  "className": "Conversation",
+  "fields": {
+    "objectId": { "type": "String" },
+    "createdAt": { "type": "Date" },
+    "updatedAt": { "type": "Date" },
+    "ACL": { "type": "ACL" },
+    "creator": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": true
+    },
+    "clientConversationId": { "type": "String", "required": false },
+    "contextKey": { "type": "String", "required": false },
+    "type": { "type": "String", "required": true },
+    "title": { "type": "String", "required": false },
+    "expressions": { "type": "Array", "required": false },
+    "membershipRevision": {
+      "type": "Number",
+      "required": true,
+      "defaultValue": 0
+    },
+    "latestMessage": {
+      "type": "Pointer",
+      "targetClass": "Message",
+      "required": false
+    },
+    "latestMessageAt": { "type": "Date", "required": false },
+    "latestMessageAuthor": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": false
+    },
+    "latestMessageText": { "type": "String", "required": false },
+    "lastActivityAt": { "type": "Date", "required": true },
+    "isDeleted": {
+      "type": "Boolean",
+      "required": true,
+      "defaultValue": false
+    },
+    "deletedAt": { "type": "Date", "required": false }
+  },
+  "classLevelPermissions": {
+    "find": { "requiresAuthentication": true },
+    "count": { "requiresAuthentication": true },
+    "get": { "requiresAuthentication": true },
+    "create": { "requiresAuthentication": true },
+    "update": { "requiresAuthentication": true },
+    "delete": {},
+    "addField": {},
+    "protectedFields": { "*": [] }
+  },
+  "indexes": {
+    "_id_": { "_id": 1 },
+    "conversation_activity": { "isDeleted": 1, "lastActivityAt": -1 },
+    "conversation_creator": { "_p_creator": 1, "isDeleted": 1 },
+    "conversation_client_id": {
+      "_p_creator": 1,
+      "clientConversationId": 1
+    },
+    "conversation_context_key": { "contextKey": 1 }
+  }
+}

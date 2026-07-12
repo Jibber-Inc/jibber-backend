@@ -148,49 +148,6 @@
 			"name": "Chat",
 			"item": [
 				{
-					"name": "getChatToken",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-Parse-Application-Id",
-								"value": "{{appId}}",
-								"type": "text"
-							},
-							{
-								"key": "X-Parse-Installation-Id",
-								"value": "{{installationId}}",
-								"type": "text"
-							},
-							{
-								"key": "X-Parse-Session-Token",
-								"value": "{{sessionToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{hostname}}/functions/getChatToken",
-							"host": [
-								"{{hostname}}"
-							],
-							"path": [
-								"functions",
-								"getChatToken"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "createMessage",
 					"request": {
 						"method": "POST",
@@ -469,40 +426,6 @@
 		{
 			"name": "Test",
 			"item": [
-				{
-					"name": "chatAfterEvent",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-Parse-Application-Id",
-								"value": "BenjiApp",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"EventType\": \"onMemberAdded\",\n    \"ChannelSid\": \"CH1cd2ac4c32b845159b3538e04ffcdbc1\",\n    \"Identity\": \"T9j5ucBuRa\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:5337/chatAfterEvent",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5337",
-							"path": [
-								"chatAfterEvent"
-							]
-						}
-					},
-					"response": []
-				},
 				{
 					"name": "test",
 					"request": {

@@ -76,6 +76,7 @@ const updateConnection = async request => {
           'messaging',
           conversationId,
           [fromUser.id, toUser.id],
+          { trustedLegacyContextKey: true },
         );
 
         connection.set('status', status);
@@ -95,7 +96,7 @@ const updateConnection = async request => {
           category: 'connectionConfirmed',
           title: 'Connection confirmed 🙌',
           body: `You are now connected to ${toFullName}.`,
-          conversationId: conversation.cid,
+          conversationId: conversation.id,
           target: 'conversation',
         };
 

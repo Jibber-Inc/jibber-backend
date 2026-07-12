@@ -1,6 +1,6 @@
 module.exports = {
   plugins: [
-    '@babel/plugin-proposal-class-properties',
+    '@babel/plugin-transform-class-properties',
     '@babel/plugin-transform-strict-mode',
     ['inline-json-import', {}],
   ],
@@ -9,7 +9,7 @@ module.exports = {
       '@babel/preset-env',
       {
         targets: {
-          node: 'current',
+          node: '22',
         },
       },
     ],

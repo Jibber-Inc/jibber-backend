@@ -1,4 +1,5 @@
 import { ParseServer } from 'parse-server';
+import { MESSAGING_LIVE_QUERY_CLASSES } from './constants/messaging';
 
 const PushAdapter = require('@parse/push-adapter').default;
 
@@ -13,7 +14,6 @@ const {
   MASTER_KEY,
   SERVER_URL,
   PUBLIC_SERVER_URL,
-  REST_API_KEY,
   PARSE_SERVER_LOG_LEVEL,
   IOS_PUSH_PRODUCTION,
   REDIS_URL,
@@ -34,7 +34,33 @@ const pushOptions = {
     topic: IOS_BUNDLE_ID, // The bundle identifier associated with your app
     production: IOS_PUSH_PRODUCTION === 'true'
   },
-}
+};
+
+const hasPushConfiguration = [
+  IOS_APN_KEY,
+  IOS_KEY_ID,
+  IOS_TEAM_ID,
+  IOS_BUNDLE_ID,
+].every(Boolean);
+
+const pushConfiguration = hasPushConfiguration
+  ? {
+    push: {
+      adapter: new PushAdapter(pushOptions),
+    },
+  }
+  : {};
+
+const filesConfiguration = S3_BUCKET
+  ? {
+    filesAdapter: {
+      module: '@parse/s3-files-adapter',
+      options: {
+        bucket: S3_BUCKET,
+      },
+    },
+  }
+  : {};
 
 // Build parse server instance
 const api = new ParseServer({
@@ -43,13 +69,10 @@ const api = new ParseServer({
   cloud: CLOUD_CODE_MAIN || `${__dirname}/cloud/`,
   databaseURI: DATABASE_URI,
   masterKey: MASTER_KEY,
-  restApiKey: REST_API_KEY,
   serverURL: SERVER_URL,
   publicServerURL: PUBLIC_SERVER_URL,
   logLevel: PARSE_SERVER_LOG_LEVEL || 'info',
-  push: {
-    adapter: new PushAdapter(pushOptions),
-  },
+  ...pushConfiguration,
   liveQuery: {
     // List of classes to support for query subscriptions
     classNames: [
@@ -60,21 +83,17 @@ const api = new ParseServer({
       'Achievement',
       'Transaction',
       'Reservation',
-      'Moment'
+      'Moment',
+      ...MESSAGING_LIVE_QUERY_CLASSES,
     ],
-    redisUrl: REDIS_URL,
+    redisURL: REDIS_URL,
   },
   protectedFields: {
     _User: {
       '*': ['hashcode'],
     },
   },
-  filesAdapter: {
-    module: '@parse/s3-files-adapter',
-    options: {
-      bucket: S3_BUCKET,
-    },
-  },
+  ...filesConfiguration,
   maxUploadSize: '50mb',
 });
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server

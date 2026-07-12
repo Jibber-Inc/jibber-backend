@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { ensureMessagingIndexes } from '../../utils/messagingIndexes';
 
 const {
   DATABASE_URI,
@@ -8,10 +9,7 @@ const {
 
 const manageMongo = () => mongoose
   .connect(DATABASE_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     autoIndex: NODE_ENV === 'test',
-    useCreateIndex: true,
   })
   .then(async Mongoose => {
     console.log('------------------------');
@@ -36,22 +34,24 @@ const manageMongo = () => mongoose
     const Reservation = Mongoose.model('Reservation', ReservationSchema);
 
 
-    const promises = [
-      User.init(),
-      Reservation.init(),
-    ];
+    const models = [User, Reservation];
+    const promises = models.map(model => model.init());
 
     return Promise.all(promises)
-      .then(results => results
+      .then(() => models
         .forEach(model => console.log(
           `manageMongo: Built ${ model.modelName } indexes`
         )))
+      .then(() => ensureMessagingIndexes(Mongoose.connection.db))
+      .then(indexes => indexes.forEach(index =>
+        console.log(`manageMongo: Verified ${index}`)))
       .then(() => Mongoose.disconnect())
       .then(() => console.log('manageMongo: done.'));
   })
-  .catch(error => console.error(
-    `mongoose connection error: ${ error.message }`
-  ));
+  .catch(error => {
+    console.error(`mongoose connection error: ${ error.message }`);
+    throw error;
+  });
 
 
 

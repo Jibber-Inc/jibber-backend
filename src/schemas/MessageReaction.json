@@ -1,0 +1,47 @@
+{
+  "className": "MessageReaction",
+  "fields": {
+    "objectId": { "type": "String" },
+    "createdAt": { "type": "Date" },
+    "updatedAt": { "type": "Date" },
+    "ACL": { "type": "ACL" },
+    "message": {
+      "type": "Pointer",
+      "targetClass": "Message",
+      "required": true
+    },
+    "conversation": {
+      "type": "Pointer",
+      "targetClass": "Conversation",
+      "required": true
+    },
+    "user": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": true
+    },
+    "type": { "type": "String", "required": true },
+    "isDeleted": {
+      "type": "Boolean",
+      "required": true,
+      "defaultValue": false
+    },
+    "deletedAt": { "type": "Date", "required": false }
+  },
+  "classLevelPermissions": {
+    "find": { "requiresAuthentication": true },
+    "count": { "requiresAuthentication": true },
+    "get": { "requiresAuthentication": true },
+    "create": { "requiresAuthentication": true },
+    "update": { "requiresAuthentication": true },
+    "delete": {},
+    "addField": {},
+    "protectedFields": { "*": [] }
+  },
+  "indexes": {
+    "_id_": { "_id": 1 },
+    "reaction_identity": { "_p_message": 1, "_p_user": 1, "type": 1 },
+    "reaction_conversation_message": { "_p_conversation": 1, "_p_message": 1 }
+  }
+}
+

@@ -37,6 +37,7 @@ const prepareNotificationData = (data = {}) => {
     title,
     body,
     conversationCid,
+    conversationId = conversationCid,
     messageId,
     target = 'conversation',
     author,
@@ -45,7 +46,7 @@ const prepareNotificationData = (data = {}) => {
     connectionId,
     threadId,
     mutableContent = 1,
-    sender = 'stream.chat',
+    sender = 'parse.messaging',
     type = 'message.new',
   } = data;
 
@@ -63,18 +64,18 @@ const prepareNotificationData = (data = {}) => {
     },
     data: {
       target,
-      'conversationId': conversationCid,
+      conversationId,
       messageId,
       author,
     },
-    stream: {
+    messaging: {
       target,
       sender,
       type,
       version,
       author,
       id: messageId,
-      cid: conversationCid,
+      conversationId,
     },
   };
 
@@ -93,6 +94,62 @@ const sendPushNotificationToUsers = async (data, users = []) => {
   return sendToUsers(customData, users);
 };
 
+/**
+ * Builds the Parse-native messaging notification payload using Parse object
+ * IDs as the only canonical conversation and message identifiers.
+ */
+const prepareMessagingNotificationData = (data = {}) => {
+  const {
+    author,
+    body,
+    conversationId,
+    deliveryType = 'respectful',
+    messageId,
+    title,
+  } = data;
+  const interruptionLevels = {
+    conversational: 'active',
+    respectful: 'passive',
+    'time-sensitive': 'time-sensitive',
+  };
+  const aps = {
+    alert: {
+      title,
+      body,
+    },
+    category: 'MESSAGE_NEW',
+    'interruption-level': interruptionLevels[deliveryType] || 'passive',
+    'mutable-content': 1,
+    'thread-id': conversationId,
+  };
+  if (deliveryType === 'time-sensitive') aps.badge = 'Increment';
+
+  return {
+    aps,
+    data: {
+      author,
+      conversationId,
+      deliveryType,
+      messageId,
+      target: 'conversation',
+    },
+    messaging: {
+      author,
+      conversationId,
+      deliveryType,
+      id: messageId,
+      sender: 'parse.messaging',
+      type: 'message.new',
+      version: 'v1',
+    },
+  };
+};
+
+const sendMessagingPushNotification = async (data, users = []) =>
+  sendToUsers(prepareMessagingNotificationData(data), users);
+
 export default {
+  prepareMessagingNotificationData,
+  sendMessagingPushNotification,
   sendPushNotificationToUsers,
 };

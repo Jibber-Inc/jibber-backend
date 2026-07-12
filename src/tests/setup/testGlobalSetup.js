@@ -24,20 +24,30 @@ const globalSetup = async () => {
         );
       }
     })
-    .then(() => setupDevServer({
-      command: 'npm run dev:src',
-      launchTimeout: 50000,
-      port: 1337,
-      debug: true,
-    }))
+    .then(async () => {
+      globalThis.servers = await setupDevServer({
+        command: 'npm run dev:src',
+        launchTimeout: 50000,
+        port: 1337,
+        usedPortAction: 'error',
+        debug: true,
+      });
+    })
 
-    // Integration tests connect to twilio and must use special "test" credentials.
-    .then(checkTwilioTestCredentials)
+    // The complete integration suite validates Twilio test credentials. A
+    // focused, non-Twilio suite may explicitly skip this external preflight.
+    .then(() =>
+      process.env.SKIP_TWILIO_INTEGRATION_CHECK === 'true'
+        ? undefined
+        : checkTwilioTestCredentials(),
+    )
 
     // "Migrate" mongoDB from schemafiles, update indexes, and seed db for test
     .then(migrateMongo)
     .then(manageMongo)
-    .then(seedDB)
+    .then(() =>
+      process.env.SKIP_TEST_DATABASE_SEED === 'true' ? undefined : seedDB(),
+    )
 
     // Catch any error, then run the test teardown script.
     // Throw back the caught error to finish terminating the test runner.
