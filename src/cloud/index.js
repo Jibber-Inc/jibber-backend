@@ -50,7 +50,6 @@ import connectionAfterSave from './webhooks/connectionAfterSave';
 import userBeforeSave from './webhooks/userBeforeSave';
 import userAfterSave from './webhooks/userAfterSave';
 import userAfterDelete from './webhooks/userAfterDelete';
-import sendSMS from './sendSMS';
 import sendMessage from './sendMessage';
 
 // Load Environment variables
@@ -110,8 +109,6 @@ Parse.Cloud.define('updateReservation', updateReservation);
 // Others
 Parse.Cloud.define('sendPush', sendPush);
 Parse.Cloud.define('createHandle', createHandle);
-Parse.Cloud.define('sendSMS', sendSMS);
-
 // Test
 Parse.Cloud.define('test', test);
 

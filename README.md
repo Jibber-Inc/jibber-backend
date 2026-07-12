@@ -35,7 +35,7 @@ Production deployments should also configure the appropriate values for:
 - `IOS_APN_KEY`, `IOS_KEY_ID`, `IOS_TEAM_ID`, `IOS_BUNDLE_ID`, and
   `IOS_PUSH_PRODUCTION` for APNs
 - `REDIS_URL` when LiveQuery is shared across multiple instances
-- Twilio credentials when SMS verification is enabled
+- `PRELUDE_API_TOKEN` when phone-number verification is enabled
 
 Run the source server with automatic reloads:
 
@@ -121,11 +121,10 @@ npm test
 ```
 
 `npm test` starts MongoDB 7 locally and stops it when Jest exits. Port 27017 and
-the API port (1337 by default) must be available. Integration tests that reach
-Twilio require Twilio test credentials. Focused suites that do not exercise
-Twilio may set `SKIP_TWILIO_INTEGRATION_CHECK=true`; do not use that override
-for the complete suite. A focused suite that creates all of its own fixtures
-may additionally set `SKIP_TEST_DATABASE_SEED=true`.
+the API port (1337 by default) must be available. Provider calls in
+phone-verification unit tests are mocked and do not send messages. A focused
+suite that creates all of its own fixtures may set
+`SKIP_TEST_DATABASE_SEED=true`.
 
 ## Docker
 

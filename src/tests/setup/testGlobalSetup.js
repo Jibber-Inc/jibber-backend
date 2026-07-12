@@ -5,7 +5,6 @@ import testTeardown from './testGlobalTeardown';
 import migrateMongo from './migrateMongo';
 import manageMongo from './manageMongo';
 import seedDB from './seedDB';
-import checkTwilioTestCredentials from './checkTwilioTestCredentials';
 
 
 /**
@@ -33,14 +32,6 @@ const globalSetup = async () => {
         debug: true,
       });
     })
-
-    // The complete integration suite validates Twilio test credentials. A
-    // focused, non-Twilio suite may explicitly skip this external preflight.
-    .then(() =>
-      process.env.SKIP_TWILIO_INTEGRATION_CHECK === 'true'
-        ? undefined
-        : checkTwilioTestCredentials(),
-    )
 
     // "Migrate" mongoDB from schemafiles, update indexes, and seed db for test
     .then(migrateMongo)

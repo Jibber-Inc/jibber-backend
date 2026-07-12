@@ -32,7 +32,6 @@
     "parse": "8.6.0",
     "parse-server": "9.9.0",
     "tcp-port-used": "1.0.3",
-    "twilio": "6.0.2",
     "uuid": "11.1.1",
     "validator": "13.15.35"
   },
