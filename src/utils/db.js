@@ -1,24 +1,29 @@
 import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 
-const Config = require('parse-server/lib/Config');
-
 class DbUtilError extends ExtendableError {}
 
-const getFindOneAndUpdateDocument = result => {
-  // MongoDB Driver 6+ returns the document directly by default. Older Parse
-  // Server releases returned a ModifyResult wrapper with a `value` property.
-  if (result && Object.prototype.hasOwnProperty.call(result, 'value')) {
-    return result.value;
-  }
-  return result;
-};
+const SEQUENCE_CLASS = 'Sequence';
 
-function getDatabaseInstance() {
-  const config = Config.get(Parse.applicationId);
-  const { database } = config.database.adapter;
-  return database;
-}
+const findSequence = sequenceOfName =>
+  new Parse.Query(SEQUENCE_CLASS)
+    .equalTo('name', sequenceOfName)
+    .first({ useMasterKey: true });
+
+const updateSequence = async (sequenceOfName, amount, initialValue) => {
+  let sequence = await findSequence(sequenceOfName);
+
+  if (!sequence) {
+    sequence = new Parse.Object(SEQUENCE_CLASS);
+    sequence.set('name', sequenceOfName);
+    sequence.set('value', initialValue);
+  } else {
+    sequence.increment('value', amount);
+  }
+
+  await sequence.save(null, { useMasterKey: true });
+  return sequence.get('value');
+};
 
 /**
  * Simulate sequence nextval() on relational db's.
@@ -27,16 +32,7 @@ function getDatabaseInstance() {
  */
 const getValueForNextSequence = async sequenceOfName => {
   try {
-    const db = getDatabaseInstance();
-
-    const sequences = db.collection('_sequences'); // returns new instance of _sequences if collections doesn't exists.
-    const result = await sequences.findOneAndUpdate(
-      { _id: sequenceOfName },
-      { $inc: { sequence_value: 1 } },
-      { upsert: true },
-    );
-    const value = getFindOneAndUpdateDocument(result);
-    return !value ? 1 : value.sequence_value + 1;
+    return await updateSequence(sequenceOfName, 1, 1);
   } catch (error) {
     throw new DbUtilError(error.message);
   }
@@ -49,16 +45,7 @@ const getValueForNextSequence = async sequenceOfName => {
  */
 const getPreviousValueForSequence = async sequenceOfName => {
   try {
-    const db = getDatabaseInstance();
-
-    const sequences = db.collection('_sequences'); // returns new instance of _sequences if collections doesn't exists.
-    const result = await sequences.findOneAndUpdate(
-      { _id: sequenceOfName },
-      { $inc: { sequence_value: -1 } },
-      { upsert: true },
-    );
-    const value = getFindOneAndUpdateDocument(result);
-    return !value ? 0 : value.sequence_value - 1;
+    return await updateSequence(sequenceOfName, -1, 0);
   } catch (error) {
     throw new DbUtilError(error.message);
   }
@@ -71,18 +58,14 @@ const getPreviousValueForSequence = async sequenceOfName => {
  */
 const getCurrentValueSequence = async sequenceOfName => {
   try {
-    const db = getDatabaseInstance();
-
-    const sequences = db.collection('_sequences'); // returns new instance of _sequences if collections doesn't exists.
-    const result = await sequences.findOne({ _id: sequenceOfName });
-    return result ? result.sequence_value : result;
+    const sequence = await findSequence(sequenceOfName);
+    return sequence ? sequence.get('value') : null;
   } catch (error) {
     throw new DbUtilError(error.message);
   }
 };
 
 export default {
-  getDatabaseInstance,
   getValueForNextSequence,
   getCurrentValueSequence,
   getPreviousValueForSequence,

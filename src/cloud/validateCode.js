@@ -61,8 +61,8 @@ const validateCode = async request => {
   try {
     if (user.get('smsVerificationStatus') !== 'approved') {
       let status;
-      if (testUser.isTestUser(phoneNumber)) {
-        status = testUser.validate(authCode);
+      if (testUser.isTestUser(phoneNumber, request)) {
+        status = testUser.validate(authCode, phoneNumber, request);
       } else {
         const result = await TwoFAService.verifyCode(
           user.get('phoneNumber'),
@@ -83,9 +83,11 @@ const validateCode = async request => {
       }
       
       await user.save(null, { useMasterKey: true });
-
-      setReservations(user);
     }
+
+    // Reconcile reservations even for users who were already approved. This
+    // also makes Cloud Code wait for the allocation before returning.
+    await setReservations(user);
 
     const sessionToken = await UserService.getLastSessionToken(
       user,

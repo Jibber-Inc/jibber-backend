@@ -105,6 +105,7 @@ const prepareMessagingNotificationData = (data = {}) => {
     conversationId,
     deliveryType = 'respectful',
     messageId,
+    threadRootId = messageId,
     title,
   } = data;
   const interruptionLevels = {
@@ -132,6 +133,7 @@ const prepareMessagingNotificationData = (data = {}) => {
       deliveryType,
       messageId,
       target: 'conversation',
+      threadRootId,
     },
     messaging: {
       author,
@@ -139,6 +141,7 @@ const prepareMessagingNotificationData = (data = {}) => {
       deliveryType,
       id: messageId,
       sender: 'parse.messaging',
+      threadRootId,
       type: 'message.new',
       version: 'v1',
     },

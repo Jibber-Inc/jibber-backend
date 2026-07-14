@@ -1,0 +1,46 @@
+{
+  "className": "Sequence",
+  "fields": {
+    "objectId": {
+      "type": "String"
+    },
+    "createdAt": {
+      "type": "Date"
+    },
+    "updatedAt": {
+      "type": "Date"
+    },
+    "ACL": {
+      "type": "ACL"
+    },
+    "name": {
+      "type": "String",
+      "required": true
+    },
+    "value": {
+      "type": "Number",
+      "required": true,
+      "defaultValue": 0
+    }
+  },
+  "classLevelPermissions": {
+    "find": {},
+    "count": {},
+    "get": {},
+    "create": {},
+    "update": {},
+    "delete": {},
+    "addField": {},
+    "protectedFields": {
+      "*": []
+    }
+  },
+  "indexes": {
+    "_id_": {
+      "_id": 1
+    },
+    "sequence_name": {
+      "name": 1
+    }
+  }
+}

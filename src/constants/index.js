@@ -35,5 +35,7 @@ export const INTERRUPTION_LEVEL_TYPES = {
 };
 
 export const REACTION_TYPES = {
-  READ: 'read'
+  LIKE: 'like',
+  LOVE: 'love',
+  DISLIKE: 'dislike'
 };

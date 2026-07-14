@@ -1,6 +1,7 @@
 # Ignore test just from now
 src/tests 
 dist
+dist-back4app
 logs
 node_modules
 scripts

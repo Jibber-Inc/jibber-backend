@@ -4,6 +4,7 @@ import Parse from '../providers/ParseProvider';
 import PushService from './PushService';
 import UserUtils from '../utils/userData';
 import MessagingMetricsService from './MessagingMetricsService';
+import { REACTION_TYPES } from '../constants';
 import {
   CONVERSATION_TYPES,
   CONVERSATION_MEMBER_ROLES,
@@ -20,6 +21,9 @@ export class ParseMessagingServiceError extends ExtendableError {}
 
 const masterOptions = { useMasterKey: true };
 const accessFields = ['active', 'conversation', 'leftAt', 'role', 'user'];
+const supportedReactionTypes = Object.keys(REACTION_TYPES).map(
+  key => REACTION_TYPES[key],
+);
 
 const isTrustedInternalWrite = request =>
   request.master &&
@@ -108,6 +112,15 @@ const requireString = (value, field, maximumLength, allowEmpty = false) => {
 const requireEnum = (value, field, allowedValues) => {
   if (allowedValues.indexOf(value) === -1) {
     throwServiceError(`${field} has an unsupported value.`);
+  }
+};
+
+const validateReactionType = type =>
+  requireEnum(type, 'type', supportedReactionTypes);
+
+const assertReactionTargetActive = message => {
+  if (message.get('isDeleted')) {
+    throwServiceError('Cannot react to a deleted message.');
   }
 };
 
@@ -709,6 +722,9 @@ const assertReplyBelongsToConversation = async (replyPointer, conversation) => {
   ) {
     throwServiceError('replyTo must reference an active message in this conversation.');
   }
+  if (getObjectId(reply.get('replyTo'))) {
+    throwServiceError('replyTo must reference a root message.');
+  }
 };
 
 export const beforeSaveMessage = async request => {
@@ -836,6 +852,10 @@ export const beforeSaveReaction = async request => {
     isNew ? ['message', 'type'] : ['isDeleted'],
   );
 
+  if (message.get('isDeleted') && (isNew || !reaction.get('isDeleted'))) {
+    assertReactionTargetActive(message);
+  }
+
   if (isNew) {
     reaction.set('user', actor);
     reaction.set('conversation', conversation);
@@ -853,17 +873,13 @@ export const beforeSaveReaction = async request => {
     throwServiceError('Only the reaction owner may update it.');
   }
 
-  requireString(
-    reaction.get('type'),
-    'type',
-    MESSAGING_LIMITS.MAX_REACTION_TYPE_LENGTH,
-  );
-  if (!/^[A-Za-z0-9._:-]+$/.test(reaction.get('type'))) {
-    throwServiceError('Reaction type has an invalid format.');
+  if (isNew || hasChanged(request, 'type')) {
+    validateReactionType(reaction.get('type'));
   }
   if (hasChanged(request, 'isDeleted') && reaction.get('isDeleted')) {
     reaction.set('deletedAt', new Date());
   } else if (
+    !isNew &&
     hasChanged(request, 'isDeleted') &&
     !reaction.get('isDeleted') &&
     !request.master
@@ -1098,6 +1114,7 @@ const sendNewMessagePush = async message => {
       conversationId: conversation.id,
       deliveryType: message.get('deliveryType'),
       messageId: message.id,
+      threadRootId: getObjectId(message.get('replyTo')) || message.id,
       title,
     },
     recipients,
@@ -1731,14 +1748,15 @@ export const setConversationHidden = async (user, params = {}) => {
 
 export const addReaction = async (user, params = {}) => {
   if (!user) throwServiceError('Authentication is required.');
+  validateReactionType(params.type);
   const message = await getMessage(params.messageId);
   const conversation = await getConversation(message.get('conversation'));
   await assertActiveMember(conversation, user);
+  assertReactionTargetActive(message);
 
   let reaction = await new Parse.Query(MESSAGING_CLASSES.REACTION)
     .equalTo('message', message)
     .equalTo('user', user)
-    .equalTo('type', params.type)
     .first(masterOptions);
   if (!reaction) reaction = new Parse.Object(MESSAGING_CLASSES.REACTION);
   reaction.set('conversation', conversation);
@@ -1748,12 +1766,26 @@ export const addReaction = async (user, params = {}) => {
   reaction.set('type', params.type);
   reaction.set('user', user);
   reaction.setACL(await getConversationACL(conversation, [user]));
-  requireString(
-    reaction.get('type'),
-    'type',
-    MESSAGING_LIMITS.MAX_REACTION_TYPE_LENGTH,
-  );
-  return reaction.save(null, masterOptions);
+  try {
+    return await reaction.save(null, masterOptions);
+  } catch (error) {
+    if (isDuplicateKeyError(error)) {
+      const duplicate = await new Parse.Query(MESSAGING_CLASSES.REACTION)
+        .equalTo('message', message)
+        .equalTo('user', user)
+        .first(masterOptions);
+      if (duplicate) {
+        // A concurrent cross-type selection may have created the unique row
+        // first. Complete this caller's requested selection on that canonical
+        // row instead of returning a mismatched type to the durable client.
+        duplicate.set('isDeleted', false);
+        duplicate.unset('deletedAt');
+        duplicate.set('type', params.type);
+        return duplicate.save(null, masterOptions);
+      }
+    }
+    throw error;
+  }
 };
 
 export const markRead = async (user, params = {}) => {

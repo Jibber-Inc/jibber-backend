@@ -556,6 +556,40 @@ describe('Parse-native messaging integration', () => {
     );
     expect(retriedReply.id).toBe(firstReply.id);
 
+    await expect(
+      Parse.Cloud.run(
+        'messagingSendMessage',
+        {
+          clientMessageId: 'integration-nested-reply-0001',
+          contentType: 'text',
+          conversationId: conversation.id,
+          deliveryType: 'conversational',
+          replyToId: firstReply.id,
+          text: 'Nested reply through Cloud Code',
+        },
+        options,
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: 141,
+        message: 'replyTo must reference a root message.',
+      }),
+    );
+
+    const directNestedReply = new Parse.Object('Message');
+    directNestedReply.set('clientMessageId', 'integration-nested-reply-0002');
+    directNestedReply.set('contentType', 'text');
+    directNestedReply.set('conversation', conversation);
+    directNestedReply.set('deliveryType', 'conversational');
+    directNestedReply.set('replyTo', firstReply);
+    directNestedReply.set('text', 'Nested reply through a direct write');
+    await expect(directNestedReply.save(null, options)).rejects.toEqual(
+      expect.objectContaining({
+        code: 141,
+        message: 'replyTo must reference a root message.',
+      }),
+    );
+
     message = await new Parse.Query('Message').get(message.id, options);
     expect(message.get('replyCount')).toBe(1);
     expect(message.get('latestReply').id).toBe(firstReply.id);
@@ -579,6 +613,42 @@ describe('Parse-native messaging integration', () => {
     expect(message.get('latestReplyAt')).toBeInstanceOf(Date);
     expect(message.get('latestReplyAuthor').id).toBe(firstUser.id);
     expect(message.get('latestReplyText')).toBe('Second reply');
+
+    secondReply.set('text', 'Second reply edited');
+    secondReply = await secondReply.save(null, options);
+    expect(secondReply.get('editedAt')).toBeInstanceOf(Date);
+    message = await new Parse.Query('Message').get(message.id, options);
+    expect(message.get('latestReply').id).toBe(secondReply.id);
+    expect(message.get('latestReplyText')).toBe('Second reply edited');
+
+    const firstPage = await new Parse.Query('Message')
+      .equalTo('replyTo', message)
+      .descending('createdAt')
+      .addDescending('objectId')
+      .limit(1)
+      .find(options);
+    expect(firstPage).toHaveLength(1);
+    expect(firstPage[0].id).toBe(secondReply.id);
+
+    const pageCursor = firstPage[0];
+    const earlierReplies = new Parse.Query('Message').lessThan(
+      'createdAt',
+      pageCursor.createdAt,
+    );
+    const tiedReplies = new Parse.Query('Message')
+      .equalTo('createdAt', pageCursor.createdAt)
+      .lessThan('objectId', pageCursor.id);
+    const secondPage = await Parse.Query.or(earlierReplies, tiedReplies)
+      .equalTo('replyTo', message)
+      .descending('createdAt')
+      .addDescending('objectId')
+      .limit(1)
+      .find(options);
+    expect(secondPage).toHaveLength(1);
+    expect(secondPage[0].id).toBe(firstReply.id);
+    expect(new Set([...firstPage, ...secondPage].map(reply => reply.id))).toEqual(
+      new Set([firstReply.id, secondReply.id]),
+    );
 
     message.set('replyCount', 999);
     await expect(message.save(null, options)).rejects.toEqual(
@@ -604,6 +674,86 @@ describe('Parse-native messaging integration', () => {
     expect(message.get('latestReplyAt')).toBeUndefined();
     expect(message.get('latestReplyAuthor')).toBeUndefined();
     expect(message.get('latestReplyText')).toBeUndefined();
+  });
+
+  test('rejects deleted and cross-conversation reply targets', async () => {
+    const options = { sessionToken: firstUser.getSessionToken() };
+    let deletedRoot = await Parse.Cloud.run(
+      'messagingSendMessage',
+      {
+        clientMessageId: 'integration-deleted-reply-root-0001',
+        contentType: 'text',
+        conversationId: conversation.id,
+        deliveryType: 'respectful',
+        text: 'Deleted reply root',
+      },
+      options,
+    );
+    deletedRoot.set('isDeleted', true);
+    deletedRoot = await deletedRoot.save(null, options);
+    expect(deletedRoot.get('isDeleted')).toBe(true);
+
+    await expect(
+      Parse.Cloud.run(
+        'messagingSendMessage',
+        {
+          clientMessageId: 'integration-deleted-reply-target-0001',
+          contentType: 'text',
+          conversationId: conversation.id,
+          deliveryType: 'respectful',
+          replyToId: deletedRoot.id,
+          text: 'Reply to a deleted root',
+        },
+        options,
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: 141,
+        message: 'replyTo must reference an active message in this conversation.',
+      }),
+    );
+
+    const foreignConversation = await Parse.Cloud.run(
+      'messagingCreateConversation',
+      {
+        clientConversationId: 'integration-foreign-thread-conversation-0001',
+        memberIds: [secondUser.id],
+        title: 'Foreign thread target',
+        type: 'group',
+      },
+      options,
+    );
+    const foreignRoot = await Parse.Cloud.run(
+      'messagingSendMessage',
+      {
+        clientMessageId: 'integration-foreign-reply-root-0001',
+        contentType: 'text',
+        conversationId: foreignConversation.id,
+        deliveryType: 'respectful',
+        text: 'Root from another conversation',
+      },
+      options,
+    );
+
+    await expect(
+      Parse.Cloud.run(
+        'messagingSendMessage',
+        {
+          clientMessageId: 'integration-cross-conversation-reply-0001',
+          contentType: 'text',
+          conversationId: conversation.id,
+          deliveryType: 'respectful',
+          replyToId: foreignRoot.id,
+          text: 'Cross-conversation reply',
+        },
+        options,
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: 141,
+        message: 'replyTo must reference an active message in this conversation.',
+      }),
+    );
   });
 
   test('rejects forged identity fields and hard deletion', async () => {
@@ -650,29 +800,136 @@ describe('Parse-native messaging integration', () => {
     );
   });
 
-  test('supports reaction idempotency and message tombstones', async () => {
+  test('enforces reaction membership, ownership, idempotency, and tombstones', async () => {
     const options = { sessionToken: secondUser.getSessionToken() };
+    await expect(
+      Parse.Cloud.run(
+        'messagingAddReaction',
+        { messageId: message.id, type: 'read' },
+        options,
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: 141,
+        message: 'type has an unsupported value.',
+      }),
+    );
+
+    const unsupportedDirectReaction = new Parse.Object('MessageReaction');
+    unsupportedDirectReaction.set('message', message);
+    unsupportedDirectReaction.set('type', 'celebrate');
+    await expect(
+      unsupportedDirectReaction.save(null, options),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: 141,
+        message: 'type has an unsupported value.',
+      }),
+    );
+
+    const supportedDirectReaction = new Parse.Object('MessageReaction');
+    supportedDirectReaction.set('message', neighboringMessage);
+    supportedDirectReaction.set('type', 'dislike');
+    const savedDirectReaction = await supportedDirectReaction.save(null, options);
+    expect(savedDirectReaction.get('conversation').id).toBe(conversation.id);
+    expect(savedDirectReaction.get('isDeleted')).toBe(false);
+    expect(savedDirectReaction.get('type')).toBe('dislike');
+    expect(savedDirectReaction.get('user').id).toBe(secondUser.id);
+
     const reaction = await Parse.Cloud.run(
       'messagingAddReaction',
-      { messageId: message.id, type: 'heart' },
+      { messageId: message.id, type: 'love' },
       options,
     );
     const retriedReaction = await Parse.Cloud.run(
       'messagingAddReaction',
-      { messageId: message.id, type: 'heart' },
+      { messageId: message.id, type: 'love' },
       options,
     );
     expect(retriedReaction.id).toBe(reaction.id);
+    const switchedReaction = await Parse.Cloud.run(
+      'messagingAddReaction',
+      { messageId: message.id, type: 'like' },
+      options,
+    );
+    expect(switchedReaction.id).toBe(reaction.id);
+    expect(switchedReaction.get('type')).toBe('like');
+    const secondUserSelections = await new Parse.Query('MessageReaction')
+      .equalTo('message', message)
+      .equalTo('user', secondUser)
+      .find({ useMasterKey: true });
+    expect(secondUserSelections).toHaveLength(1);
+    expect(secondUserSelections[0].get('isDeleted')).toBe(false);
+    expect(secondUserSelections[0].get('type')).toBe('like');
 
-    reaction.set('isDeleted', true);
-    const deletedReaction = await reaction.save(null, options);
+    const firstUserOptions = { sessionToken: firstUser.getSessionToken() };
+    const concurrentSelections = await Promise.all([
+      Parse.Cloud.run(
+        'messagingAddReaction',
+        { messageId: message.id, type: 'like' },
+        firstUserOptions,
+      ),
+      Parse.Cloud.run(
+        'messagingAddReaction',
+        { messageId: message.id, type: 'love' },
+        firstUserOptions,
+      ),
+    ]);
+    expect(concurrentSelections[1].id).toBe(concurrentSelections[0].id);
+    expect(concurrentSelections.map(selection => selection.get('type')).sort()).toEqual(
+      ['like', 'love'],
+    );
+    const firstUserSelections = await new Parse.Query('MessageReaction')
+      .equalTo('message', message)
+      .equalTo('user', firstUser)
+      .find({ useMasterKey: true });
+    expect(firstUserSelections).toHaveLength(1);
+    expect(firstUserSelections[0].get('isDeleted')).toBe(false);
+    expect(['like', 'love']).toContain(firstUserSelections[0].get('type'));
+
+    await expect(
+      Parse.Cloud.run(
+        'messagingAddReaction',
+        { messageId: message.id, type: 'dislike' },
+        { sessionToken: thirdUser.getSessionToken() },
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: 141,
+        message: 'The user is not an active conversation member.',
+      }),
+    );
+
+    const reactionAsFirstUser = await new Parse.Query('MessageReaction').get(
+      reaction.id,
+      { sessionToken: firstUser.getSessionToken() },
+    );
+    reactionAsFirstUser.set('isDeleted', true);
+    await expect(
+      reactionAsFirstUser.save(null, {
+        sessionToken: firstUser.getSessionToken(),
+      }),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: 141,
+        message: 'Only the reaction owner may update it.',
+      }),
+    );
+
+    const currentReaction = await new Parse.Query('MessageReaction').get(
+      reaction.id,
+      options,
+    );
+    currentReaction.set('isDeleted', true);
+    const deletedReaction = await currentReaction.save(null, options);
     expect(deletedReaction.get('deletedAt')).toBeInstanceOf(Date);
     const restoredReaction = await Parse.Cloud.run(
       'messagingAddReaction',
-      { messageId: message.id, type: 'heart' },
+      { messageId: message.id, type: 'love' },
       options,
     );
     expect(restoredReaction.id).toBe(reaction.id);
+    expect(restoredReaction.get('type')).toBe('love');
     expect(restoredReaction.get('isDeleted')).toBe(false);
     expect(restoredReaction.get('deletedAt')).toBeUndefined();
 
@@ -683,6 +940,31 @@ describe('Parse-native messaging integration', () => {
     expect(message.get('isDeleted')).toBe(true);
     expect(message.get('deletedAt')).toBeInstanceOf(Date);
     expect(message.get('text')).toBe('');
+
+    await expect(
+      Parse.Cloud.run(
+        'messagingAddReaction',
+        { messageId: message.id, type: 'like' },
+        options,
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: 141,
+        message: 'Cannot react to a deleted message.',
+      }),
+    );
+
+    const deletedTargetReaction = new Parse.Object('MessageReaction');
+    deletedTargetReaction.set('message', message);
+    deletedTargetReaction.set('type', 'dislike');
+    await expect(
+      deletedTargetReaction.save(null, options),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: 141,
+        message: 'Cannot react to a deleted message.',
+      }),
+    );
 
     message.set('metadata', { editedAfterDelete: true });
     await expect(
@@ -839,7 +1121,7 @@ describe('Parse-native messaging integration', () => {
       { sessionToken: secondUser.getSessionToken() },
     );
     expect(reaction.className).toBe('MessageReaction');
-    expect(reaction.get('type')).toBe('read');
+    expect(reaction.get('type')).toBe('like');
     expect(reaction.get('user').id).toBe(secondUser.id);
   });
 

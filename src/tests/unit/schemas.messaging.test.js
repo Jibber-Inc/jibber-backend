@@ -64,6 +64,10 @@ describe('Parse messaging schemas', () => {
         isDeleted: expect.any(Object),
       }),
     );
+    expect(reaction.indexes.reaction_unique_selection).toEqual({
+      _p_message: 1,
+      _p_user: 1,
+    });
     expect(receipt.fields).toEqual(
       expect.objectContaining({
         deliveredAt: expect.any(Object),
@@ -111,7 +115,14 @@ describe('Parse messaging schemas', () => {
         unique: true,
       }),
     );
-    expect(byName.reaction_identity.unique).toBe(true);
+    expect(byName.reaction_identity.unique).toBe(false);
+    expect(byName.reaction_unique_selection).toEqual(
+      expect.objectContaining({
+        className: 'MessageReaction',
+        keys: [['_p_message', 1], ['_p_user', 1]],
+        unique: true,
+      }),
+    );
     expect(byName.receipt_identity.unique).toBe(true);
     expect(byName.message_history.keys).toEqual([
       ['_p_conversation', 1],

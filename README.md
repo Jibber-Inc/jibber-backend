@@ -50,6 +50,29 @@ npm run build
 npm start
 ```
 
+### Back4App managed Cloud Code
+
+Build the single-file Cloud Code artifact used by the managed `Jibber` and
+`Jibber-Staging` Back4App apps:
+
+```sh
+npm run build:back4app
+```
+
+Deploy `dist-back4app/main.js` as `cloud/main.js`. The managed runtime injects
+the global Parse SDK, while the standalone server and test suites continue to
+load `parse/node` locally. Both environments require
+`JIBBER_SECRET_PASSWORD_TOKEN`, `PRELUDE_API_TOKEN`,
+`PARSE_MESSAGING_ENABLED`, `PARSE_MESSAGING_MINIMUM_APP_VERSION`, and
+`MESSAGING_ATTACHMENT_CLEANUP_HOURS` in Back4App Environment Variables.
+
+Apply the version-controlled schemas and index key definitions to both apps.
+The Parse Schema API does not preserve unique or partial-index options, so
+those options must be verified separately in Back4App's Index Manager before a
+production messaging cutover. Configure each app's APNs authentication key in
+Notifications > Setup > Apple; the staging and production apps use their own
+bundle topics.
+
 The root endpoint returns application health. Parse Server health is available
 at `/parse/health` unless `PARSE_MOUNT` changes the mount path.
 

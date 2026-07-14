@@ -26,8 +26,25 @@ const getFallbackAchievement = (type) => {
  */
 const getAchievementType = async (type) => {
   if (!type) throw new AchievementTypeServiceError('Achievement type is required.');
-  const achievementType = await new Parse.Query('AchievementType').equalTo('type', type).first({ useMasterKey: true });
-  return achievementType;
+  const achievementType = await new Parse.Query('AchievementType')
+    .equalTo('type', type)
+    .first({ useMasterKey: true });
+  if (achievementType) return achievementType;
+
+  const fallback = getFallbackAchievement(type);
+  if (!fallback) return undefined;
+
+  // Fresh staging/production apps may not have static achievement rows yet.
+  // Materialize the checked-in definition on first use so onboarding is not
+  // blocked by missing seed data.
+  const newAchievementType = new Parse.Object('AchievementType');
+  Object.entries(fallback).forEach(([key, value]) => {
+    newAchievementType.set(key, value);
+  });
+  const acl = new Parse.ACL();
+  acl.setPublicReadAccess(true);
+  newAchievementType.setACL(acl);
+  return newAchievementType.save(null, { useMasterKey: true });
 };
 
 export default {

@@ -41,7 +41,7 @@
   "indexes": {
     "_id_": { "_id": 1 },
     "reaction_identity": { "_p_message": 1, "_p_user": 1, "type": 1 },
+    "reaction_unique_selection": { "_p_message": 1, "_p_user": 1 },
     "reaction_conversation_message": { "_p_conversation": 1, "_p_message": 1 }
   }
 }
-

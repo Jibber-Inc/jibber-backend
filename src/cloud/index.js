@@ -22,6 +22,7 @@ import {
   beforeSaveMessage,
   beforeSaveReaction,
   beforeSaveReceipt,
+  sendMessage as sendParseMessagingServiceMessage,
 } from '../services/ParseMessagingService';
 import MessagingMetricsService from '../services/MessagingMetricsService';
 import { assertMinimumAppVersion } from '../utils/appVersion';
@@ -41,6 +42,7 @@ import {
   MESSAGING_CLASSES,
   MESSAGING_LIVE_QUERY_CLASSES,
 } from '../constants/messaging';
+import { afterSaveMessage as afterSaveMayaChatBotMessage } from '../services/MayaChatBotService';
 
 // Test functions
 import test from './test';
@@ -181,7 +183,13 @@ Parse.Cloud.afterSave(
 );
 Parse.Cloud.afterSave(
   MESSAGING_CLASSES.MESSAGE,
-  afterSaveMessage,
+  async request => {
+    await afterSaveMessage(request);
+    await afterSaveMayaChatBotMessage(
+      request,
+      sendParseMessagingServiceMessage,
+    );
+  },
 );
 Parse.Cloud.afterSave(
   MESSAGING_CLASSES.RECEIPT,

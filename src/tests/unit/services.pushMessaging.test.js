@@ -56,9 +56,28 @@ describe('Parse messaging push payloads', () => {
         conversationId: 'conversation-1',
         messageId: 'message-1',
         target: 'conversation',
+        threadRootId: 'message-1',
       }),
     );
-    expect(payload.messaging.sender).toBe('parse.messaging');
+    expect(payload.messaging).toEqual(
+      expect.objectContaining({
+        sender: 'parse.messaging',
+        threadRootId: 'message-1',
+      }),
+    );
     expect(Object.keys(payload).sort()).toEqual(['aps', 'data', 'messaging']);
+  });
+
+  test('keeps a reply notification anchored to its root message', () => {
+    const payload = PushService.prepareMessagingNotificationData({
+      ...baseData,
+      messageId: 'reply-1',
+      threadRootId: 'message-1',
+    });
+
+    expect(payload.data.threadRootId).toBe('message-1');
+    expect(payload.messaging.threadRootId).toBe('message-1');
+    expect(payload.data.messageId).toBe('reply-1');
+    expect(payload.messaging.id).toBe('reply-1');
   });
 });

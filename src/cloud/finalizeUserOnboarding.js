@@ -112,20 +112,27 @@ const finalizeUserOnboarding = async request => {
     // Create an intial conversation if one does not already exist 
     await createInitialConversations(user, currentUserStatus);
 
-    // Upsert achievement INTEREST_PAYMENT (new user).
-    await AchievementService.createAchievementAndTransaction(
-      user,
-      ACHIEVEMENTS.joinJibber.type,
-      TRANSACTION.INITIAL_NOTE
-    );
+    // Rewards are ancillary to account creation. Missing seed data or a
+    // transaction sender must not roll back an otherwise complete onboarding.
+    const achievementResults = await Promise.allSettled([
+      AchievementService.createAchievementAndTransaction(
+        user,
+        ACHIEVEMENTS.joinJibber.type,
+        TRANSACTION.INITIAL_NOTE
+      ),
+      AchievementService.createAchievementAndTransaction(
+        user,
+        ACHIEVEMENTS.firstTenK.type
+      ),
+    ]);
+    achievementResults.forEach(result => {
+      if (result.status === 'rejected') {
+        // eslint-disable-next-line no-console
+        console.error('Unable to grant onboarding achievement.', result.reason);
+      }
+    });
 
-    // Upsert achievement FIRST_10K.
-    await AchievementService.createAchievementAndTransaction(
-      user,
-      ACHIEVEMENTS.firstTenK.type
-    );
-
-    user.save(null, { useMasterKey: true });
+    await user.save(null, { useMasterKey: true });
 
     return user;
   } catch (error) {

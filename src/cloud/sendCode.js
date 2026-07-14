@@ -64,7 +64,7 @@ const sendCode = async request => {
 
   try {
     let status;
-    if (testUser.isTestUser(phoneNumber)) {
+    if (testUser.isTestUser(e164Number, request)) {
       status = 'pending';
     } else {
       const result = await TwoFAService.sendCode(e164Number, locale);

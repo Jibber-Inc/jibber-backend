@@ -2,9 +2,37 @@
 import ExtendableError from 'extendable-error-class';
 import Parse from '../providers/ParseProvider';
 
-import { STATUS_CREATED } from '../constants';
+import { STATUS_ACCEPTED, STATUS_CREATED } from '../constants';
 
 class ConnectionServiceError extends ExtendableError { }
+
+const grantMutualProfileReadAccess = async (fromUser, toUser) => {
+  const [freshFromUser, freshToUser] = await Promise.all([
+    new Parse.Query(Parse.User).get(fromUser.id, { useMasterKey: true }),
+    new Parse.Query(Parse.User).get(toUser.id, { useMasterKey: true }),
+  ]);
+
+  const fromACL = freshFromUser.getACL() || new Parse.ACL(freshFromUser);
+  fromACL.setReadAccess(freshToUser, true);
+  freshFromUser.setACL(fromACL);
+
+  const toACL = freshToUser.getACL() || new Parse.ACL(freshToUser);
+  toACL.setReadAccess(freshFromUser, true);
+  freshToUser.setACL(toACL);
+
+  await Promise.all([
+    freshFromUser.save(null, { useMasterKey: true }),
+    freshToUser.save(null, { useMasterKey: true }),
+  ]);
+};
+
+const saveConnection = async (connection, fromUser, toUser, status) => {
+  const savedConnection = await connection.save(null, { useMasterKey: true });
+  if (status === STATUS_ACCEPTED) {
+    await grantMutualProfileReadAccess(fromUser, toUser);
+  }
+  return savedConnection;
+};
 
 /**
  * Create a connection between 2 users and return
@@ -29,9 +57,16 @@ const createConnection = async (
   connectionQuery.equalTo('from', fromUser);
   let connection = await connectionQuery.first({ useMasterKey: true });
 
-  // If there is an existing connection, return it
+  // If there is an existing connection, promote it to the requested state.
+  // Reservation claims may be retried after a partial onboarding failure, so
+  // returning a stale invited connection here would leave the users only
+  // partially connected.
   if (connection instanceof Connection) {
-    return connection;
+    connection.set('status', status);
+    if (reservationId) {
+      connection.set('reservation', reservationId);
+    }
+    return saveConnection(connection, fromUser, targetUser, status);
   }
 
   // Otherwise create a connection between the users and set the status to invited
@@ -42,7 +77,7 @@ const createConnection = async (
     connection.set('status', status);
     connection.set('reservation', reservationId);
 
-    return connection.save();
+    return saveConnection(connection, fromUser, targetUser, status);
   } catch (error) {
     throw new ConnectionServiceError(error.message);
   }

@@ -26,6 +26,11 @@
       "required": true,
       "defaultValue": false
     },
+    "createdBy": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": false
+    },
     "user": {
       "type": "Pointer",
       "targetClass": "_User",

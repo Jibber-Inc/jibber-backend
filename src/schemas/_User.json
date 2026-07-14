@@ -1,5 +1,5 @@
 {
-  "className": "Connection",
+  "className": "_User",
   "fields": {
     "objectId": {
       "type": "String"
@@ -13,21 +13,19 @@
     "ACL": {
       "type": "ACL"
     },
-    "status": {
+    "firstName": {
       "type": "String",
       "required": false
     },
-    "to": {
-      "type": "Pointer",
-      "targetClass": "_User",
-      "required": true
+    "fullName": {
+      "type": "String",
+      "required": false
     },
-    "from": {
-      "type": "Pointer",
-      "targetClass": "_User",
-      "required": true
+    "lastName": {
+      "type": "String",
+      "required": false
     },
-    "reservation": {
+    "status": {
       "type": "String",
       "required": false
     }

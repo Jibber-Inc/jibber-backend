@@ -21,7 +21,7 @@ const addReaction = async request => {
   return ChatService.sendReactionToMessage(
     conversationCid,
     messageId,
-    REACTION_TYPES.READ,
+    REACTION_TYPES.LIKE,
     user.id,
   );
 };

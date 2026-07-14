@@ -1,9 +1,14 @@
 import ExtendableError from 'extendable-error-class';
+import { v4 as uuidv4 } from 'uuid';
 import ChatService from './ChatService';
+import ConnectionService from './ConnectionService';
 import PushService from './PushService';
 import Parse from '../providers/ParseProvider';
 import UserUtils from '../utils/userData';
-import { INTERRUPTION_LEVEL_TYPES } from '../constants';
+import {
+  INTERRUPTION_LEVEL_TYPES,
+  STATUS_ACCEPTED,
+} from '../constants';
 
 export class ReservationServiceError extends ExtendableError {}
 
@@ -17,6 +22,10 @@ const createReservation = async user => {
     const reservation = new Parse.Object('Reservation');
     reservation.set('isClaimed', false);
     reservation.set('createdBy', user);
+    // The current clients use objectId as the invitation code, but the live
+    // legacy schema still requires both fields on every Reservation.
+    reservation.set('position', Date.now());
+    reservation.set('code', uuidv4());
     return reservation.save(null, { useMasterKey: true });
   } catch (error) {
     throw new ReservationServiceError(error.message);
@@ -37,7 +46,7 @@ const createReservations = async (user, number) => {
   }
 };
 
-const checkReservation = async reservationId => {
+const checkReservation = async (reservationId, claimingUser) => {
   if (!reservationId) {
     throw new Error('reservation id is required');
   }
@@ -46,7 +55,11 @@ const checkReservation = async reservationId => {
     reservation = await new Parse.Query('Reservation').get(reservationId, {
       useMasterKey: true,
     });
-    if (reservation.get('isClaimed')) {
+    const claimedUser = reservation.get('user');
+    if (
+      reservation.get('isClaimed') &&
+      (!claimingUser || !claimedUser || claimedUser.id !== claimingUser.id)
+    ) {
       throw new Error(
         `[EdNzXDAN] Reservation id ${reservationId} is already claimed`,
       );
@@ -84,11 +97,13 @@ const claimReservation = async (reservationId, user) => {
     );
   }
   try {
-    const reservation = await checkReservation(reservationId);
+    const reservation = await checkReservation(reservationId, user);
     // set reservation as claimed and create a connection between users
-    reservation.set('isClaimed', true);
-    reservation.set('user', user);
-    await reservation.save(null, { useMasterKey: true });
+    if (!reservation.get('isClaimed')) {
+      reservation.set('isClaimed', true);
+      reservation.set('user', user);
+      await reservation.save(null, { useMasterKey: true });
+    }
     const conversationCid = reservation.get('conversationCid');
 
     if (conversationCid) {
@@ -109,11 +124,26 @@ const claimReservation = async (reservationId, user) => {
 
 const handleReservation = async (reservationId, user) => {
   const reservation = await claimReservation(reservationId, user);
+  const reservationOwner = reservation.get('createdBy');
+
+  if (!(reservationOwner instanceof Parse.User)) {
+    throw new ReservationServiceError(
+      'Reservation creator could not be found.',
+    );
+  }
+
+  await ConnectionService.createConnection(
+    reservationOwner,
+    user,
+    STATUS_ACCEPTED,
+    reservationId,
+  );
+
   const conversationCid = reservation.get('conversationCid');
   let conversation;
 
   if (!conversationCid) {
-    const fromUser = reservation.get('createdBy');
+    const fromUser = reservationOwner;
     const toUser = user;
     const conversationId = `conv_${fromUser.id}_${toUser.id}`;
     conversation = await ChatService.createConversation(

@@ -385,6 +385,83 @@ describe('Parse messaging write validation', () => {
     ).rejects.toThrow('Deleted messages cannot be modified');
   });
 
+  test('accepts only stable reaction types on direct saves', async () => {
+    const author = user('user-1');
+    const reactingUser = user('user-2');
+    const conversation = makeConversation(author);
+    installConversation(conversation);
+    installMember(conversation, author, 'owner');
+    installMember(conversation, reactingUser);
+    const message = makeMessage(conversation, author);
+    installMessage(message);
+
+    const supported = new MockObject('MessageReaction', undefined, {
+      message,
+      type: 'love',
+    });
+    supported.mockDirtyKeys = ['message', 'type'];
+    await expect(
+      ParseMessagingService.beforeSaveReaction({
+        object: supported,
+        user: reactingUser,
+      }),
+    ).resolves.toBeUndefined();
+    expect(supported.get('conversation')).toBe(conversation);
+    expect(supported.get('user')).toBe(reactingUser);
+
+    const unsupported = new MockObject('MessageReaction', undefined, {
+      message,
+      type: 'celebrate',
+    });
+    unsupported.mockDirtyKeys = ['message', 'type'];
+    await expect(
+      ParseMessagingService.beforeSaveReaction({
+        object: unsupported,
+        user: reactingUser,
+      }),
+    ).rejects.toThrow('type has an unsupported value');
+  });
+
+  test('rejects selected reactions targeting a deleted message', async () => {
+    const author = user('user-1');
+    const reactingUser = user('user-2');
+    const conversation = makeConversation(author);
+    installConversation(conversation);
+    installMember(conversation, author, 'owner');
+    installMember(conversation, reactingUser);
+    const message = makeMessage(conversation, author, { isDeleted: true });
+    installMessage(message);
+
+    const directReaction = new MockObject('MessageReaction', undefined, {
+      message,
+      type: 'like',
+    });
+    directReaction.mockDirtyKeys = ['message', 'type'];
+    await expect(
+      ParseMessagingService.beforeSaveReaction({
+        object: directReaction,
+        user: reactingUser,
+      }),
+    ).rejects.toThrow('Cannot react to a deleted message');
+
+    await expect(
+      ParseMessagingService.addReaction(reactingUser, {
+        messageId: message.id,
+        type: 'dislike',
+      }),
+    ).rejects.toThrow('Cannot react to a deleted message');
+  });
+
+  test('rejects unsupported reaction types before the Cloud write path', async () => {
+    const reactingUser = user('user-2');
+    await expect(
+      ParseMessagingService.addReaction(reactingUser, {
+        messageId: 'message-1',
+        type: 'read',
+      }),
+    ).rejects.toThrow('type has an unsupported value');
+  });
+
   test('rejects direct hard deletion without the master key', () => {
     expect(() =>
       ParseMessagingService.beforeDeleteMessagingObject({ user: user('user-1') }),

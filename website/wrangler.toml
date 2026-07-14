@@ -1,0 +1,14 @@
+name = "jibber-app-clip"
+main = "worker.js"
+compatibility_date = "2026-07-12"
+
+workers_dev = true
+preview_urls = true
+
+[[routes]]
+pattern = "jibber.wtf"
+custom_domain = true
+
+[[routes]]
+pattern = "www.jibber.wtf"
+custom_domain = true

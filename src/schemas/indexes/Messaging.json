@@ -117,6 +117,12 @@
     "className": "MessageReaction",
     "name": "reaction_identity",
     "keys": [["_p_message", 1], ["_p_user", 1], ["type", 1]],
+    "unique": false
+  },
+  {
+    "className": "MessageReaction",
+    "name": "reaction_unique_selection",
+    "keys": [["_p_message", 1], ["_p_user", 1]],
     "unique": true
   },
   {

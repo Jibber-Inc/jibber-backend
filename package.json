@@ -7,6 +7,7 @@
   },
   "scripts": {
     "build": "npm run clean && babel -d ./dist ./src -s",
+    "build:back4app": "node scripts/build-back4app-cloud.mjs",
     "clean": "rm -rf dist && mkdir dist",
     "dev:dist": "npm run build && nodemon ./dist/index.js",
     "dev:src": "babel-node src",
@@ -45,6 +46,7 @@
     "@babel/register": "7.29.7",
     "babel-jest": "30.2.0",
     "babel-plugin-inline-json-import": "^0.3.2",
+    "esbuild": "0.25.12",
     "eslint": "8.57.1",
     "eslint-config-airbnb-base": "15.0.0",
     "eslint-config-prettier": "9.1.2",
