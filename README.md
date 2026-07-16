@@ -36,6 +36,10 @@ Production deployments should also configure the appropriate values for:
   `IOS_PUSH_PRODUCTION` for APNs
 - `REDIS_URL` when LiveQuery is shared across multiple instances
 - `PRELUDE_API_TOKEN` when phone-number verification is enabled
+- `APP_CLIP_INVITER_BOT_USER_ID`, `APP_CLIP_INVITE_TEMPLATE_ID`, and
+  `APP_CLIP_INVITE_SMS_ENABLED=true` for the staging-only App Clip invitation
+  sender. `APP_CLIP_INVITE_BASE_URL` is optional and defaults to
+  `https://jibber.wtf`.
 
 Run the source server with automatic reloads:
 
@@ -65,6 +69,9 @@ load `parse/node` locally. Both environments require
 `JIBBER_SECRET_PASSWORD_TOKEN`, `PRELUDE_API_TOKEN`,
 `PARSE_MESSAGING_ENABLED`, `PARSE_MESSAGING_MINIMUM_APP_VERSION`, and
 `MESSAGING_ATTACHMENT_CLEANUP_HOURS` in Back4App Environment Variables.
+`Jibber-Staging` additionally requires `APP_CLIP_INVITER_BOT_USER_ID`,
+`APP_CLIP_INVITE_TEMPLATE_ID`, and `APP_CLIP_INVITE_SMS_ENABLED=true` before
+the master-key-only `sendStagingAppClipInvite` function can deliver a real SMS.
 
 Apply the version-controlled schemas and index key definitions to both apps.
 The Parse Schema API does not preserve unique or partial-index options, so

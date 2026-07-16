@@ -26,12 +26,24 @@ const AASA = JSON.stringify({
   },
 });
 
+const APP_STORE_URL =
+  'https://apps.apple.com/us/app/jibber-social/id1602024272';
+const APP_CLIP_CARD_IMAGE =
+  'https://is1-ssl.mzstatic.com/image/thumb/Purple122/v4/4f/88/31/4f883150-fd6f-0c52-ad22-b960d33490e3/AppIcon-0-1x_U007emarketing-0-7-0-85-220.png/1200x630wa.jpg';
+
 const HTML = `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#111111">
+  <meta name="apple-itunes-app" content="app-id=1602024272, app-clip-bundle-id=com.Jibber-Inc.iOS.Clip, app-clip-display=card">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Jibber">
+  <meta property="og:title" content="You're invited to connect on Jibber">
+  <meta property="og:description" content="Accept your invitation and start a private conversation in Jibber.">
+  <meta property="og:image" content="${APP_CLIP_CARD_IMAGE}">
+  <meta name="twitter:card" content="summary_large_image">
   <title>Jibber</title>
   <style>
     :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
@@ -47,7 +59,8 @@ const HTML = `<!doctype html>
   <main>
     <div class="mark">J</div>
     <h1>Jibber</h1>
-    <p>Open this link on your iPhone to continue in Jibber.</p>
+    <p>Open this invitation on your iPhone to accept or decline and continue in Jibber.</p>
+    <p style="margin-top: 24px"><a href="${APP_STORE_URL}" style="color: white">View Jibber on the App Store</a></p>
   </main>
 </body>
 </html>`;

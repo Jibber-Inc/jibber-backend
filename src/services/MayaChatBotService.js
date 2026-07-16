@@ -21,6 +21,14 @@ const isNewRequest = request => !request.original;
 export const getConfig = () => ({
   apiKey: process.env.OPENAI_API_KEY,
   botUserId: process.env.MAYA_BOT_USER_ID,
+  botUserIds: Array.from(
+    new Set(
+      [
+        process.env.MAYA_BOT_USER_ID,
+        process.env.APP_CLIP_INVITER_BOT_USER_ID,
+      ].filter(Boolean),
+    ),
+  ),
   enabled: process.env.AI_CHATBOT_ENABLED === 'true',
   imageModel: process.env.MAYA_BOT_IMAGE_MODEL || DEFAULT_IMAGE_MODEL,
   imageQuality: process.env.MAYA_BOT_IMAGE_QUALITY || DEFAULT_IMAGE_QUALITY,
@@ -29,7 +37,16 @@ export const getConfig = () => ({
 });
 
 const isConfigured = config =>
-  Boolean(config.enabled && config.apiKey && config.botUserId);
+  Boolean(
+    config.enabled &&
+      config.apiKey &&
+      (config.botUserId || (config.botUserIds && config.botUserIds.length)),
+  );
+
+const getConfiguredBotUserIds = config =>
+  config.botUserIds && config.botUserIds.length
+    ? config.botUserIds
+    : [config.botUserId].filter(Boolean);
 
 const getText = message => (message.get('text') || '').trim();
 
@@ -197,7 +214,7 @@ const extractResponseText = responseBody => {
   return text;
 };
 
-const callOpenAI = async ({ apiKey, model }, input) => {
+const callOpenAI = async ({ apiKey, botName, model }, input) => {
   const response = await fetch(OPENAI_RESPONSES_URL, {
     method: 'POST',
     headers: {
@@ -206,8 +223,9 @@ const callOpenAI = async ({ apiKey, model }, input) => {
     },
     body: JSON.stringify({
       input,
-      instructions:
-        'You are Maya Hart, a friendly staging-only AI chat bot for the Jibber app. Reply conversationally in 1-3 concise sentences. Help the tester exercise chat features, but do not claim to be a real person. The app can generate and send images for explicit image requests before this text path is used; do not say you cannot send images.',
+      instructions: `You are ${
+        botName || 'Maya Hart'
+      }, a friendly staging-only AI chat bot for the Jibber app. Reply conversationally in 1-3 concise sentences. Help the tester exercise chat features, but do not claim to be a real person. The app can generate and send images for explicit image requests before this text path is used; do not say you cannot send images.`,
       max_output_tokens: 220,
       model,
       store: false,
@@ -287,17 +305,19 @@ const callOpenAIImage = async ({
   };
 };
 
-const buildClientMessageId = sourceMessage =>
-  `maya-bot:${sourceMessage.id}`;
+const buildClientMessageId = (sourceMessage, botTag = 'maya') =>
+  `${botTag}-bot:${sourceMessage.id}`;
 
-const buildImageClarificationClientMessageId = sourceMessage =>
-  `maya-bot-image-clarification:${sourceMessage.id}`;
+const buildImageClarificationClientMessageId = (
+  sourceMessage,
+  botTag = 'maya',
+) => `${botTag}-bot-image-clarification:${sourceMessage.id}`;
 
-const buildImageClientMessageId = sourceMessage =>
-  `maya-bot-image:${sourceMessage.id}`;
+const buildImageClientMessageId = (sourceMessage, botTag = 'maya') =>
+  `${botTag}-bot-image:${sourceMessage.id}`;
 
-const buildImageErrorClientMessageId = sourceMessage =>
-  `maya-bot-image-error:${sourceMessage.id}`;
+const buildImageErrorClientMessageId = (sourceMessage, botTag = 'maya') =>
+  `${botTag}-bot-image-error:${sourceMessage.id}`;
 
 const buildThreadReplyParams = sourceMessage => {
   const replyToId = getObjectId(sourceMessage.get('replyTo'));
@@ -356,7 +376,13 @@ export const shouldRespondToMessage = (request, config = getConfig()) => {
   if (!isConfigured(config)) return false;
   if (!isNewRequest(request)) return false;
   if (!isTextMessage(message)) return false;
-  if (getObjectId(message.get('author')) === config.botUserId) return false;
+  if (
+    getConfiguredBotUserIds(config).includes(
+      getObjectId(message.get('author')),
+    )
+  ) {
+    return false;
+  }
   return true;
 };
 
@@ -370,9 +396,34 @@ export const afterSaveMessage = async (request, sendMessageFn) => {
   const sourceAuthorId = getObjectId(sourceMessage.get('author'));
 
   try {
-    const botUser = await getBotUser(config.botUserId);
-    const botMembership = await getBotMembership(conversation, botUser);
-    if (!botMembership) return undefined;
+    const botCandidates = await Promise.all(
+      getConfiguredBotUserIds(config).map(async botUserId => {
+        try {
+          const candidate = await getBotUser(botUserId);
+          const membership = await getBotMembership(conversation, candidate);
+          return membership ? { botUser: candidate, botUserId } : undefined;
+        } catch (error) {
+          // A missing optional staging bot must not prevent another configured
+          // bot from responding in its own conversation.
+          return undefined;
+        }
+      }),
+    );
+    const activeBot = botCandidates.find(Boolean);
+    if (!activeBot) return undefined;
+
+    const { botUser, botUserId: activeBotUserId } = activeBot;
+
+    const isMaya = activeBotUserId === config.botUserId;
+    const botTag = isMaya ? 'maya' : 'jules';
+    const botName = `${botUser.get('givenName') || ''} ${
+      botUser.get('familyName') || ''
+    }`.trim();
+    const activeConfig = {
+      ...config,
+      botName,
+      botUserId: activeBotUserId,
+    };
 
     const recentMessages = await getRecentMessages(
       conversation,
@@ -384,17 +435,20 @@ export const afterSaveMessage = async (request, sendMessageFn) => {
       extractImageFollowupPrompt(
         getText(sourceMessage),
         recentMessages,
-        config.botUserId,
+        activeBotUserId,
         sourceMessage.id,
       );
 
     if (!imagePrompt && isGenericImageRequest(getText(sourceMessage))) {
       return sendMessageFn(botUser, {
-        clientMessageId: buildImageClarificationClientMessageId(sourceMessage),
+        clientMessageId: buildImageClarificationClientMessageId(
+          sourceMessage,
+          botTag,
+        ),
         conversationId: conversation.id,
         deliveryType: 'conversational',
         metadata: {
-          bot: 'maya',
+          bot: botTag,
           imageIntent: 'awaiting_prompt',
           sourceMessageId: sourceMessage.id,
         },
@@ -407,7 +461,7 @@ export const afterSaveMessage = async (request, sendMessageFn) => {
       let imageReference;
       let referenceImageCount = 0;
       try {
-        const mayaReferenceImageUrls = shouldUseMayaProfileReference(imagePrompt)
+        const mayaReferenceImageUrls = isMaya && shouldUseMayaProfileReference(imagePrompt)
           ? getMayaReferenceImageUrls(botUser)
           : [];
         referenceImageCount = mayaReferenceImageUrls.length;
@@ -415,7 +469,7 @@ export const afterSaveMessage = async (request, sendMessageFn) => {
           ? 'maya_reference_images'
           : undefined;
         const image = await callOpenAIImage(
-          config,
+          activeConfig,
           imagePrompt,
           mayaReferenceImageUrls,
         );
@@ -432,13 +486,13 @@ export const afterSaveMessage = async (request, sendMessageFn) => {
               mimeType: image.contentType,
             },
           ],
-          clientMessageId: buildImageClientMessageId(sourceMessage),
+          clientMessageId: buildImageClientMessageId(sourceMessage, botTag),
           contentType: 'image',
           conversationId: conversation.id,
           deliveryType: 'conversational',
           metadata: {
-            bot: 'maya',
-            imageModel: config.imageModel,
+            bot: botTag,
+            imageModel: activeConfig.imageModel,
             imagePrompt,
             ...(imageReference
               ? { imageReference, referenceImageCount }
@@ -456,11 +510,14 @@ export const afterSaveMessage = async (request, sendMessageFn) => {
         });
 
         return sendMessageFn(botUser, {
-          clientMessageId: buildImageErrorClientMessageId(sourceMessage),
+          clientMessageId: buildImageErrorClientMessageId(
+            sourceMessage,
+            botTag,
+          ),
           conversationId: conversation.id,
           deliveryType: 'conversational',
           metadata: {
-            bot: 'maya',
+            bot: botTag,
             imageError: sanitizeErrorMessage(imageError),
             imagePrompt,
             ...(imageReference
@@ -474,14 +531,17 @@ export const afterSaveMessage = async (request, sendMessageFn) => {
       }
     }
 
-    const replyText = await callOpenAI(config, buildModelInput(recentMessages, config.botUserId));
+    const replyText = await callOpenAI(
+      activeConfig,
+      buildModelInput(recentMessages, activeBotUserId),
+    );
 
     return sendMessageFn(botUser, {
-      clientMessageId: buildClientMessageId(sourceMessage),
+      clientMessageId: buildClientMessageId(sourceMessage, botTag),
       conversationId: conversation.id,
       deliveryType: 'conversational',
       metadata: {
-        bot: 'maya',
+        bot: botTag,
         sourceMessageId: sourceMessage.id,
       },
       ...buildThreadReplyParams(sourceMessage),

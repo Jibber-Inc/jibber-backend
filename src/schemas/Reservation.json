@@ -39,6 +39,38 @@
     "link": {
       "type": "String",
       "required": false
+    },
+    "status": {
+      "type": "String",
+      "required": false
+    },
+    "respondedAt": {
+      "type": "Date",
+      "required": false
+    },
+    "claimedAt": {
+      "type": "Date",
+      "required": false
+    },
+    "recipientPhoneLast4": {
+      "type": "String",
+      "required": false
+    },
+    "inviteDeliveryStatus": {
+      "type": "String",
+      "required": false
+    },
+    "inviteDeliveryError": {
+      "type": "String",
+      "required": false
+    },
+    "inviteMessageId": {
+      "type": "String",
+      "required": false
+    },
+    "inviteSentAt": {
+      "type": "Date",
+      "required": false
     }
   },
   "classLevelPermissions": {

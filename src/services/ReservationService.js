@@ -8,6 +8,8 @@ import UserUtils from '../utils/userData';
 import {
   INTERRUPTION_LEVEL_TYPES,
   STATUS_ACCEPTED,
+  STATUS_DECLINED,
+  STATUS_PENDING,
 } from '../constants';
 
 export class ReservationServiceError extends ExtendableError {}
@@ -22,6 +24,7 @@ const createReservation = async user => {
     const reservation = new Parse.Object('Reservation');
     reservation.set('isClaimed', false);
     reservation.set('createdBy', user);
+    reservation.set('status', STATUS_PENDING);
     // The current clients use objectId as the invitation code, but the live
     // legacy schema still requires both fields on every Reservation.
     reservation.set('position', Date.now());
@@ -55,6 +58,11 @@ const checkReservation = async (reservationId, claimingUser) => {
     reservation = await new Parse.Query('Reservation').get(reservationId, {
       useMasterKey: true,
     });
+    if (reservation.get('status') === STATUS_DECLINED) {
+      throw new Error(
+        `[3KJfVRn4] Reservation id ${reservationId} was declined`,
+      );
+    }
     const claimedUser = reservation.get('user');
     if (
       reservation.get('isClaimed') &&
@@ -101,6 +109,9 @@ const claimReservation = async (reservationId, user) => {
     // set reservation as claimed and create a connection between users
     if (!reservation.get('isClaimed')) {
       reservation.set('isClaimed', true);
+      reservation.set('status', STATUS_ACCEPTED);
+      reservation.set('respondedAt', new Date());
+      reservation.set('claimedAt', new Date());
       reservation.set('user', user);
       await reservation.save(null, { useMasterKey: true });
     }
@@ -119,6 +130,73 @@ const claimReservation = async (reservationId, user) => {
     throw new ReservationServiceError(
       `Reservation cannot be claimed. Detail: ${error.message}`,
     );
+  }
+};
+
+const getInvitation = async reservationId => {
+  if (!reservationId) {
+    throw new ReservationServiceError('reservation id is required');
+  }
+
+  try {
+    const reservation = await new Parse.Query('Reservation')
+      .include('createdBy')
+      .get(reservationId, { useMasterKey: true });
+    const inviter = reservation.get('createdBy');
+
+    if (!(inviter instanceof Parse.User)) {
+      throw new Error('Reservation creator could not be found.');
+    }
+    if (reservation.get('isClaimed')) {
+      throw new Error('That invitation has already been claimed.');
+    }
+    if (reservation.get('status') === STATUS_DECLINED) {
+      throw new Error('That invitation has been declined.');
+    }
+
+    return {
+      inviterId: inviter.id,
+      inviterName: UserUtils.getFullName(inviter),
+      reservationId: reservation.id,
+      status: reservation.get('status') || STATUS_PENDING,
+    };
+  } catch (error) {
+    throw new ReservationServiceError(error.message);
+  }
+};
+
+const respondToInvitation = async (reservationId, decision) => {
+  if (![STATUS_ACCEPTED, STATUS_DECLINED].includes(decision)) {
+    throw new ReservationServiceError(
+      'decision must be accepted or declined',
+    );
+  }
+
+  try {
+    const reservation = await new Parse.Query('Reservation').get(
+      reservationId,
+      { useMasterKey: true },
+    );
+
+    if (reservation.get('isClaimed')) {
+      throw new Error('That invitation has already been claimed.');
+    }
+
+    const currentDecision = reservation.get('status');
+    if (currentDecision === STATUS_DECLINED && decision !== STATUS_DECLINED) {
+      throw new Error('That invitation has already been declined.');
+    }
+
+    reservation.set('status', decision);
+    reservation.set('respondedAt', new Date());
+    await reservation.save(null, { useMasterKey: true });
+
+    return {
+      decision,
+      reservationId: reservation.id,
+    };
+  } catch (error) {
+    throw new ReservationServiceError(error.message);
   }
 };
 
@@ -190,4 +268,6 @@ export default {
   hasReservations,
   claimReservation,
   handleReservation,
+  getInvitation,
+  respondToInvitation,
 };

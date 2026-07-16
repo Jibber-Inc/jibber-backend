@@ -128,6 +128,7 @@ describe('MayaChatBotService', () => {
     process.env.OPENAI_API_KEY = 'sk-test';
     process.env.MAYA_BOT_USER_ID = 'maya-user';
     delete process.env.MAYA_BOT_MODEL;
+    delete process.env.APP_CLIP_INVITER_BOT_USER_ID;
     mockBotUser = new MockObject('_User', 'maya-user', {
       mayaReferenceImages: [
         { url: () => 'https://example.com/maya-reference-1.png' },
