@@ -29,9 +29,6 @@ describe('StagingAppClipInviteService', () => {
     process.env = {
       ...originalEnvironment,
       APP_CLIP_INVITER_BOT_USER_ID: 'bot-user-id',
-      APP_CLIP_INVITE_SMS_ENABLED: 'true',
-      APP_CLIP_INVITE_TEMPLATE_ID: 'template-id',
-      PRELUDE_API_TOKEN: 'prelude-token',
     };
   });
 
@@ -39,11 +36,8 @@ describe('StagingAppClipInviteService', () => {
     process.env = originalEnvironment;
   });
 
-  it('creates a bot-owned reservation and submits an auditable SMS', async () => {
+  it('creates a bot-owned reservation ready for manual sharing', async () => {
     const inviter = new Parse.User();
-    inviter.get = jest.fn(key =>
-      key === 'givenName' ? 'Jules' : 'Park',
-    );
     const query = { get: jest.fn().mockResolvedValue(inviter) };
     Parse.Query.mockImplementation(() => query);
 
@@ -53,52 +47,62 @@ describe('StagingAppClipInviteService', () => {
       set: jest.fn(),
     };
     ReservationService.createReservation.mockResolvedValue(reservation);
-    const requestFetch = jest.fn().mockResolvedValue({
-      json: jest.fn().mockResolvedValue({ id: 'notify-message-id' }),
-      ok: true,
-      status: 200,
-    });
 
     await expect(
-      StagingAppClipInviteService.send('+12065550123', requestFetch),
+      StagingAppClipInviteService.create('+12065550123'),
     ).resolves.toEqual({
-      inviteMessageId: 'notify-message-id',
+      deliveryMode: 'manual',
       inviteUrl:
         'https://jibber.wtf/reservation?reservationId=reservation-id',
       reservationId: 'reservation-id',
     });
 
     expect(ReservationService.createReservation).toHaveBeenCalledWith(inviter);
-    expect(requestFetch).toHaveBeenCalledWith(
-      'https://api.prelude.dev/v2/notify',
-      expect.objectContaining({ method: 'POST' }),
-    );
-    const request = requestFetch.mock.calls[0][1];
-    expect(JSON.parse(request.body)).toEqual({
-      correlation_id: 'reservation-reservation-id',
-      preferred_channel: 'sms',
-      template_id: 'template-id',
-      to: '+12065550123',
-      variables: {
-        invite_url:
-          'https://jibber.wtf/reservation?reservationId=reservation-id',
-        inviter_name: 'Jules Park',
-      },
-    });
     expect(reservation.set).toHaveBeenCalledWith(
       'recipientPhoneLast4',
       '0123',
     );
     expect(reservation.set).toHaveBeenCalledWith(
       'inviteDeliveryStatus',
-      'submitted',
+      'ready_to_share',
+    );
+  });
+
+  it('does not require a phone number to create a shareable invite', async () => {
+    const inviter = new Parse.User();
+    const query = { get: jest.fn().mockResolvedValue(inviter) };
+    Parse.Query.mockImplementation(() => query);
+
+    const reservation = {
+      id: 'reservation-id',
+      save: jest.fn().mockResolvedValue(undefined),
+      set: jest.fn(),
+    };
+    ReservationService.createReservation.mockResolvedValue(reservation);
+
+    await expect(StagingAppClipInviteService.create()).resolves.toEqual(
+      expect.objectContaining({ deliveryMode: 'manual' }),
+    );
+
+    expect(reservation.set).not.toHaveBeenCalledWith(
+      'recipientPhoneLast4',
+      expect.anything(),
     );
   });
 
   it('rejects a non-E.164 recipient before creating a reservation', async () => {
     await expect(
-      StagingAppClipInviteService.send('206-555-0123', jest.fn()),
+      StagingAppClipInviteService.create('206-555-0123'),
     ).rejects.toThrow('E.164');
+    expect(ReservationService.createReservation).not.toHaveBeenCalled();
+  });
+
+  it('requires a configured inviter bot', async () => {
+    delete process.env.APP_CLIP_INVITER_BOT_USER_ID;
+
+    await expect(StagingAppClipInviteService.create()).rejects.toThrow(
+      'inviter bot is not configured',
+    );
     expect(ReservationService.createReservation).not.toHaveBeenCalled();
   });
 });
