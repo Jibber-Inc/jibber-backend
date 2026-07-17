@@ -58,6 +58,7 @@ describe('ReservationService creation', () => {
     expect(Parse.Object).toHaveBeenCalledWith('Reservation');
     expect(reservation.set).toHaveBeenCalledWith('isClaimed', false);
     expect(reservation.set).toHaveBeenCalledWith('createdBy', user);
+    expect(reservation.set).toHaveBeenCalledWith('status', 'pending');
     expect(reservation.set).toHaveBeenCalledWith(
       'position',
       expect.any(Number),

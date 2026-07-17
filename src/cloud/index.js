@@ -9,6 +9,9 @@ import getConnections from './getConnections';
 import updateConnection from './updateConnection';
 import finalizeUserOnboarding from './finalizeUserOnboarding';
 import updateReservation from './updateReservation';
+import getReservationInvitation from './getReservationInvitation';
+import respondToReservationInvitation from './respondToReservationInvitation';
+import createStagingAppClipInvite from './createStagingAppClipInvite';
 import createConnection from './createConnection';
 import createConversation from './createConversation';
 import addReaction from './addReaction';
@@ -107,6 +110,12 @@ Parse.Cloud.define('createConnection', createConnection);
 // Reservation
 Parse.Cloud.define('updateConnection', updateConnection);
 Parse.Cloud.define('updateReservation', updateReservation);
+Parse.Cloud.define('getReservationInvitation', getReservationInvitation);
+Parse.Cloud.define(
+  'respondToReservationInvitation',
+  respondToReservationInvitation,
+);
+Parse.Cloud.define('createStagingAppClipInvite', createStagingAppClipInvite);
 
 // Others
 Parse.Cloud.define('sendPush', sendPush);
