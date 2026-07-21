@@ -1,0 +1,100 @@
+{
+  "className": "OnboardingSession",
+  "fields": {
+    "objectId": { "type": "String" },
+    "createdAt": { "type": "Date" },
+    "updatedAt": { "type": "Date" },
+    "ACL": { "type": "ACL" },
+    "schemaVersion": { "type": "Number", "required": true },
+    "sessionKey": { "type": "String", "required": true },
+    "user": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": true
+    },
+    "guide": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": true
+    },
+    "conversation": {
+      "type": "Pointer",
+      "targetClass": "Conversation",
+      "required": false
+    },
+    "guideSource": { "type": "String", "required": true },
+    "contextType": { "type": "String", "required": true },
+    "contextObjectId": { "type": "String", "required": false },
+    "reservation": {
+      "type": "Pointer",
+      "targetClass": "Reservation",
+      "required": false
+    },
+    "pass": {
+      "type": "Pointer",
+      "targetClass": "Pass",
+      "required": false
+    },
+    "moment": {
+      "type": "Pointer",
+      "targetClass": "Moment",
+      "required": false
+    },
+    "locale": { "type": "String", "required": true },
+    "messagingRevision": { "type": "Number", "required": true },
+    "messagingDocumentJSON": { "type": "String", "required": true },
+    "reachedStep": { "type": "String", "required": true },
+    "attempt": {
+      "type": "Number",
+      "required": true,
+      "defaultValue": 0
+    },
+    "completed": {
+      "type": "Boolean",
+      "required": true,
+      "defaultValue": false
+    },
+    "pendingPhoneNumber": { "type": "String", "required": false },
+    "pendingVerificationSentAt": { "type": "Date", "required": false },
+    "pendingVerificationStatus": { "type": "String", "required": false },
+    "pendingVerificationToken": { "type": "String", "required": false },
+    "pendingVerificationVerifiedAt": {
+      "type": "Date",
+      "required": false
+    },
+    "verificationRestartRequestCount": {
+      "type": "Number",
+      "required": false,
+      "defaultValue": 0
+    },
+    "verificationRestartRequestedAt": { "type": "Date", "required": false },
+    "verificationRestartWindowStartedAt": {
+      "type": "Date",
+      "required": false
+    },
+    "lastCommittedVerificationToken": {
+      "type": "String",
+      "required": false
+    },
+    "verificationRestartedAt": { "type": "Date", "required": false },
+    "contextFinalizedAt": { "type": "Date", "required": false },
+    "accountFinalizedAt": { "type": "Date", "required": false },
+    "completedAt": { "type": "Date", "required": false }
+  },
+  "classLevelPermissions": {
+    "find": { "requiresAuthentication": true },
+    "count": { "requiresAuthentication": true },
+    "get": { "requiresAuthentication": true },
+    "create": {},
+    "update": {},
+    "delete": {},
+    "addField": {},
+    "protectedFields": { "*": [] }
+  },
+  "indexes": {
+    "_id_": { "_id": 1 },
+    "onboarding_session_key": { "sessionKey": 1 },
+    "onboarding_session_user": { "_p_user": 1 },
+    "onboarding_session_conversation": { "_p_conversation": 1 }
+  }
+}

@@ -5,8 +5,10 @@ import ConnectionService from './ConnectionService';
 
 export class PassServiceError extends ExtendableError {}
 
-const handlePass = async (passId, user) => {
-  const pass = await new Parse.Query('Pass').get(passId);
+const handlePass = async (passId, user, options = {}) => {
+  const pass = await new Parse.Query('Pass').get(passId, {
+    useMasterKey: true,
+  });
   const owner = pass.get('owner');
   const connection = await ConnectionService.createConnection(
     user,
@@ -16,6 +18,8 @@ const handlePass = async (passId, user) => {
   const relation = pass.relation('connections');
   relation.add(connection);
   await pass.save(null, { useMasterKey: true });
+
+  if (options.conversation) return options.conversation;
 
   const members = [user.id, owner.id];
   const conversationId = `pass_${user.id}_${owner.id}`;

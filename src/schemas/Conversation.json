@@ -12,6 +12,14 @@
     },
     "clientConversationId": { "type": "String", "required": false },
     "contextKey": { "type": "String", "required": false },
+    "isOnboardingConversation": { "type": "Boolean", "required": false },
+    "onboardingSession": {
+      "type": "Pointer",
+      "targetClass": "OnboardingSession",
+      "required": false
+    },
+    "onboardingState": { "type": "String", "required": false },
+    "onboardingGuideSource": { "type": "String", "required": false },
     "type": { "type": "String", "required": true },
     "title": { "type": "String", "required": false },
     "expressions": { "type": "Array", "required": false },

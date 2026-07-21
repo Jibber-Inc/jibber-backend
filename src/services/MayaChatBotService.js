@@ -1,6 +1,7 @@
 import Parse from '../providers/ParseProvider';
 import { MESSAGING_CLASSES } from '../constants/messaging';
 import MessagingMetricsService from './MessagingMetricsService';
+import { isTrustedOnboardingWrite } from './OnboardingWritePolicy';
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 const OPENAI_IMAGE_GENERATIONS_URL = 'https://api.openai.com/v1/images/generations';
@@ -356,6 +357,7 @@ export const shouldRespondToMessage = (request, config = getConfig()) => {
   if (!isConfigured(config)) return false;
   if (!isNewRequest(request)) return false;
   if (!isTextMessage(message)) return false;
+  if (isTrustedOnboardingWrite(request)) return false;
   if (getObjectId(message.get('author')) === config.botUserId) return false;
   return true;
 };

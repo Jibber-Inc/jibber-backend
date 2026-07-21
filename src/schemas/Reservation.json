@@ -39,6 +39,10 @@
     "link": {
       "type": "String",
       "required": false
+    },
+    "conversationCid": {
+      "type": "String",
+      "required": false
     }
   },
   "classLevelPermissions": {

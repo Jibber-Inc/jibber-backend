@@ -26,7 +26,7 @@ const setReservations = async user => {
   }
 };
 
-const validateCode = async request => {
+export const validateCodeWithUser = async request => {
   const { params, installationId } = request;
   const { phoneNumber, authCode } = params;
 
@@ -103,13 +103,18 @@ const validateCode = async request => {
           installationId,
         },
       );
-      return logged.getSessionToken();
+      return { sessionToken: logged.getSessionToken(), user };
     }
 
-    return sessionToken;
+    return { sessionToken, user };
   } catch (error) {
     throw new ValidateCodeError(`Validation error. Detail: ${error.message}`);
   }
+};
+
+const validateCode = async request => {
+  const result = await validateCodeWithUser(request);
+  return result.sessionToken;
 };
 
 export default validateCode;

@@ -27,7 +27,12 @@ class FinalizeUserOnboardingError extends ExtendableError { }
 // Inactive: users that have full access to the application, but they didn't finish the onboarding yet
 // Waitlist: users in the Waitlist have to wait until the maxQuePosition is increased, letting more users get full access.
 // If the position is higher than the max allowed position (maxQuePosition), they get the waitlist status
-const setUserStatus = async (user, reservationId, passId) => {
+export const setUserStatus = async (
+  user,
+  reservationId,
+  passId,
+  momentId,
+) => {
   // Get the needed que values to calculate the user status
   const config = await Parse.Config.get({ useMasterKey: true });
   // get maxQuePosition from parse. This variable is manually set depending on the needs
@@ -43,7 +48,7 @@ const setUserStatus = async (user, reservationId, passId) => {
   user.set('quePosition', currentQuePosition);
 
   if (user.get('status') && user.get('status') !== UserStatus.USER_STATUS_ACTIVE) {
-    if (reservationId || passId) {
+    if (reservationId || passId || momentId) {
       user.set('status', UserStatus.USER_STATUS_ACTIVE);
     } else if (maxQuePosition >= currentQuePosition) {
       user.set('status', UserStatus.USER_STATUS_INACTIVE);
@@ -67,9 +72,12 @@ const createInitialConversations = user =>
  * Sets the user's status from inactive to active
  * @param {*} request
  */
-const finalizeUserOnboarding = async request => {
+export const finalizeUserOnboardingWithOptions = async (
+  request,
+  options = {},
+) => {
   const { user, params } = request;
-  const { reservationId, passId } = params;
+  const { reservationId, passId, momentId } = params;
 
   try {
     if (!(user instanceof Parse.User)) {
@@ -80,14 +88,16 @@ const finalizeUserOnboarding = async request => {
       throw new FinalizeUserOnboardingError('User givenName and familyName not set. Initial conversations not created.');
     }
 
-    if (reservationId) {
-      await ReservationService.handleReservation(reservationId, user);
-    } else if (passId) {
-      await PassService.handlePass(passId, user);
+    if (!options.skipContextHandling) {
+      if (reservationId) {
+        await ReservationService.handleReservation(reservationId, user);
+      } else if (passId) {
+        await PassService.handlePass(passId, user);
+      }
     }
 
     // Set the user status depending on the reservations, passes and QuePositions
-    await setUserStatus(user, reservationId, passId);
+    await setUserStatus(user, reservationId, passId, momentId);
 
     // If the user has a unreadMessages notice, it won't create one.
     // Otherwise, a new notice with the type unreadMessages will be created.
@@ -110,7 +120,9 @@ const finalizeUserOnboarding = async request => {
     }
 
     // Create an intial conversation if one does not already exist 
-    await createInitialConversations(user, currentUserStatus);
+    if (!options.skipInitialConversation) {
+      await createInitialConversations(user, currentUserStatus);
+    }
 
     // Rewards are ancillary to account creation. Missing seed data or a
     // transaction sender must not roll back an otherwise complete onboarding.
@@ -139,5 +151,8 @@ const finalizeUserOnboarding = async request => {
     throw new FinalizeUserOnboardingError(error.message);
   }
 };
+
+const finalizeUserOnboarding = request =>
+  finalizeUserOnboardingWithOptions(request);
 
 export default finalizeUserOnboarding;

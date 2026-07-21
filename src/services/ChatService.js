@@ -131,7 +131,9 @@ const createConversation = async (
     const memberIds = Array.from(
       new Set([creator.id].concat(members.map(getObjectId)).filter(Boolean)),
     );
+    const normalizedType = normalizeConversationType(type, memberIds.length);
     const trustedContextKey = options.trustedLegacyContextKey
+      && normalizedType !== 'direct'
       ? makeContextKey(conversationId)
       : undefined;
     return await createParseConversation(
@@ -141,7 +143,7 @@ const createConversation = async (
         contextKey: trustedContextKey,
         memberIds,
         title,
-        type: normalizeConversationType(type, memberIds.length),
+        type: normalizedType,
       },
       { trustedContextKey: Boolean(trustedContextKey) },
     );

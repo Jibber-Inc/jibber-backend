@@ -1,4 +1,9 @@
 import messagingIndexDefinitions from '../schemas/indexes/Messaging.json';
+import onboardingIndexDefinitions from '../schemas/indexes/Onboarding.json';
+
+const allIndexDefinitions = messagingIndexDefinitions.concat(
+  onboardingIndexDefinitions,
+);
 
 export const keysToObject = keys =>
   keys.reduce(
@@ -48,7 +53,7 @@ export const getExistingIndexes = async collection => {
 
 export const ensureMessagingIndexes = async (
   database,
-  definitions = messagingIndexDefinitions,
+  definitions = allIndexDefinitions,
 ) => {
   const verified = [];
 

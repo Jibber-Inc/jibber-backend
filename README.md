@@ -135,6 +135,29 @@ cannot attach the header to direct Parse saves must use the Cloud functions
 during cutover. Capability discovery and idempotency recovery remain callable
 so an outdated client can discover the upgrade requirement safely.
 
+## Canonical conversation onboarding
+
+Versioned clients use `validateCodeV2`, `syncOnboardingConversationV1`,
+`restartOnboardingVerificationV1`, and `finalizeUserOnboardingV2`. These APIs
+create one ACL-protected `OnboardingSession` and one canonical direct
+conversation with the inviter, Moment author, pass owner, or configured guide.
+Legacy onboarding functions remain available for released clients.
+
+Roll out the schema and Cloud Code before setting Parse Config
+`conversationOnboardingV1` to `true`. Store `onboardingMessagingV1` as a JSON
+string, not a nested Parse Config object: message identifiers such as
+`code.body` contain dots, which MongoDB rejects in nested object keys. The
+document is schema-versioned, localized, plain-text only, and may contain a
+`guideUserId`. `ONBOARDING_GUIDE_USER_ID` is the environment fallback; a
+configured Maya bot is used only when its bot environment is explicitly
+enabled. Invalid or claimed invitation contexts never fall back to Maya.
+
+Onboarding transcript writes carry stable client IDs and suppression metadata,
+so they do not generate pushes, unread receipts, hidden-conversation reveals,
+or bot responses. Phone numbers, verification codes, entered names, and photo
+payloads are never written to messages. After finalization, those suppression
+rules no longer apply and the same conversation behaves like an ordinary chat.
+
 ## Tests and checks
 
 ```sh

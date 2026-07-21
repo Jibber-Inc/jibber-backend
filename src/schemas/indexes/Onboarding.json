@@ -1,0 +1,38 @@
+[
+  {
+    "className": "OnboardingSession",
+    "name": "onboarding_session_key",
+    "keys": [["sessionKey", 1]],
+    "unique": true
+  },
+  {
+    "className": "OnboardingSession",
+    "name": "onboarding_session_user",
+    "keys": [["_p_user", 1]],
+    "unique": true
+  },
+  {
+    "className": "OnboardingSession",
+    "name": "onboarding_session_conversation",
+    "keys": [["_p_conversation", 1]],
+    "unique": true,
+    "partialFilterExpression": {
+      "_p_conversation": { "$type": "string" }
+    }
+  },
+  {
+    "className": "Connection",
+    "name": "connection_canonical_key",
+    "keys": [["canonicalKey", 1]],
+    "unique": true,
+    "partialFilterExpression": {
+      "canonicalKey": { "$type": "string" }
+    }
+  },
+  {
+    "className": "OnboardingFinalizationLease",
+    "name": "onboarding_finalization_lease_key",
+    "keys": [["leaseKey", 1]],
+    "unique": true
+  }
+]

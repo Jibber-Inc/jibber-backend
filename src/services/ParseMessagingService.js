@@ -4,6 +4,7 @@ import Parse from '../providers/ParseProvider';
 import PushService from './PushService';
 import UserUtils from '../utils/userData';
 import MessagingMetricsService from './MessagingMetricsService';
+import { isTrustedOnboardingWrite } from './OnboardingWritePolicy';
 import { REACTION_TYPES } from '../constants';
 import {
   CONVERSATION_TYPES,
@@ -25,16 +26,49 @@ const supportedReactionTypes = Object.keys(REACTION_TYPES).map(
   key => REACTION_TYPES[key],
 );
 
+const throwServiceError = message => {
+  throw new ParseMessagingServiceError(message);
+};
+
+// These keys are protocol state, not user-authored message metadata. Keeping
+// the allowlist here protects both direct Parse writes and Cloud-function
+// writes (which are persisted with the master key by this service).
+export const ONBOARDING_INTERNAL_METADATA_KEYS = Object.freeze([
+  'automated',
+  'copyRevision',
+  'guideSource',
+  'invalidated',
+  'onboarding',
+  'onboardingStep',
+  'suppressBot',
+  'suppressPush',
+  'suppressReveal',
+  'suppressUnread',
+  'turnKey',
+]);
+
+export { isTrustedOnboardingWrite };
+
+const internalMetadataKeys = metadata =>
+  ONBOARDING_INTERNAL_METADATA_KEYS.filter(key =>
+    Object.prototype.hasOwnProperty.call(metadata || {}, key),
+  );
+
+const assertTrustedInternalMetadata = (metadata, trusted) => {
+  const keys = internalMetadataKeys(metadata);
+  if (keys.length && !trusted) {
+    throwServiceError(
+      `Message metadata contains server-managed fields: ${keys.join(', ')}`,
+    );
+  }
+};
+
 const isTrustedInternalWrite = request =>
   request.master &&
   request.context &&
   (request.context.messagingACLPropagation ||
     request.context.messagingDerivedState ||
     request.context.messagingTrustedWrite);
-
-const throwServiceError = message => {
-  throw new ParseMessagingServiceError(message);
-};
 
 export const getObjectId = value => {
   if (!value) return undefined;
@@ -161,6 +195,18 @@ const validateContextKey = contextKey => {
   }
 };
 
+export const canonicalDirectContextKey = memberIds => {
+  const canonicalMemberIds = Array.from(
+    new Set((memberIds || []).map(getObjectId).filter(Boolean)),
+  ).sort();
+  if (canonicalMemberIds.length !== 2) {
+    throwServiceError(
+      'A canonical direct conversation requires exactly two members.',
+    );
+  }
+  return `direct:${canonicalMemberIds.join(':')}`;
+};
+
 const getMomentIdFromContextKey = contextKey => {
   const match =
     typeof contextKey === 'string' &&
@@ -191,6 +237,12 @@ const assertMomentContextAuthority = async (
   options = {},
 ) => {
   if (!params.contextKey) return undefined;
+  if (
+    params.type === 'direct' &&
+    /^direct:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+$/.test(params.contextKey)
+  ) {
+    return undefined;
+  }
   if (options.trustedContextKey) return undefined;
   if (params.type !== 'moment') {
     throwServiceError('A Moment contextKey requires conversation type moment.');
@@ -731,6 +783,12 @@ export const beforeSaveMessage = async request => {
   const actor = requireUser(request) || request.object.get('author');
   const message = request.object;
   const isNew = isNewRequest(request);
+  if (isNew || hasChanged(request, 'metadata')) {
+    assertTrustedInternalMetadata(
+      message.get('metadata') || {},
+      isTrustedOnboardingWrite(request),
+    );
+  }
   if (isTrustedInternalWrite(request)) return;
   const conversation = await getConversation(requirePointer(message, 'conversation'));
   const membership = request.master
@@ -1143,6 +1201,9 @@ const revealHiddenConversation = async conversationPointer => {
 
 export const afterSaveMessage = async request => {
   const message = request.object;
+  // Suppression is derived exclusively from a master-key write carrying the
+  // server-only marker. Message metadata is intentionally not authoritative.
+  const suppressOnboardingSideEffects = isTrustedOnboardingWrite(request);
   const summaryFields = ['isDeleted', 'text'];
   if (
     isNewRequest(request) ||
@@ -1160,15 +1221,19 @@ export const afterSaveMessage = async request => {
   }
 
   if (isNewRequest(request)) {
-    await revealHiddenConversation(message.get('conversation'));
-    await upsertMessageReceipts(message);
-    try {
-      await sendNewMessagePush(message);
-    } catch (error) {
-      MessagingMetricsService.error('push_failed', error, {
-        conversationId: getObjectId(message.get('conversation')),
-        messageId: message.id,
-      });
+    if (!suppressOnboardingSideEffects) {
+      await revealHiddenConversation(message.get('conversation'));
+    }
+    if (!suppressOnboardingSideEffects) await upsertMessageReceipts(message);
+    if (!suppressOnboardingSideEffects) {
+      try {
+        await sendNewMessagePush(message);
+      } catch (error) {
+        MessagingMetricsService.error('push_failed', error, {
+          conversationId: getObjectId(message.get('conversation')),
+          messageId: message.id,
+        });
+      }
     }
   } else if (
     hasChanged(request, 'isDeleted') &&
@@ -1414,6 +1479,60 @@ export const addConversationMembers = async (actor, params = {}) => {
   if (!actor) throwServiceError('Authentication is required.');
   const conversation = await getConversation(params.conversationId);
   await assertConversationManager(conversation, actor);
+
+  if (conversation.get('type') === 'direct') {
+    const memberships = await new Parse.Query(MESSAGING_CLASSES.MEMBER)
+      .equalTo('conversation', conversation)
+      .limit(1000)
+      .find(masterOptions);
+    const memberIds = Array.from(
+      new Set(
+        memberships
+          .map(membership => getObjectId(membership.get('user')))
+          .concat((params.memberIds || []).map(getObjectId))
+          .filter(Boolean),
+      ),
+    );
+    if (memberIds.length > 2) {
+      throwServiceError(
+        'A direct conversation cannot have more than two members.',
+      );
+    }
+    if (memberIds.length === 2) {
+      const contextKey = canonicalDirectContextKey(memberIds);
+      const existing = await new Parse.Query(MESSAGING_CLASSES.CONVERSATION)
+        .equalTo('contextKey', contextKey)
+        .first(masterOptions);
+      if (existing && existing.id !== conversation.id) {
+        throwServiceError(
+          'A canonical direct conversation already exists for these members.',
+        );
+      }
+      const existingContextKey = conversation.get('contextKey');
+      if (
+        existingContextKey !== contextKey &&
+        existingContextKey &&
+        !/^legacy:/.test(existingContextKey)
+      ) {
+        throwServiceError(
+          'The direct conversation is already bound to another member pair.',
+        );
+      }
+      if (existingContextKey !== contextKey) {
+        conversation.set('contextKey', contextKey);
+        try {
+          await conversation.save(null, masterOptions);
+        } catch (error) {
+          if (isDuplicateKeyError(error)) {
+            throwServiceError(
+              'A canonical direct conversation already exists for these members.',
+            );
+          }
+          throw error;
+        }
+      }
+    }
+  }
   return ensureConversationMemberships(
     conversation,
     conversation.get('creator'),
@@ -1549,9 +1668,17 @@ const findConversationByIdempotencyKeys = async (
     contextKey &&
     byClient.get('contextKey') !== contextKey
   ) {
-    throwServiceError(
-      'Conversation idempotency keys resolve to different conversations.',
-    );
+    const existingContextKey = byClient.get('contextKey');
+    const canMigrateDirectContext =
+      options.allowDirectContextMigration &&
+      byClient.get('type') === 'direct' &&
+      (!existingContextKey || /^legacy:/.test(existingContextKey)) &&
+      !byContext;
+    if (!canMigrateDirectContext) {
+      throwServiceError(
+        'Conversation idempotency keys resolve to different conversations.',
+      );
+    }
   }
 
   const conversation = byClient || byContext;
@@ -1570,12 +1697,22 @@ const findConversationByIdempotencyKeys = async (
     membership &&
     membership.get('active') === true &&
     ['owner', 'admin'].includes(membership.get('role'));
+  const canReuseCanonicalDirect =
+    options.allowCanonicalDirectMemberReuse &&
+    membership &&
+    membership.get('active') === true &&
+    conversation.get('type') === 'direct' &&
+    conversation.get('contextKey') === contextKey;
   const canRepairMissingCreator =
     options.allowMissingCreatorRepair &&
     actorIsCreator &&
     !membership &&
     Number(conversation.get('membershipRevision') || 0) === 0;
-  if (!isActiveManager && !canRepairMissingCreator) {
+  if (
+    !isActiveManager &&
+    !canReuseCanonicalDirect &&
+    !canRepairMissingCreator
+  ) {
     throwServiceError('Conversation idempotency key is already in use.');
   }
   return conversation;
@@ -1585,14 +1722,94 @@ export const createConversation = async (user, params = {}, options = {}) => {
   if (!user) throwServiceError('Authentication is required.');
   validateClientConversationId(params.clientConversationId);
   validateContextKey(params.contextKey);
-  await assertMomentContextAuthority(user, params, options);
 
   const memberIds = Array.from(
-    new Set([user.id].concat(params.memberIds || []).filter(Boolean)),
+    new Set(
+      [user.id]
+        .concat(params.memberIds || [])
+        .map(getObjectId)
+        .filter(Boolean),
+    ),
   );
+  const {
+    contextKey: requestedContextKey,
+    type: requestedType,
+  } = params;
+  const conversationType =
+    requestedType || (memberIds.length > 2 ? 'group' : 'direct');
+  let contextKey = requestedContextKey;
+  if (conversationType === 'direct') {
+    if (memberIds.length > 2) {
+      throwServiceError(
+        'A direct conversation cannot have more than two members.',
+      );
+    }
+    if (memberIds.length === 2) {
+      const canonicalContextKey = canonicalDirectContextKey(memberIds);
+      if (contextKey && contextKey !== canonicalContextKey) {
+        throwServiceError(
+          'A direct conversation contextKey must match its canonical member pair.',
+        );
+      }
+      contextKey = canonicalContextKey;
+    } else if (contextKey) {
+      throwServiceError(
+        'A direct conversation contextKey requires exactly two members.',
+      );
+    }
+  }
+  const normalizedParams = {
+    ...params,
+    contextKey,
+    type: conversationType,
+  };
+  await assertMomentContextAuthority(user, normalizedParams, options);
   const users = await getMembershipUsers(memberIds);
   const repairAndReturn = async conversation => {
-    if (Number(conversation.get('membershipRevision') || 0) === 0) {
+    if (conversationType === 'direct' && memberIds.length === 2) {
+      const memberships = await new Parse.Query(MESSAGING_CLASSES.MEMBER)
+        .equalTo('conversation', conversation)
+        .limit(1000)
+        .find(masterOptions);
+      const expectedMemberIds = new Set(memberIds);
+      const hasUnexpectedMember = memberships.some(
+        membership =>
+          !expectedMemberIds.has(getObjectId(membership.get('user'))),
+      );
+      if (hasUnexpectedMember) {
+        throwServiceError(
+          'The direct conversation is already bound to another member pair.',
+        );
+      }
+      const existingContextKey = conversation.get('contextKey');
+      if (
+        existingContextKey !== contextKey &&
+        existingContextKey &&
+        !/^legacy:/.test(existingContextKey)
+      ) {
+        throwServiceError(
+          'The direct conversation is already bound to another member pair.',
+        );
+      }
+      if (existingContextKey !== contextKey) {
+        conversation.set('contextKey', contextKey);
+        try {
+          await conversation.save(null, masterOptions);
+        } catch (error) {
+          if (isDuplicateKeyError(error)) {
+            throwServiceError(
+              'A canonical direct conversation already exists for these members.',
+            );
+          }
+          throw error;
+        }
+      }
+      await ensureConversationMemberships(
+        conversation,
+        conversation.get('creator'),
+        memberIds,
+      );
+    } else if (Number(conversation.get('membershipRevision') || 0) === 0) {
       await ensureConversationMemberships(
         conversation,
         conversation.get('creator'),
@@ -1602,16 +1819,22 @@ export const createConversation = async (user, params = {}, options = {}) => {
     return conversation;
   };
 
-  const lookupOptions = { allowMissingCreatorRepair: true };
+  const lookupOptions = {
+    allowCanonicalDirectMemberReuse:
+      conversationType === 'direct' && memberIds.length === 2,
+    allowDirectContextMigration:
+      conversationType === 'direct' && memberIds.length === 2,
+    allowMissingCreatorRepair: true,
+  };
   const existing = await findConversationByIdempotencyKeys(
     user,
-    params,
+    normalizedParams,
     lookupOptions,
   );
   if (existing) {
     MessagingMetricsService.info('duplicate_conversation_suppressed', {
       clientConversationId: params.clientConversationId,
-      contextKey: params.contextKey,
+      contextKey,
       conversationId: existing.id,
       creatorId: user.id,
     });
@@ -1623,11 +1846,11 @@ export const createConversation = async (user, params = {}, options = {}) => {
   if (params.clientConversationId) {
     conversation.set('clientConversationId', params.clientConversationId);
   }
-  if (params.contextKey) conversation.set('contextKey', params.contextKey);
+  if (contextKey) conversation.set('contextKey', contextKey);
   conversation.set('title', params.title || '');
   conversation.set(
     'type',
-    params.type || (memberIds.length > 2 ? 'group' : 'direct'),
+    conversationType,
   );
   conversation.set('isDeleted', false);
   conversation.set('membershipRevision', 0);
@@ -1639,7 +1862,7 @@ export const createConversation = async (user, params = {}, options = {}) => {
     if (isDuplicateKeyError(error)) {
       const duplicate = await findConversationByIdempotencyKeys(
         user,
-        params,
+        normalizedParams,
         lookupOptions,
       );
       if (duplicate) return repairAndReturn(duplicate);
@@ -1661,8 +1884,12 @@ const assertMessageIdempotencyOwner = (message, user) => {
   return message;
 };
 
-export const sendMessage = async (user, params = {}) => {
+export const sendMessage = async (user, params = {}, options = {}) => {
   if (!user) throwServiceError('Authentication is required.');
+  assertTrustedInternalMetadata(
+    params.metadata || {},
+    options.trustedOnboardingMetadata === true,
+  );
   validateClientMessageId(params.clientMessageId);
   const conversation = await getConversation(params.conversationId);
   await assertActiveMember(conversation, user);
@@ -1705,7 +1932,10 @@ export const sendMessage = async (user, params = {}) => {
   await assertReplyBelongsToConversation(message.get('replyTo'), conversation);
 
   try {
-    return await message.save(null, masterOptions);
+    return await message.save(null, {
+      ...masterOptions,
+      ...(options.context ? { context: options.context } : {}),
+    });
   } catch (error) {
     if (isDuplicateKeyError(error)) {
       const duplicate = await new Parse.Query(MESSAGING_CLASSES.MESSAGE)

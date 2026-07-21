@@ -17,6 +17,10 @@
       "type": "String",
       "required": false
     },
+    "canonicalKey": {
+      "type": "String",
+      "required": false
+    },
     "to": {
       "type": "Pointer",
       "targetClass": "_User",
@@ -61,6 +65,9 @@
   "indexes": {
     "_id_": {
       "_id": 1
+    },
+    "connection_canonical_key": {
+      "canonicalKey": 1
     }
   }
 }

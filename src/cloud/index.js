@@ -4,10 +4,14 @@ import Parse from '../providers/ParseProvider';
 import sendCode from './sendCode';
 import sendPush from './sendPush';
 import validateCode from './validateCode';
+import validateCodeV2 from './validateCodeV2';
 import createHandle from './createHandle';
 import getConnections from './getConnections';
 import updateConnection from './updateConnection';
 import finalizeUserOnboarding from './finalizeUserOnboarding';
+import finalizeUserOnboardingV2 from './finalizeUserOnboardingV2';
+import restartOnboardingVerificationV1 from './restartOnboardingVerificationV1';
+import syncOnboardingConversationV1 from './syncOnboardingConversationV1';
 import updateReservation from './updateReservation';
 import createConnection from './createConnection';
 import createConversation from './createConversation';
@@ -43,6 +47,7 @@ import {
   MESSAGING_LIVE_QUERY_CLASSES,
 } from '../constants/messaging';
 import { afterSaveMessage as afterSaveMayaChatBotMessage } from '../services/MayaChatBotService';
+import { beforeSaveConnection } from '../services/ConnectionService';
 
 // Test functions
 import test from './test';
@@ -85,6 +90,16 @@ if (!JIBBER_SECRET_PASSWORD_TOKEN) {
 Parse.Cloud.define('sendCode', sendCode);
 Parse.Cloud.define('validateCode', validateCode);
 Parse.Cloud.define('finalizeUserOnboarding', finalizeUserOnboarding);
+Parse.Cloud.define('validateCodeV2', validateCodeV2);
+Parse.Cloud.define(
+  'syncOnboardingConversationV1',
+  syncOnboardingConversationV1,
+);
+Parse.Cloud.define(
+  'restartOnboardingVerificationV1',
+  restartOnboardingVerificationV1,
+);
+Parse.Cloud.define('finalizeUserOnboardingV2', finalizeUserOnboardingV2);
 
 // Chat
 Parse.Cloud.define('createConversation', createConversation);
@@ -116,6 +131,7 @@ Parse.Cloud.define('test', test);
 
 // --- Cloud code webhooks ----------------------------------------------------
 // Connection webhooks
+Parse.Cloud.beforeSave('Connection', beforeSaveConnection);
 Parse.Cloud.afterSave('Connection', connectionAfterSave);
 
 // User webhooks

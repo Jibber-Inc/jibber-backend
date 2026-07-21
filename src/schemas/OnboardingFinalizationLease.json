@@ -1,0 +1,38 @@
+{
+  "className": "OnboardingFinalizationLease",
+  "fields": {
+    "objectId": { "type": "String" },
+    "createdAt": { "type": "Date" },
+    "updatedAt": { "type": "Date" },
+    "ACL": { "type": "ACL" },
+    "leaseKey": { "type": "String", "required": true },
+    "session": {
+      "type": "Pointer",
+      "targetClass": "OnboardingSession",
+      "required": true
+    },
+    "user": {
+      "type": "Pointer",
+      "targetClass": "_User",
+      "required": true
+    },
+    "state": { "type": "String", "required": true },
+    "token": { "type": "String", "required": true },
+    "expiresAt": { "type": "Date", "required": false },
+    "completedAt": { "type": "Date", "required": false }
+  },
+  "classLevelPermissions": {
+    "find": {},
+    "count": {},
+    "get": {},
+    "create": {},
+    "update": {},
+    "delete": {},
+    "addField": {},
+    "protectedFields": { "*": [] }
+  },
+  "indexes": {
+    "_id_": { "_id": 1 },
+    "onboarding_finalization_lease_key": { "leaseKey": 1 }
+  }
+}

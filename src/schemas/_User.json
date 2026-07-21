@@ -28,6 +28,14 @@
     "status": {
       "type": "String",
       "required": false
+    },
+    "isAIGuide": {
+      "type": "Boolean",
+      "required": false
+    },
+    "guideBadge": {
+      "type": "String",
+      "required": false
     }
   },
   "classLevelPermissions": {

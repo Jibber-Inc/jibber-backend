@@ -180,6 +180,28 @@ describe('MayaChatBotService', () => {
     ).toBe(false);
   });
 
+  test('trusts only the master-key onboarding marker for suppression', () => {
+    const source = message('onboarding-message', 'human-user', 'Name added', {
+      metadata: { onboarding: true, suppressBot: true },
+    });
+    expect(
+      MayaChatBotService.shouldRespondToMessage({ object: source }),
+    ).toBe(true);
+    expect(
+      MayaChatBotService.shouldRespondToMessage({
+        context: { suppressMayaBot: true },
+        object: message('onboarding-context', 'human-user', 'Photo added'),
+      }),
+    ).toBe(true);
+    expect(
+      MayaChatBotService.shouldRespondToMessage({
+        context: { messagingOnboardingSeed: true },
+        master: true,
+        object: message('trusted-onboarding', 'human-user', 'Photo added'),
+      }),
+    ).toBe(false);
+  });
+
   test('sends a normal Parse message from Maya for a new human text message', async () => {
     const source = message('source-message', 'human-user', 'Can you reply?');
 

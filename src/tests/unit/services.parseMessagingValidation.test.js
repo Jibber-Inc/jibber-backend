@@ -359,6 +359,37 @@ describe('Parse messaging write validation', () => {
     ).rejects.toThrow('Only the author may edit or delete');
   });
 
+  test('reserves onboarding suppression metadata for trusted seed writes', async () => {
+    const author = user('user-1');
+    const conversation = makeConversation(author);
+    installConversation(conversation);
+    installMember(conversation, author, 'owner');
+    const message = makeMessage(conversation, author, {
+      metadata: { onboarding: true, suppressPush: true },
+    });
+    message.mockDirtyKeys = ['metadata'];
+
+    await expect(
+      ParseMessagingService.beforeSaveMessage({
+        object: message,
+        user: author,
+      }),
+    ).rejects.toThrow('server-managed fields');
+    await expect(
+      ParseMessagingService.beforeSaveMessage({
+        master: true,
+        object: message,
+      }),
+    ).rejects.toThrow('server-managed fields');
+    await expect(
+      ParseMessagingService.beforeSaveMessage({
+        context: { messagingOnboardingSeed: true },
+        master: true,
+        object: message,
+      }),
+    ).resolves.toBeUndefined();
+  });
+
   test('rejects all client changes after a message is tombstoned', async () => {
     const author = user('user-1');
     const conversation = makeConversation(author);

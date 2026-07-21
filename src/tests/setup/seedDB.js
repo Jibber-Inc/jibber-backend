@@ -7,6 +7,8 @@ import { STATUS_INVITED } from '../../constants';
 
 class SeedDBError extends ExtendableError {}
 
+let reservationPosition = Date.now();
+
 
 /**
  * Create 1 user with faker data
@@ -53,6 +55,10 @@ export const makeReservation = (user=null) => {
     .then(schema => {
       const Reservation = Parse.Object.extend(schema);
       const reservation = new Reservation();
+      reservation.set('code', faker.random.uuid());
+      reservation.set('isClaimed', false);
+      reservation.set('position', reservationPosition);
+      reservationPosition += 1;
       if (user instanceof Parse.User) {
         reservation.set('user', user);
       }
